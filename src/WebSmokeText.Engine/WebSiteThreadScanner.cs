@@ -48,9 +48,9 @@ namespace WebSmokeTest.Engine
 
         #region Events
 
-        public event ErrorEventHandler OnError;
-        public event PageParsedEventHandler OnPageParsed;
-        public event BeforePageParsed BeforeParse;
+        //public event ErrorEventHandler OnError;
+        //public event PageParsedEventHandler OnPageParsed;
+        //public event BeforePageParsed BeforeParse;
 
         #endregion Events
     }

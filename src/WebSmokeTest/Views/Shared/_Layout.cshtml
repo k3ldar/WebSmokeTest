@@ -1,13 +1,34 @@
-﻿<!DOCTYPE html>
+﻿@using SharedPluginFeatures;
+@using Shared.Classes
+
+@inject Microsoft.AspNetCore.Mvc.Localization.IViewLocalizer Localizer
+@model SharedPluginFeatures.BaseModel
+@{
+    UserSession session = (UserSession)Context.Items[SharedPluginFeatures.Constants.UserSession];
+    bool loggedIn = !String.IsNullOrEmpty(session.UserName);
+
+    string title = (string)Context.Items[SharedPluginFeatures.Constants.SeoTitle] ?? "";
+}
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - WebSmokeTest</title>
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="~/css/site.css" />
+    <title>@title - Web Smoke Test</title>
 </head>
 <body>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" />
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+    <script src="~/js/site.js"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.1/jquery.validate.min.js" integrity="sha256-sPB0F50YUDK0otDnsfNHawYmA5M0pjjUf4TvRJkGFrI=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validation-unobtrusive/3.2.11/jquery.validate.unobtrusive.min.js" integrity="sha256-9GycpJnliUjJDVDqP0UEu/bsm9U+3dnQUH8+3W10vkY=" crossorigin="anonymous"></script>
+
     <header>
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
             <div class="container">
@@ -21,28 +42,70 @@
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
                         </li>
+                        <ul class="navbar-nav flex-grow-1">
+                            @{
+                                // dynamically add menu items from plugins
+                                ISharedPluginHelper sharedPluginHelper = (ISharedPluginHelper)Context.RequestServices.GetService(typeof(ISharedPluginHelper));
+                                if (sharedPluginHelper != null)
+                                {
+                                    foreach (MainMenuItem menuItem in sharedPluginHelper.BuildMainMenu())
+                                    {
+                                        <li class="nav-item"><a asp-area="@menuItem.Area()" asp-controller="@menuItem.Controller()" asp-action="@menuItem.Action()" class="nav-link text-dark">@menuItem.Name()</a></li>
+                                    }
+                                }
+                            }
+                        </ul>
+                    </ul>
+                </div>
+                <div class="navbar-collapse collapse d-sm-inline-flex flex-sm-row-reverse" style="float:right;">
+                    <ul class="navbar-nav flex-grow-1">
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+                            @if (!loggedIn)
+                            {
+                                <a class="nav-link text-dark" href="/Login/Index">@Localizer[nameof(Languages.LanguageStrings.Login)]</a>
+                            }
+                            else
+                            {
+                                <a class="nav-link text-dark" href="/Login/Logout">@Localizer[nameof(Languages.LanguageStrings.Logout)]</a>
+                            }
+                        </li>
+                        <li class="nav-item nav-item-nohover">
+                            @await Html.PartialAsync("~/Views/Search/_ShowQuickSearch.cshtml", new SearchPlugin.Models.QuickSearchViewModel())
                         </li>
                     </ul>
                 </div>
             </div>
         </nav>
     </header>
+
+
     <div class="container">
         <main role="main" class="pb-3">
+            <div class="row">
+                <div class="col" style="background-color: #eee;">
+                    <div class="bc">@Html.Raw(Model.BreadcrumbData())</div>
+                </div>
+            </div>
             @RenderBody()
         </main>
+        <hr />
     </div>
 
     <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2020 - WebSmokeTest - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+        <div class="row footer">
+            <div class="col-xs-2 col-lg-2"><a href="/Company/About/">@Localizer[nameof(Languages.LanguageStrings.About)]</a></div>
+            <div class="col-xs-2 col-lg-2"><a href="/Company/Cookies/">@Localizer[nameof(Languages.LanguageStrings.CookiePolicy)]</a></div>
+            <div class="col-xs-2 col-lg-2"><a href="/Docs/">@Localizer[nameof(Languages.LanguageStrings.Documentation)]</a></div>
+        </div>
+        <div class="row footer">
+            <div class="col-xs-12"><p>&copy; 2020 - Simon Carter.  All Rights Reserved.</p></div>
         </div>
     </footer>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
     @RenderSection("Scripts", required: false)
+    <script src="~/js/SystemAdmin.js"></script>
+
 </body>
 </html>

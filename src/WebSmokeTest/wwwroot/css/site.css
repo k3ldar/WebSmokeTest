@@ -69,3 +69,102 @@ body {
   white-space: nowrap;
   line-height: 60px; /* Vertically center the text there */
 }
+
+.bc {
+    padding: 8px 0px 2px 0px;
+    min-height: 36px !important;
+    display: contents;
+}
+
+    .bc ul {
+        list-style: none;
+        padding-left: 6px;
+    }
+
+        .bc ul li {
+            display: inline;
+            font-size: 12px;
+        }
+
+            .bc ul li + li:before {
+                padding: 8px;
+                color: black;
+                content: "/\00a0";
+            }
+
+            .bc ul li a {
+                color: #0275d8;
+                text-decoration: none;
+            }
+
+                .bc ul li a:hover {
+                    color: #01447e;
+                    text-decoration: underline;
+                }
+
+
+.validation-summary-errors {
+    color: red;
+}
+
+    .validation-summary-errors ul {
+        list-style-type: none;
+        padding-left: 0px;
+    }
+
+.field-validation-error {
+    color: red;
+}
+
+
+@media screen and (max-width: 768px) {
+    img {
+        width: 100%;
+        height: auto;
+    }
+
+    h1 {
+        font-size: 1.35rem;
+    }
+
+    h2 {
+        font-size: 1.32rem;
+    }
+
+    h3 {
+        font-size: 1.25rem;
+    }
+}
+
+.card {
+    font-size: 15px;
+}
+
+.search-buy {
+    overflow: visible;
+    float: right;
+    width: 145px;
+    height: 70px;
+    font-size: 14px;
+}
+
+    .search-buy span {
+        float: right;
+        padding-right: 53px;
+    }
+
+
+.chip {
+    display: inline-block;
+    padding: 0 25px;
+    height: 28px;
+    line-height: 25px;
+    border-radius: 25px;
+    background-color: #f1f1f1;
+}
+
+.ac-row {
+    padding: 15px 0 0 0;
+}
+
+

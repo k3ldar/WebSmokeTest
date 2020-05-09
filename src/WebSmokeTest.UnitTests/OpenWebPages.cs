@@ -26,6 +26,7 @@ namespace WebSmokeTest.UnitTests
                 Timings timings = webMonitor.PageLoadTimings;
 
                 Assert.AreEqual(1u, timings.Requests);
+                Assert.IsTrue(webMonitor.Report.Pages[0].AnalysisComplete);
             }
         }
 

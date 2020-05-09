@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Net.Mail;
-using System.Security.Cryptography;
-using System.Text;
+using System.Net.NetworkInformation;
 using System.Threading;
 
 using Shared.Classes;
@@ -17,14 +17,20 @@ namespace WebSmokeTest.Engine
         #region Private Members
 
         private static readonly object _lockObject = new object();
+        private readonly Queue<Uri> _urlProcessList;
         private readonly SmokeTestProperties _properties;
         private readonly MailAddressCollection _recipients;
         private WebClientEx _client;
         private bool _cancelScan = false;
         private readonly Timings _pageLoadTimings;
+        private readonly List<IPEndPoint> _endPoints;
 
         private readonly Report _report;
         private readonly ThreadManager _parentThread;
+        private DateTime _tcpConnectionChecked = DateTime.Now.AddHours(-1);
+        private bool _lastTcpConnectionResult = false;
+        private const int MillisecondsBetweenTcpChecks = 2000;
+        private int MaximumOpenEndpoints { get; set; }
 
         #endregion Private Members
 
@@ -38,8 +44,11 @@ namespace WebSmokeTest.Engine
 
         public WebMonitor(in SmokeTestProperties properties, in ThreadManager parentThread)
         {
+            MaximumOpenEndpoints = 100;
             _properties = properties ?? throw new ArgumentNullException(nameof(properties));
             _parentThread = parentThread;
+            _urlProcessList = new Queue<Uri>();
+            _endPoints = new List<IPEndPoint>();
 
             _pageLoadTimings = new Timings();
             _report = new Report();
@@ -110,11 +119,27 @@ namespace WebSmokeTest.Engine
         {
             _report.Clear();
 
-            List<string> linksParsed = new List<string>();
             try
             {
-                if (!ParsePage(linksParsed, _properties.Url, new Uri(_properties.Url), 0, new Uri(_properties.Url)))
-                    return false;
+                RetrieveIpAddresses(_properties.Url);
+                _urlProcessList.Enqueue(new Uri(_properties.Url));
+
+                while (true)
+                {
+                    if (_report.Pages.Count >= _properties.MaximumPages)
+                        break;
+
+                    Uri urlToProcess = null;
+
+                    using (TimedLock timedLock = TimedLock.Lock(_lockObject))
+                    {
+                        if (!_urlProcessList.TryDequeue(out urlToProcess))
+                            break;
+                    }
+
+                    if (!ParsePage(urlToProcess.ToString(), urlToProcess, 0, urlToProcess))
+                        return false;
+                }
             }
             catch (Exception err)
             {
@@ -122,7 +147,7 @@ namespace WebSmokeTest.Engine
             }
             finally
             {
-                linksParsed.Clear();
+                _report.ClearParsedLinks();
             }
 
             //foreach (Cookie cookie in _client.CookieContainer.GetCookies(new Uri(_properties.Url)))
@@ -130,28 +155,10 @@ namespace WebSmokeTest.Engine
             //    _client.CookieContainer.Add(cookie);
             //}
 
-
-            if (_properties.ClearHtmlDataAfterAnalysis)
-            {
-                foreach (PageReport page in _report.Pages)
-                {
-                    page.Content = GenerateCheckSum(page.Content);
-
-                    if (_properties.ClearImageDataAfterAnalysis)
-                    {
-                        foreach (ImageReport img in page.Images)
-                        {
-                            img.Bytes = GenerateCheckSum(img.Bytes);
-                        }
-                    }
-                }
-            }
-
-
             string errorDetail = GetErrorInformation();
 
 
-            if (_report.Errors.Count > 0)
+            if (_properties.SendEmails && _report.Errors.Count > 0)
             {
                 if (_report.Errors.Count > 0)
                 {
@@ -206,19 +213,6 @@ namespace WebSmokeTest.Engine
 
         #region Private Methods
 
-        private string GenerateCheckSum(in string data)
-        {
-            return Convert.ToBase64String(GenerateCheckSum(Encoding.UTF8.GetBytes(data)));
-        }
-
-        private byte[] GenerateCheckSum(in byte[] data)
-        {
-            using (SHA256Managed sha = new SHA256Managed())
-            {
-                return sha.ComputeHash(data);
-            }
-        }
-
         /// <summary>
         /// Retrieves information on errors
         /// </summary>
@@ -250,27 +244,50 @@ namespace WebSmokeTest.Engine
         /// <param name="depth"></param>
         /// <param name="originatingLink"></param>
         /// <returns>true if parsed, false if parse failed or cancelled</returns>
-        private bool ParsePage(in List<string> linksParsed, string startsWith,
+        private bool ParsePage(string startsWith,
             Uri url, int depth, Uri originatingLink)
         {
-            using (TimedLock.Lock(_lockObject))
-            {
-                if (linksParsed.Contains(url.ToString().ToLower()))
-                    return true;
-
-                if (!linksParsed.Contains(url.ToString().ToLower()))
-                    linksParsed.Add(url.ToString().ToLower());
-            }
             if (_report.Pages.Count >= _properties.MaximumPages)
+            {
                 return true;
-
-            if (_cancelScan)
-                return false;
+            }
 
             if (depth > _properties.CrawlDepth)
-                return true;
+            {
+                using (TimedLock timedLock = TimedLock.Lock(_lockObject))
+                {
+                    if (!_report.LinkParsed(url.ToString()))
+                    {
+                        _urlProcessList.Enqueue(url);
+                    }
+                }
 
-            Thread.Sleep(_properties.PauseBetweenRequests);
+                return true;
+            }
+
+            using (TimedLock.Lock(_lockObject))
+            {
+                if (_report.LinkParsed(url))
+                    return true;
+
+                if (!_report.LinkParsed(url) &&
+                    !_urlProcessList.Contains(url))
+                {
+                    _report.LinkAdd(url);
+                }
+            }
+
+            if (_cancelScan)
+            {
+                return false;
+            }
+
+            while (TcpConnectionLimitExceeded())
+            {
+                Thread.Sleep(100);
+            }
+
+            Thread.Sleep(Math.Max(50, _properties.PauseBetweenRequests));
 
             Uri modifiedUri = ModifyUrl(url.ToString());
 
@@ -289,6 +306,17 @@ namespace WebSmokeTest.Engine
                 {
                     if (err.Message.Contains("(404)"))
                         LogError(err, modifiedUri, modifiedUri, originatingLink);
+                    else if (err.Message.StartsWith("The operation has timed out") && _client.Timeout < 5000)
+                    {
+                        _client.Timeout = _client.Timeout + 50;
+
+                        using (TimedLock timedLock = TimedLock.Lock(_lockObject))
+                        {
+                            _report.LinkRemove(url);
+                            _urlProcessList.Enqueue(url);
+                        }
+
+                    }
                     else
                         LogError(err, modifiedUri, null, originatingLink);
                 }
@@ -298,36 +326,47 @@ namespace WebSmokeTest.Engine
                 }
             }
 
-            PageReport pageReport = new PageReport(modifiedUri.ToString(), pageLoad.Total, webData);
-            _report.PageAdd(pageReport, _parentThread);
-
-            if (!SessionCookieAdded &&
-                _client.ResponseCookies != null &&
-                _client.ResponseCookies[_properties.SessionCookieName] != null)
-            {
-                _client.CookieContainer.Add(_client.ResponseCookies[_properties.SessionCookieName]);
-                SessionCookieAdded = true;
-            }
-
-            foreach (Cookie cookie in _client.ResponseCookies)
-            {
-                _report.AddCookie(cookie);
-            }
-
-            pageReport.AddHeaders(_client.ResponseHeaders);
-
-            if (webData == null)
-                return true;
-
-            pageReport.Content = webData ?? String.Empty;
-
-            ProcessImages(linksParsed, pageReport, originatingLink, modifiedUri);
-
-            ProcessForms(linksParsed, pageReport, originatingLink, modifiedUri);
-
-            List<string> links = ParseHtml(url.ToString(), pageReport.Content);
+            List<string> links = ParseHtml(url.ToString(), webData);
             try
             {
+                PageReport pageReport = new PageReport(modifiedUri.ToString(), pageLoad.Total, webData);
+                try
+                {
+                    _report.PageAdd(pageReport, _parentThread, _properties);
+
+                    if (!SessionCookieAdded &&
+                        _client.ResponseCookies != null &&
+                        _client.ResponseCookies[_properties.SessionCookieName] != null)
+                    {
+                        _client.CookieContainer.Add(_client.ResponseCookies[_properties.SessionCookieName]);
+                        SessionCookieAdded = true;
+                    }
+
+                    if (_client.ResponseCookies != null)
+                    {
+                        foreach (Cookie cookie in _client.ResponseCookies)
+                        {
+                            _report.AddCookie(cookie);
+                        }
+                    }
+
+                    if (_client.ResponseHeaders != null)
+                        pageReport.AddHeaders(_client.ResponseHeaders);
+
+                    if (webData == null)
+                        return true;
+
+                    pageReport.Content = webData ?? String.Empty;
+
+                    ProcessImages(pageReport, originatingLink, modifiedUri);
+
+                    ProcessForms(pageReport, originatingLink, modifiedUri);
+                }
+                finally
+                {
+                    pageReport.ProcessingComplete = true;
+                }
+
                 foreach (string link in links)
                 {
 
@@ -335,7 +374,7 @@ namespace WebSmokeTest.Engine
                     {
                         pageReport.AddPageLink(link);
 
-                        if (!ParsePage(linksParsed, startsWith, new Uri(link), depth + 1, url))
+                        if (!ParsePage(startsWith, new Uri(link), depth + 1, url))
                             return false;
                     }
                     else
@@ -367,7 +406,7 @@ namespace WebSmokeTest.Engine
             return new Uri(modifiedURL);
         }
 
-        private void ProcessImages(in List<string> linksParsed, in PageReport pageReport,
+        private void ProcessImages(in PageReport pageReport,
             in Uri originatingLink, in Uri url)
         {
 
@@ -379,40 +418,36 @@ namespace WebSmokeTest.Engine
                 {
                     foreach (string imageLink in links)
                     {
-                        ImageReport imageReport = new ImageReport(imageLink);
-                        pageReport.AddPageImage(imageReport);
 
                         if (imageLink != "")
                         {
-                            if (linksParsed.IndexOf(imageLink) == -1)
+                            if (!_report.ImageParsed(imageLink))
                             {
-                                try
-                                {
-                                    DateTime startTimeImage = DateTime.Now;
+                                _report.ImageAdd(imageLink);
+                            }
 
-                                    using (TimedLock.Lock(_lockObject))
-                                    {
-                                        if (!linksParsed.Contains(imageLink.ToLower()))
-                                            linksParsed.Add(imageLink.ToLower());
-                                    }
+                            try
+                            {
+                                ImageReport imageReport = new ImageReport(imageLink);
+                                pageReport.AddPageImage(imageReport);
+                                DateTime startTimeImage = DateTime.Now;
 
-                                    _report.Images.Add(imageReport);
-                                    imageReport.Bytes = _client.DownloadData(imageLink);
+                                _report.Images.Add(imageReport);
+                                imageReport.Bytes = _client.DownloadData(imageLink);
 
-                                    TimeSpan span = DateTime.Now.Subtract(startTimeImage);
-                                    imageReport.LoadTime = span.TotalMilliseconds / TimeSpan.TicksPerSecond;
-                                }
-                                catch (WebException err)
-                                {
-                                    if (err.Message.Contains("(404)"))
-                                        LogError(err, url, new Uri(imageLink), originatingLink);
-                                    else
-                                        LogError(err, url, null, originatingLink);
-                                }
-                                catch (Exception err)
-                                {
+                                TimeSpan span = DateTime.Now.Subtract(startTimeImage);
+                                imageReport.LoadTime = span.TotalMilliseconds / TimeSpan.TicksPerSecond;
+                            }
+                            catch (WebException err)
+                            {
+                                if (err.Message.Contains("(404)"))
                                     LogError(err, url, new Uri(imageLink), originatingLink);
-                                }
+                                else
+                                    LogError(err, url, null, originatingLink);
+                            }
+                            catch (Exception err)
+                            {
+                                LogError(err, url, new Uri(imageLink), originatingLink);
                             }
                         }
                     }
@@ -424,11 +459,11 @@ namespace WebSmokeTest.Engine
             }
         }
 
-        private void ProcessForms(in List<string> linksParsed, in PageReport pageReport,
+        private void ProcessForms(in PageReport pageReport,
             in Uri originatingLink, in Uri url)
         {
             //Look at any forms, can we process those too
-            List<FormReport> forms = ParseForms(url.ToString(), pageReport.Content);
+            List<FormReport> forms = ParseForms(pageReport.Content);
             try
             {
                 foreach (FormReport form in forms)
@@ -551,7 +586,7 @@ namespace WebSmokeTest.Engine
             return Result;
         }
 
-        private List<FormReport> ParseForms(string url, string text)
+        private List<FormReport> ParseForms(string text)
         {
             List<FormReport> Result = new List<FormReport>();
 
@@ -561,12 +596,13 @@ namespace WebSmokeTest.Engine
             while (parse.ParseNext("form", out HtmlTag tag))
             {
                 // See if this anchor links to us
-                if (tag.Attributes.TryGetValue("action", out string value))
+                if (tag.Attributes.TryGetValue("action", out string _))
                 {
                     FormReport form = new FormReport();
                     form.Action = tag.Attributes["action"];
                     form.Id = tag.Attributes.ContainsKey("id") ? tag.Attributes["id"] : String.Empty;
                     form.Method = tag.Attributes.ContainsKey("method") ? tag.Attributes["method"] : String.Empty;
+                    Result.Add(form);
                 }
             }
 
@@ -624,6 +660,49 @@ namespace WebSmokeTest.Engine
             }
 
             return Result;
+        }
+
+        private void RetrieveIpAddresses(string url)
+        {
+            if (Uri.TryCreate(url, UriKind.Absolute, out Uri host))
+            {
+                foreach (IPAddress ipAddress in Dns.GetHostAddresses(host.Host))
+                {
+                    _endPoints.Add(new IPEndPoint(ipAddress, host.Port));
+                }
+            }
+        }
+
+        private bool ContainsEndPoint(IPEndPoint endpoint)
+        {
+            foreach (IPEndPoint item in _endPoints)
+            {
+                if (item.Equals(endpoint))
+                    return true;
+            }
+
+            return false;
+        }
+
+        private bool TcpConnectionLimitExceeded()
+        {
+            TimeSpan span = DateTime.Now - _tcpConnectionChecked;
+
+            if (span.TotalMilliseconds > MillisecondsBetweenTcpChecks)
+            {
+                IPGlobalProperties properties = IPGlobalProperties.GetIPGlobalProperties();
+
+                int endpoints = properties.GetActiveTcpConnections().Where(c => ContainsEndPoint(c.RemoteEndPoint)).Count();
+
+                _tcpConnectionChecked = DateTime.Now;
+                _lastTcpConnectionResult = endpoints > MaximumOpenEndpoints;
+
+                return _lastTcpConnectionResult;
+            }
+            else
+            {
+                return _lastTcpConnectionResult;
+            }
         }
 
         #endregion Private Methods

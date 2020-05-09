@@ -21,7 +21,7 @@
 
         private double TotalTime { get; set; }
 
-        internal void AddRequest(string page, double timeTaken)
+        internal void AddRequest(double timeTaken)
         {
             Requests++;
 

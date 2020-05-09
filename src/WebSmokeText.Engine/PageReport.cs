@@ -25,6 +25,7 @@ namespace WebSmokeTest.Engine
             Headers = new NVPCodec();
             AnalysisComplete = false;
             Analysis = new PageAnalysis();
+            ProcessingComplete = false;
         }
 
         public PageReport(in string url, in decimal loadTime)
@@ -40,7 +41,7 @@ namespace WebSmokeTest.Engine
         public PageReport(in string url, in decimal loadTime, in string content)
             : this(url, loadTime)
         {
-            Content = content;
+            Content = content ?? String.Empty;
         }
 
         #endregion Constructors
@@ -101,6 +102,8 @@ namespace WebSmokeTest.Engine
         public bool HeadFound { get; set; }
 
         public bool BodyFound { get; set; }
+
+        internal bool ProcessingComplete { get; set; }
 
         #endregion Analysis
 

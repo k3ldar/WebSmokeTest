@@ -237,6 +237,8 @@ namespace WebSmokeTest.Engine
             if (!Uri.TryCreate(Url, UriKind.Absolute, out _))
                 return false;
 
+            PauseBetweenRequests = Math.Min(100, Math.Max(2500, PauseBetweenRequests));
+
             return true;
         }
 

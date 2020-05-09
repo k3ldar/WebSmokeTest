@@ -22,7 +22,13 @@ namespace WebSmokeTest.UnitTests
             pages.AddRange(report.Pages);
             report.Pages.Clear();
 
-            pages.ForEach(p => report.PageAdd(p, null));
+            SmokeTestProperties properties = new SmokeTestProperties()
+            {
+                ClearHtmlDataAfterAnalysis = true,
+                ClearImageDataAfterAnalysis = true,
+            }; 
+
+            pages.ForEach(p => report.PageAdd(p, null, properties));
 
             while (!report.AnalysisComplete)
             {

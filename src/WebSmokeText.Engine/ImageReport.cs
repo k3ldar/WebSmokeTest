@@ -8,10 +8,11 @@ namespace WebSmokeTest.Engine
 
         public ImageReport()
         {
-
+            Bytes = new byte[] { };
         }
 
         public ImageReport(in string url)
+            : this()
         {
             if (string.IsNullOrEmpty(url))
                 throw new ArgumentNullException(nameof(url));

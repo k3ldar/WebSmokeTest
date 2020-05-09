@@ -16,6 +16,10 @@ namespace WebSmokeTest.Engine
     {
         #region Private Members
 
+        private readonly List<string> _linksParsed;
+        private readonly List<string> _imagesParsed;
+        private readonly object _lockObject = new object();
+
         #endregion Private Members
 
         #region Constructors
@@ -27,6 +31,8 @@ namespace WebSmokeTest.Engine
             Errors = new List<ErrorData>();
             Cookies = new List<Cookie>();
             Forms = new List<FormReport>();
+            _linksParsed = new List<string>();
+            _imagesParsed = new List<string>();
         }
 
         #endregion Constructors
@@ -100,14 +106,15 @@ namespace WebSmokeTest.Engine
             Forms.Add(form);
         }
 
-        public void PageAdd(in PageReport page, in ThreadManager parent)
+        public void PageAdd(in PageReport page, in ThreadManager parent, in SmokeTestProperties properties)
         {
             if (page == null)
                 throw new ArgumentNullException(nameof(page));
 
             Pages.Add(page);
 
-            PageAnalyser analyser = new PageAnalyser(this, page, parent);
+            PageAnalyser analyser = new PageAnalyser(this, page, parent,
+                properties.ClearHtmlDataAfterAnalysis, properties.ClearImageDataAfterAnalysis);
             ThreadManager.ThreadStart(analyser, $"Page Analyser: {page.Url}", System.Threading.ThreadPriority.Lowest);
         }
 
@@ -159,6 +166,88 @@ namespace WebSmokeTest.Engine
         }
 
         #endregion Public Methods
+
+        #region Internal Methods
+
+        internal void ImageAdd(string url)
+        {
+            using (TimedLock timedLock = TimedLock.Lock(_lockObject))
+            {
+                url = url.ToLower();
+
+                if (_imagesParsed.Contains(url))
+                    return;
+
+                _imagesParsed.Add(url);
+            }
+        }
+
+        internal bool ImageParsed(string url)
+        {
+            using (TimedLock timedLock = TimedLock.Lock(_lockObject))
+            {
+                url = url.ToLower();
+
+                return _imagesParsed.Contains(url);
+            }
+        }
+
+        internal void LinkAdd(string url)
+        {
+            using (TimedLock timedLock = TimedLock.Lock(_lockObject))
+            {
+                url = url.ToLower();
+
+                if (_linksParsed.Contains(url))
+                    return;
+
+                _linksParsed.Add(url);
+            }
+        }
+
+        internal void LinkAdd(Uri url)
+        {
+            LinkAdd(url.ToString());
+        }
+
+        internal void LinkRemove(in Uri url)
+        {
+            using (TimedLock timedLock = TimedLock.Lock(_lockObject))
+            {
+                string loweredUrl = url.ToString().ToLower();
+
+                if (_linksParsed.Contains(loweredUrl))
+                {
+                    _linksParsed.Remove(loweredUrl);
+                }
+            }
+        }
+
+        internal bool LinkParsed(string url)
+        {
+            using (TimedLock timedLock = TimedLock.Lock(_lockObject))
+            {
+                url = url.ToLower();
+
+                return _linksParsed.Contains(url);
+            }
+        }
+
+        internal bool LinkParsed(Uri url)
+        {
+            return LinkParsed(url.ToString());
+        }
+
+        internal void ClearParsedLinks()
+        {
+            using (TimedLock timedLock = TimedLock.Lock(_lockObject))
+            {
+                _linksParsed.Clear();
+                _imagesParsed.Clear();
+            }
+        }
+
+        #endregion Internal Methods
 
         #region Public Static Methods
 

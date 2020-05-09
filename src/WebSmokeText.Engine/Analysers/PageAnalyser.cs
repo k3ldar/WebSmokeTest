@@ -1,4 +1,7 @@
 ﻿using System;
+using System.Security.Cryptography;
+using System.Text;
+using System.Threading;
 using System.Xml;
 
 using Shared.Classes;
@@ -10,15 +13,20 @@ namespace WebSmokeTest.Engine
         #region Private Members 
 
         private readonly Report _report;
+        private readonly bool _clearData;
+        private readonly bool _clearImages;
 
         #endregion Private Members
 
         #region Constructors
 
-        public PageAnalyser(in Report report, in PageReport pageReport, in ThreadManager parent)
+        public PageAnalyser(in Report report, in PageReport pageReport, in ThreadManager parent,
+            in bool clearData, in bool clearImages)
             : base(pageReport, new TimeSpan(), parent)
         {
             _report = report ?? throw new ArgumentNullException(nameof(report));
+            _clearData = clearData;
+            _clearImages = clearImages;
             ContinueIfGlobalException = false;
         }
 
@@ -28,13 +36,12 @@ namespace WebSmokeTest.Engine
 
         protected override bool Run(object parameters)
         {
-
             if (parameters == null)
                 return false;
 
             PageReport page = parameters as PageReport;
 
-            if (page == null)
+            if (page == null || String.IsNullOrEmpty(page.Content))
                 return false;
 
             try
@@ -53,6 +60,27 @@ namespace WebSmokeTest.Engine
             }
             finally
             {
+                while (!page.ProcessingComplete)
+                {
+                    Thread.Sleep(50);
+                }
+
+                if (_clearData)
+                {
+                    page.Content = GenerateCheckSum(page.Content);
+                }
+
+                if (_clearImages)
+                {
+                    foreach (ImageReport img in page.Images)
+                    {
+                        img.Bytes = GenerateCheckSum(img.Bytes);
+                    }
+                }
+
+                // finally force a garbage collection
+                GC.Collect(2, GCCollectionMode.Forced);
+
                 page.AnalysisComplete = true;
             }
 
@@ -60,8 +88,6 @@ namespace WebSmokeTest.Engine
         }
 
         #endregion Overridden Methods
-
-        #region Private Methods
 
         public void AnalyseXmlDocument(in PageReport page, in XmlNode node, in int depth)
         {
@@ -72,8 +98,6 @@ namespace WebSmokeTest.Engine
 
             if (depth > page.Depth)
                 page.Depth = depth;
-
-            bool hasAttributes = node.Attributes != null && node.Attributes.Count > 0;
 
             if (node.NodeType == XmlNodeType.DocumentType)
             {
@@ -103,6 +127,8 @@ namespace WebSmokeTest.Engine
             if (node.NextSibling != null)
                 AnalyseXmlDocument(page, node.NextSibling, depth);
         }
+
+        #region Private Methods
 
         private void AnalyseHeader(in PageReport page, in XmlNode node, in int depth)
         {
@@ -277,9 +303,6 @@ namespace WebSmokeTest.Engine
             {
                 FormOption option = new FormOption();
                 form.Options.Add(option);
-
-                HtmlParser parser = new HtmlParser(node.InnerXml);
-
                 AnalyseSelect(page, node.FirstChild, option, depth + 1);
                 processChildres = false;
             }
@@ -346,6 +369,19 @@ namespace WebSmokeTest.Engine
             }
 
             AnalyseSelect(page, node.NextSibling, option, depth);
+        }
+
+        private string GenerateCheckSum(in string data)
+        {
+            return Convert.ToBase64String(GenerateCheckSum(Encoding.UTF8.GetBytes(data)));
+        }
+
+        private byte[] GenerateCheckSum(in byte[] data)
+        {
+            using (SHA256Managed sha = new SHA256Managed())
+            {
+                return sha.ComputeHash(data);
+            }
         }
 
         #endregion Private Methods

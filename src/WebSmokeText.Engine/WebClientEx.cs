@@ -6,11 +6,7 @@ namespace WebSmokeTest.Engine
 {
     internal sealed class WebClientEx : WebClient
     {
-        internal CookieContainer CookieContainer
-        {
-            get;
-            set;
-        }
+        internal CookieContainer CookieContainer { get; set; }
 
         internal CookieCollection Cookies(Uri uri)
         {
@@ -19,23 +15,18 @@ namespace WebSmokeTest.Engine
 
         internal CookieCollection ResponseCookies { get; private set; }
 
-        internal string UserAgent
-        {
-            get;
-            set;
-        }
+        internal string UserAgent { get; set; }
 
-        public int Timeout
-        {
-            get;
-            set;
-        }
+        public int Timeout { get; set; }
+
+        public int RequestTimeOut { get; set; }
 
         public WebClientEx()
         {
-            Timeout = -1;
+            Timeout = 200;
             UserAgent = "Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1; .NET CLR 2.0.50727); WebSmokeTest/v1.0";
             CookieContainer = new CookieContainer();
+            RequestTimeOut = 200;// 5000;
         }
 
         public string GetData(Uri address)
@@ -45,24 +36,25 @@ namespace WebSmokeTest.Engine
 
             WebRequest request = GetWebRequest(address);
 
-            WebResponse webResponse = request.GetResponse();
-
-            if (webResponse != null && webResponse.GetType() == typeof(HttpWebResponse))
+            using (WebResponse webResponse = request.GetResponse())
             {
-                ResponseCookies = ((HttpWebResponse)webResponse).Cookies;
-            }
-
-            using (Stream data = OpenRead(address.ToString()))
-            {
-                StreamReader reader = new StreamReader(data);
-                try
+                if (webResponse != null && webResponse.GetType() == typeof(HttpWebResponse))
                 {
-                    return reader.ReadToEnd();
+                    ResponseCookies = ((HttpWebResponse)webResponse).Cookies;
                 }
-                finally
+
+                using (Stream data = OpenRead(address.ToString()))
                 {
-                    reader.Close();
-                    reader.Dispose();
+                    StreamReader reader = new StreamReader(data);
+                    try
+                    {
+                        return reader.ReadToEnd();
+                    }
+                    finally
+                    {
+                        reader.Close();
+                        reader.Dispose();
+                    }
                 }
             }
         }
@@ -75,8 +67,9 @@ namespace WebSmokeTest.Engine
             {
                 ((HttpWebRequest)request).CookieContainer = CookieContainer;
                 ((HttpWebRequest)request).UserAgent = UserAgent;
-                ((HttpWebRequest)request).Timeout = Timeout;
-
+                ((HttpWebRequest)request).Timeout = RequestTimeOut;
+                ((HttpWebRequest)request).KeepAlive = false;
+                ((HttpWebRequest)request).UnsafeAuthenticatedConnectionSharing = true;
             }
 
             return request;
