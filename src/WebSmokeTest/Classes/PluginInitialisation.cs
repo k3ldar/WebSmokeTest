@@ -1,21 +1,29 @@
-﻿
-using Microsoft.AspNetCore.Authentication;
+﻿using System;
+
 using Microsoft.AspNetCore.Builder;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 using Middleware;
+using Middleware.Accounts;
 
 using PluginManager.Abstractions;
 
 using SharedPluginFeatures;
 
-using WebSmokeTest.Middleware;
+using SmokeTest.Middleware;
+using SmokeTest.Shared;
+using SmokeTest.Shared.Interfaces;
 
-namespace WebSmokeTest.Classes
+namespace SmokeTest.Classes
 {
     public class PluginInitialisation : IPlugin, IInitialiseEvents
     {
+        #region Private Members
+
+        private static ILogger _logger;
+
+        #endregion Private Members
+
         #region IInitialiseEvents Methods
 
         public void AfterConfigure(in IApplicationBuilder app)
@@ -25,16 +33,31 @@ namespace WebSmokeTest.Classes
 
         public void AfterConfigureServices(in IServiceCollection services)
         {
+            services.AddSingleton<ITestRunManager, TestRunManager>();
+
+            SaveData saveData = new SaveData(_logger);
+            LoadData loadData = new LoadData(_logger);
             ServiceProvider serviceProvider = services.BuildServiceProvider();
-            UserProvider loginProvider = new UserProvider(
+            UserProvider userProvider = new UserProvider(
                 serviceProvider.GetRequiredService<IPluginClassesService>(),
-                serviceProvider.GetRequiredService<ISettingsProvider>(),
-                serviceProvider.GetRequiredService<IConfiguration>());
+                _logger,
+                saveData,
+                loadData);
 
-            services.AddSingleton<ILoginProvider>(loginProvider);
-            services.AddSingleton<IClaimsProvider>(loginProvider);
-
+            services.AddSingleton<ISaveData>(saveData);
+            services.AddSingleton<ILoadData>(loadData);
+            services.AddSingleton<ILoginProvider>(userProvider);
+            services.AddSingleton<IClaimsProvider>(userProvider);
+            services.AddSingleton<IAccountProvider>(userProvider);
+            services.AddSingleton<IUserSearch>(userProvider);
+            services.AddSingleton<IDownloadProvider, DownloadProvider>();
+            services.AddSingleton<ICountryProvider, CountryProvider>();
+            services.AddSingleton<ILicenceProvider, LicenseProvider>();
             services.AddSingleton<IErrorManager, ErrorManagerProvider>();
+            services.AddSingleton<ISmokeTestHelper, SmokeTestHelper>();
+            services.AddSingleton<ISeoProvider, SeoProvider>();
+            services.AddSingleton<ITestConfigurationProvider, ConfigurationProvider>();
+            services.AddSingleton<IScheduleHelper, ScheduleHelper>();
         }
 
         public void BeforeConfigure(in IApplicationBuilder app)
@@ -73,7 +96,7 @@ namespace WebSmokeTest.Classes
 
         public void Initialise(ILogger logger)
         {
-
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
         #endregion IPlugin Methods

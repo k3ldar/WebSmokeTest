@@ -1,0 +1,99 @@
+﻿@model SmokeTest.Scheduler.Models.TestRunViewModels
+@{
+    string overallStatus = "status-success";
+
+    if (Model.Errors > 0)
+        overallStatus = "status-error";
+    else if (Model.Warnings > 0)
+        overallStatus = "status-warning";
+    else if (Model.NotRun > 0)
+        overallStatus = "status-notrun";
+}
+<div class="card">
+    <div class="card-header">
+        Test Summary
+    </div>
+    <div class="card-body @overallStatus">
+        <div class="run-schedule-card">
+            <p>Total Tests: <span>@Model.RunModels.Count</span></p>
+            <p>Errors: <span>@Model.Errors</span></p>
+            <p>Warnings: <span>@Model.Warnings</span></p>
+            <p>Not Ran: <span>@Model.NotRun</span></p>
+            <p>Running: <span>@Model.Running</span></p>
+            <p>Queued: <span>@Model.Queued</span></p>
+        </div>
+    </div>
+</div>
+@foreach (SmokeTest.Scheduler.Models.TestRunViewModel runModel in Model.RunModels)
+{
+    string lastRun = "Never";
+
+    if (runModel.LastRun.HasValue)
+        lastRun = runModel.LastRun.Value.ToString(System.Threading.Thread.CurrentThread.CurrentUICulture.DateTimeFormat);
+
+    string status = "status-success";
+
+    if (runModel.LastRunResult == SmokeTest.Shared.LastRunResult.Error)
+        status = "status-error";
+    else if (runModel.LastRunResult == SmokeTest.Shared.LastRunResult.Warning)
+        status = "status-warning";
+    else if (runModel.LastRunResult == SmokeTest.Shared.LastRunResult.NotRun)
+        status = "status-notrun";
+    <div class="card">
+        <div class="card-header">
+            @runModel.TestName
+        </div>
+        <div class="card-body">
+            <div class="run-schedule-card">
+                <p class="@runModel.LastRunResult.ToString()">
+                    @runModel.ConfigurationName
+                    @foreach (var item in runModel.UniqueRunIdentifiers)
+                    {
+                        DateTime startTime = new DateTime(item.Start);
+                        TimeSpan elapsed = DateTime.Now - startTime;
+                        System.Text.StringBuilder elapsedtime = new System.Text.StringBuilder();
+
+                        if (elapsed.Hours > 0)
+                            elapsedtime.AppendFormat("{0} hours", elapsed.Hours);
+
+                        if (elapsed.Minutes > 0)
+                        {
+                            if (elapsedtime.Length > 0)
+                                elapsedtime.Append(", ");
+
+                            elapsedtime.AppendFormat("{0} minutes", elapsed.Minutes);
+                        }
+
+                        if (elapsed.Seconds > 0)
+                        {
+                            if (elapsedtime.Length > 0)
+                                elapsedtime.Append(" and ");
+
+                            elapsedtime.AppendFormat("{0} seconds", elapsed.Seconds);
+                        }
+
+                        <span class="testRunItem" data-toggle="tooltip" data-placement="bottom" data-html="true" title="<em>Test running</em><u>Started: @startTime.ToShortTimeString()</u><u>Elapsed: @elapsedtime.ToString()</u>">R</span>
+                    }
+                    @foreach (int item in runModel.QueuePositions)
+                    {
+                        <span class="queueItem" data-toggle="tooltip" data-placement="bottom" title="Test run Queud at position @item">Q</span>
+                    }
+                </p>
+                <p class="@status">Last Run: @lastRun</p>
+
+                <span class="runButton"><input type="button" class="btn btn-primary" onclick="runTest('@runModel.UniqueId');" value="Run" /></span>
+            </div>
+        </div>
+    </div>
+}
+<script type="text/javascript">
+    function runTest(id) {
+        $.ajax({
+            type: 'GET',
+            url: '/Schedule/RunTest/' + id + '/',
+            cache: false,
+            success: function (response) {
+            },
+        })
+    };
+</script>

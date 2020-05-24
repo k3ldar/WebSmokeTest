@@ -1,0 +1,150 @@
+﻿@model SmokeTest.Scheduler.Models.ScheduleModel
+@{
+    ViewData["Title"] = "Create New Schedule";
+}
+
+<div class="hb">
+    <div class="row">
+        <div class="col">
+            <h1>@ViewData["Title"]</h1>
+        </div>
+    </div>
+</div>
+@if (ViewData.ModelState[""] != null && ViewData.ModelState[""].Errors.Count() > 0)
+{
+    <div class="alert alert-error">
+        <a class="close" data-dismiss="alert">×</a>
+        <h5 class="alert-heading">Please correct the following errors to continue</h5>
+        <div class="row">
+            <div class="col-sm-12">
+                @Html.ValidationSummary(true)
+            </div>
+        </div>
+    </div>
+}
+
+@using (Html.BeginForm(nameof(SmokeTest.Scheduler.Controllers.ScheduleController.New), SmokeTest.Scheduler.Controllers.ScheduleController.Name, FormMethod.Post))
+{
+    <div class="hb">
+        <div class="row">
+            <div class="col-sm-12 col-md-3">
+                @Html.NameFor(m => m.Name)
+            </div>
+            <div class="col-sm-12 col-md-9">
+                @Html.TextBoxFor(m => m.Name, new { @class = "form-control" })
+                @Html.ValidationMessageFor(m => m.Name)
+            </div>
+        </div>
+        <div class="row ac-row">
+            <div class="col-sm-12 col-md-3">
+                @Html.NameFor(m => m.TestId)
+            </div>
+            <div class="col-sm-12 col-md-9">
+                @Html.DropDownListFor(m => m.TestId, new SelectList(SmokeTest.Scheduler.Controllers.ScheduleController.TestConfigurations, "UniqueId", "Name"), new { @class = "form-control", style = "max-width: 500px;", onchange = "UpdateSelection(this);" })
+                @Html.ValidationMessageFor(m => m.TestId)
+            </div>
+        </div>
+        <div class="row ac-row">
+            <div class="col-sm-12 col-md-3">
+                @Html.NameFor(m => m.ScheduleType)
+            </div>
+            <div class="col-sm-12 col-md-9">
+                @Html.DropDownListFor(m => m.ScheduleType, new SelectList(SmokeTest.Scheduler.Controllers.ScheduleController.ScheduleTypes, "Name", "Name"), new { @class = "form-control", style = "max-width: 250px;", onchange = "UpdateSelection(this);" })
+                @Html.ValidationMessageFor(m => m.ScheduleType)
+            </div>
+        </div>
+        <div class="row  ac-row">
+            <div class="col-sm-12 col-md-3">
+                @Html.NameFor(m => m.StartTime)
+            </div>
+            <div class="col-sm-12 col-md-9">
+                @Html.TextBoxFor(m => m.StartTime, "{0:dd/MM/yyyy HH:mm}", new { @class = "form-control", style = "max-width:250px;", placeholder = "dd/MM/yyyy HH:mm" })
+                @Html.ValidationMessageFor(m => m.StartTime)
+            </div>
+        </div>
+        <div class="row ac-row" id="divFrequency">
+            <div class="col-sm-12 col-md-3">
+                @Html.NameFor(m => m.Frequency)
+            </div>
+            <div class="col-sm-12 col-md-9">
+                <div style="float: left;margin: 7px 8px 0 0;">Every</div> @Html.TextBoxFor(m => m.Frequency, new { @class = "form-control", style = "max-width:100px;" }) <span id="divFrequencyValue" style="position: absolute;left: 170px;top: 8px;">day</span>
+                @Html.ValidationMessageFor(m => m.Frequency)
+            </div>
+        </div>
+        <div class="row ac-row" id="divDaysofWeek">
+            <div class="col-sm-12 col-md-3">
+                Day of week
+            </div>
+            <div class="col-sm-12 col-md-9">
+                <div class="form-group">
+                    @Html.CheckBoxFor(m => m.DayMonday) Moday<br />
+                    @Html.CheckBoxFor(m => m.DayTuesday) Tuesday<br />
+                    @Html.CheckBoxFor(m => m.DayWednesday) Wednesday<br />
+                    @Html.CheckBoxFor(m => m.DayThursday) Thursday<br />
+                    @Html.CheckBoxFor(m => m.DayFriday) Friday<br />
+                    @Html.CheckBoxFor(m => m.DaySaturday) Saturday<br />
+                    @Html.CheckBoxFor(m => m.DaySunday) Sunday
+                </div>
+            </div>
+        </div>
+        <div class="row ac-row" id="divExpires">
+            <div class="col-sm-12 col-md-3">
+                @Html.NameFor(m => m.Expires)
+            </div>
+            <div class="col-sm-12 col-md-9">
+                @Html.TextBoxFor(m => m.Expires, "{0:dd/MM/yyyy}", new { @class = "form-control", style = "max-width:250px;", placeholder = "dd/MM/yyyy" })
+            </div>
+        </div>
+        <div class="row ac-row">
+            <div class="col-sm-12 col-md-3">
+                <button type="submit" class="btn btn-primary">Create</button>
+            </div>
+            <div class="col-sm-12 col-md-9">
+
+            </div>
+        </div>
+    </div>
+}
+<script type="text/javascript">
+    function UpdateSelection (dropdown) {
+        var selected = dropdown.value;
+
+        if (selected === undefined || selected === '') {
+            selected = "Once";
+        }
+
+        switch (selected) {
+            case "Once":
+                $('#divDaysofWeek').hide();
+                $('#divFrequency').hide();
+                $('#divRepeat').hide();
+                $('#divExpires').hide();
+                break;
+            case "Daily":
+                $('#divDaysofWeek').hide();
+                $('#divFrequency').show();
+                $('#divRepeat').show();
+                $('#divExpires').show();
+                document.getElementById('divFrequencyValue').textContent = "Day";
+                break;
+            case "Weekly":
+                $('#divDaysofWeek').show();
+                $('#divFrequency').hide();
+                $('#divRepeat').show();
+                $('#divExpires').show();
+                document.getElementById('divFrequencyValue').textContent = "Week";
+                break;
+        }
+    }
+
+    $('#divDaysofWeek').hide();
+    $('#divFrequency').hide();
+    $('#divRepeat').hide();
+    $('#divExpires').hide();
+
+    $(document).ready(function () {
+        var dd = $('#@Html.IdFor(m => m.ScheduleType)');
+        dd.value = '@Model.ScheduleType';
+        UpdateSelection(dd);
+    });
+</script>

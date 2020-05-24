@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -7,28 +6,23 @@ using Microsoft.Extensions.Hosting;
 
 using PluginManager.Abstractions;
 
-using Shared.Classes;
+using SmokeTest.Shared;
 
-using WebSmokeTest.Engine;
-using AspNetCore.PluginManager;
-
-using PluginManager;
-
-namespace WebSmokeTest
+namespace SmokeTest
 {
     public class SmokeTestBackgroundScheduler : BackgroundService
     {
         #region Private Members
 
-        private static readonly object _lockObject = new object();
-        private static readonly Queue<SmokeTestProperties> _scheduledTests = new Queue<SmokeTestProperties>();
         private readonly ILogger _logger;
+        private readonly ITestRunManager _testRunManager;
 
         #endregion Private Members
 
-        public SmokeTestBackgroundScheduler(ILogger logger)
+        public SmokeTestBackgroundScheduler(ILogger logger, ITestRunManager testRunManager)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _testRunManager = testRunManager ?? throw new ArgumentNullException(nameof(testRunManager));
         }
 
         #region Overridden Methods
@@ -36,36 +30,21 @@ namespace WebSmokeTest
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
             _logger.AddToLog(PluginManager.LogLevel.Information, "SmokeTest Background Scheduler Starting");
-
-            while (!stoppingToken.IsCancellationRequested)
+            try
             {
-                using (TimedLock timedLock = TimedLock.Lock(_lockObject))
+                while (!stoppingToken.IsCancellationRequested)
                 {
-                    if (_scheduledTests.TryDequeue(out SmokeTestProperties smokeTest))
-                    {
-                        ThreadWebsiteScan websiteScan = new ThreadWebsiteScan(smokeTest);
-                        ThreadManager.ThreadStart(websiteScan, $"Smoke Test: {smokeTest.Url}", ThreadPriority.Lowest);
-                    }
+                    _testRunManager.ProcessTests();
+                    await Task.Delay(250, stoppingToken);
                 }
-
-                await Task.Delay(2500, stoppingToken);
             }
-
-            _logger.AddToLog(PluginManager.LogLevel.Information, "SmokeTest Background Scheduler Stoping");
+            finally
+            {
+                _testRunManager.CancelAll();
+                _logger.AddToLog(PluginManager.LogLevel.Information, "SmokeTest Background Scheduler Stopping");
+            }
         }
 
         #endregion Overridden Methods
-
-        #region Internal Static Methods
-
-        internal static void ScheduleSmokeTest(in SmokeTestProperties smokeTestProperties)
-        {
-            using (TimedLock timedLock = TimedLock.Lock(_lockObject))
-            {
-                _scheduledTests.Enqueue(smokeTestProperties);
-            }
-        }
-
-        #endregion Internal Static Methods
     }
 }

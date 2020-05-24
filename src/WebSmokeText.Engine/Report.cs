@@ -10,7 +10,7 @@ using Shared.Classes;
 
 using SharedPluginFeatures;
 
-namespace WebSmokeTest.Engine
+namespace SmokeTest.Engine
 {
     public sealed class Report
     {

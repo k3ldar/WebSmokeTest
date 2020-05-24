@@ -1,0 +1,59 @@
+﻿@model SmokeTest.Scheduler.Models.ScheduleListViewModel
+@{
+    ViewData["Title"] = "Schedule Test Runs ";
+}
+
+<div class="hb">
+    <div class="row">
+        <div class="col">
+            <h1>@ViewData["Title"]</h1>
+        </div>
+    </div>
+</div>
+
+<div class="hb">
+    <div class="row">
+        <div class="col smokeGrid">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Schedule</th>
+                        <th>Test Name</th>
+                        <th>Epires</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (SmokeTest.Scheduler.Models.ScheduleModel schedule in Model.Schedules)
+                    {
+                        string expire = "Never";
+                        if (schedule.Expires.HasValue)
+                        {
+                            expire = schedule.Expires.Value.ToString("dd/MM/yyyy");
+                        }
+                        
+                        <tr>
+                            <td>@schedule.Name</td>
+                            <td>@schedule.ScheduleType</td>
+                            <td><a href="/Configuration/Edit/@schedule.TestId/">@schedule.TestName</a></td>
+                            <td>@expire</td>
+                            <td><a href="/Schedule/Edit/@schedule.UniqueId/">Edit</a></td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<div class="hb">
+    <div class="row">
+        <div class="col">
+            @using (Html.BeginForm(nameof(SmokeTest.Scheduler.Controllers.ScheduleController.New), SmokeTest.Scheduler.Controllers.ScheduleController.Name, FormMethod.Get))
+            {
+                <button type="submit" class="btn btn-primary">Create</button>
+            }
+        </div>
+    </div>
+</div>
+

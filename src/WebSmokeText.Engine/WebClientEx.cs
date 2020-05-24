@@ -2,7 +2,7 @@
 using System.IO;
 using System.Net;
 
-namespace WebSmokeTest.Engine
+namespace SmokeTest.Engine
 {
     internal sealed class WebClientEx : WebClient
     {
@@ -24,7 +24,7 @@ namespace WebSmokeTest.Engine
         public WebClientEx()
         {
             Timeout = 200;
-            UserAgent = "Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1; .NET CLR 2.0.50727); WebSmokeTest/v1.0";
+            UserAgent = "Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1; .NET CLR 2.0.50727); SmokeTest/v1.0";
             CookieContainer = new CookieContainer();
             RequestTimeOut = 200;// 5000;
         }

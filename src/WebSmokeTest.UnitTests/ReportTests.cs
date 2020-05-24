@@ -7,9 +7,9 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Shared.Classes;
 using SharedPluginFeatures;
 
-using WebSmokeTest.Engine;
+using SmokeTest.Engine;
 
-namespace WebSmokeTest.UnitTests
+namespace SmokeTest.UnitTests
 {
     [TestClass]
     public class ReportTests
@@ -34,6 +34,7 @@ namespace WebSmokeTest.UnitTests
         }
 
         [TestMethod]
+        [Ignore]
         public void OpenPluginManagerWebsiteHomePageValidateImageCount()
         {
             SmokeTestProperties properties = new SmokeTestProperties()
@@ -57,7 +58,7 @@ namespace WebSmokeTest.UnitTests
         }
 
         [TestMethod]
-
+        [Ignore]
         public void ReportSaveToDiskAndLoadFromDisk1Page()
         {
             Report report;
@@ -101,7 +102,7 @@ namespace WebSmokeTest.UnitTests
         }
 
         [TestMethod]
-
+        [Ignore]
         public void ReportSaveToDiskAndLoadFromDisk50Pages()
         {
             Report report;
@@ -147,7 +148,7 @@ namespace WebSmokeTest.UnitTests
         }
 
         [TestMethod]
-
+        [Ignore]
         public void ReportSaveToDiskAndLoadFromDisk500Pages()
         {
             Report report;
@@ -193,7 +194,7 @@ namespace WebSmokeTest.UnitTests
         }
 
         [TestMethod]
-
+        [Ignore]
         public void ReportSaveToDiskAndLoadFromDiskAllPages()
         {
             Report report;

@@ -11,9 +11,9 @@ using PluginManager;
 
 using Shared.Classes;
 
-using WebSmokeTest.Classes;
+using SmokeTest.Classes;
 
-namespace WebSmokeTest
+namespace SmokeTest
 {
     public static class Program
     {
@@ -55,9 +55,11 @@ namespace WebSmokeTest
             PluginManagerService.UsePlugin(typeof(LoginPlugin.PluginInitialisation));
             PluginManagerService.UsePlugin(typeof(SearchPlugin.PluginInitialisation));
             PluginManagerService.UsePlugin(typeof(SystemAdmin.Plugin.PluginInitialisation));
+            PluginManagerService.UsePlugin(typeof(Settings.PluginInitialisation));
+            PluginManagerService.UsePlugin(typeof(Scheduler.PluginInitialisation));
             try
             {
-                 CreateHostBuilder(args).Build().Run();
+                CreateHostBuilder(args).Build().Run();
             }
             finally
             {

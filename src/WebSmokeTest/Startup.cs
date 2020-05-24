@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace WebSmokeTest
+namespace SmokeTest
 {
     public class Startup
     {
@@ -21,7 +21,8 @@ namespace WebSmokeTest
         {
             PluginManagerService.ConfigureServices(services);
 
-            services.AddControllersWithViews();
+            services.AddControllersWithViews()
+                .AddRazorRuntimeCompilation();
 
             services.Configure<CookiePolicyOptions>(options =>
             {
@@ -35,7 +36,7 @@ namespace WebSmokeTest
                     options.AccessDeniedPath = "/Error/AccessDenied";
                     options.LoginPath = "/Login/";
                 });
-             
+
             services.AddMvc(
                     option => option.EnableEndpointRouting = false
                 )

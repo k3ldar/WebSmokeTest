@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace WebSmokeTest.Engine
+namespace SmokeTest.Engine
 {
     public class FormOption
     {

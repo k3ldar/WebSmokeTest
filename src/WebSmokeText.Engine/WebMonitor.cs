@@ -10,7 +10,7 @@ using Shared.Classes;
 
 using SharedPluginFeatures;
 
-namespace WebSmokeTest.Engine
+namespace SmokeTest.Engine
 {
     public sealed class WebMonitor : IDisposable
     {
@@ -305,7 +305,9 @@ namespace WebSmokeTest.Engine
                 catch (WebException err)
                 {
                     if (err.Message.Contains("(404)"))
+                    {
                         LogError(err, modifiedUri, modifiedUri, originatingLink);
+                    }
                     else if (err.Message.StartsWith("The operation has timed out") && _client.Timeout < 5000)
                     {
                         _client.Timeout = _client.Timeout + 50;
@@ -314,6 +316,7 @@ namespace WebSmokeTest.Engine
                         {
                             _report.LinkRemove(url);
                             _urlProcessList.Enqueue(url);
+                            return true;
                         }
 
                     }
@@ -325,6 +328,9 @@ namespace WebSmokeTest.Engine
                     LogError(err, modifiedUri, null, originatingLink);
                 }
             }
+
+            if (String.IsNullOrEmpty(webData))
+                return false;
 
             List<string> links = ParseHtml(url.ToString(), webData);
             try

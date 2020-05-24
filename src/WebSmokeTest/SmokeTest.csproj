@@ -22,6 +22,7 @@
     <PackageReference Include="CacheControl.Plugin" Version="4.0.0" />
     <PackageReference Include="DocumentationPlugin" Version="4.0.0" />
     <PackageReference Include="ErrorManager.Plugin" Version="4.0.0" />
+    <PackageReference Include="jQuery.Bootgrid" Version="1.3.1" />
     <PackageReference Include="Localization.Plugin" Version="4.0.0" />
     <PackageReference Include="LoginPlugin" Version="4.0.0" />
     <PackageReference Include="MemoryCache.Plugin" Version="4.0.0" />
@@ -40,7 +41,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\WebSmokeText.Engine\WebSmokeTest.Engine.csproj" />
+    <ProjectReference Include="..\SmokeTest.Scheduler\SmokeTest.Scheduler.csproj" />
+    <ProjectReference Include="..\SmokeTest.Settings\SmokeTest.Settings.csproj" />
+    <ProjectReference Include="..\SmokeTestShared\SmokeTest.Shared.csproj" />
+    <ProjectReference Include="..\WebSmokeText.Engine\SmokeTest.Engine.csproj" />
   </ItemGroup>
 
   <ItemGroup>

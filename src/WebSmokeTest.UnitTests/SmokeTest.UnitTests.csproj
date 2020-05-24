@@ -15,7 +15,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\WebSmokeText.Engine\WebSmokeTest.Engine.csproj" />
+    <ProjectReference Include="..\SmokeTestShared\SmokeTest.Shared.csproj" />
+    <ProjectReference Include="..\WebSmokeTest\SmokeTest.csproj" />
+    <ProjectReference Include="..\WebSmokeText.Engine\SmokeTest.Engine.csproj" />
   </ItemGroup>
 
   <ItemGroup>

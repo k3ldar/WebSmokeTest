@@ -1,4 +1,4 @@
-﻿namespace WebSmokeTest.Engine
+﻿namespace SmokeTest.Engine
 {
     public enum FormStatus
     {

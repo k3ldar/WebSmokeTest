@@ -1,6 +1,4 @@
-using System;
-
-namespace WebSmokeTest.Models
+namespace SmokeTest.Models
 {
     public class ErrorViewModel
     {

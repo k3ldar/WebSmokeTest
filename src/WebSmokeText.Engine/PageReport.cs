@@ -7,7 +7,7 @@ using Newtonsoft.Json;
 
 using Shared.Classes;
 
-namespace WebSmokeTest.Engine
+namespace SmokeTest.Engine
 {
     public sealed class PageReport
     {

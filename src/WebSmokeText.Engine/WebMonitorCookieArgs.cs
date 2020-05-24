@@ -1,7 +1,7 @@
 ﻿using System.Net;
 
 
-namespace WebSmokeTest.Engine
+namespace SmokeTest.Engine
 {
     public sealed class WebMonitorCookieArgs
     {

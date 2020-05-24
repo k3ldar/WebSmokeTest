@@ -1,46 +1,45 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
+﻿
+using System;
 using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
-using Shared.Classes;
-using SharedPluginFeatures;
-using WebSmokeTest.Models;
 
-namespace WebSmokeTest.Controllers
+using Shared.Classes;
+
+using SharedPluginFeatures;
+
+using SmokeTest.Models;
+using SmokeTest.Shared;
+
+namespace SmokeTest.Controllers
 {
     public class HomeController : BaseController
     {
-        private readonly ILogger<HomeController> _logger;
+        #region Private Members
 
-        public HomeController(ILogger<HomeController> logger)
+        private readonly ISmokeTestHelper _smokeTestHelper;
+
+        #endregion Private Members
+
+        #region Constructors
+
+        public HomeController(ISmokeTestHelper smokeTestHelper)
         {
-            _logger = logger;
+            _smokeTestHelper = smokeTestHelper ?? throw new ArgumentNullException(nameof(smokeTestHelper));
         }
+
+        #endregion Constructors
+
+        #region Public Action Methods
 
         public IActionResult Index()
         {
             UserSession session = GetUserSession();
 
-            if (session.UserName.StartsWith("hello"))
-            {
+            HomeViewModel model = new HomeViewModel(GetModelData(), _smokeTestHelper.HomeCardsGet().OrderBy(o => o.SortOrder).ToList());
 
-            }
-
-            return View(new BaseModel(GetModelData()));
+            return View(model);
         }
 
-        public IActionResult Privacy()
-        {
-            return View();
-        }
-
-        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public IActionResult Error()
-        {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
-        }
+        #endregion Public Action Methods
     }
 }

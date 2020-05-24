@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace WebSmokeTest.Engine
+namespace SmokeTest.Engine
 {
     public sealed class SmokeTestProperties
     {
@@ -19,7 +19,7 @@ namespace WebSmokeTest.Engine
         public SmokeTestProperties()
         {
             Headers = new Dictionary<string, string>();
-            CrawlDepth = 1;
+            CrawlDepth = 10;
             EmailTitle = "WebMonitor Results";
             UserAgent = "Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1; .NET CLR 2.0.50727) SmokeTest/v1.0";
             SessionCookieName = "SessionCookie";
@@ -27,8 +27,6 @@ namespace WebSmokeTest.Engine
 
             CookiePath = "/";
             MaximumPages = 10;
-            CheckHours = 1;
-            CheckMinutes = 0;
 
             SendEmailsErrorOnly = true;
             SendEmails = false;
@@ -86,16 +84,6 @@ namespace WebSmokeTest.Engine
         /// DateTime the website was last checked for errors
         /// </summary>
         public DateTime LastVerified { get; set; }
-
-        /// <summary>
-        /// Number of hours between checks
-        /// </summary>
-        public int CheckHours { get; set; }
-
-        /// <summary>
-        /// Number of minutes between checks
-        /// </summary>
-        public int CheckMinutes { get; set; }
 
         /// <summary>
         /// Email Address where email will be sent to
@@ -194,12 +182,6 @@ namespace WebSmokeTest.Engine
         /// </summary>
         /// <value>string</value>
         public string Parameter { get; set; }
-
-        /// <summary>
-        /// Index of WebMonitorItem
-        /// </summary>
-        /// <value>int</value>
-        public int Index { get; set; }
 
         /// <summary>
         /// Maximum number of pages to scan

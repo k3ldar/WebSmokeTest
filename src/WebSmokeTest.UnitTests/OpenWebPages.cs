@@ -2,14 +2,15 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using SharedPluginFeatures;
 
-using WebSmokeTest.Engine;
+using SmokeTest.Engine;
 
-namespace WebSmokeTest.UnitTests
+namespace SmokeTest.UnitTests
 {
     [TestClass]
     public class OpenWebPages
     {
         [TestMethod]
+        [Ignore]
         public void OpenPluginManagerWebsiteHomePage()
         {
             SmokeTestProperties properties = new SmokeTestProperties()
@@ -31,6 +32,7 @@ namespace WebSmokeTest.UnitTests
         }
 
         [TestMethod]
+        [Ignore]
         public void OpenGoogleWebsiteHomePage()
         {
             SmokeTestProperties properties = new SmokeTestProperties()
@@ -51,6 +53,7 @@ namespace WebSmokeTest.UnitTests
         }
 
         [TestMethod]
+        [Ignore]
         public void OpenMicrosoftWebsiteHomePage()
         {
             SmokeTestProperties properties = new SmokeTestProperties()

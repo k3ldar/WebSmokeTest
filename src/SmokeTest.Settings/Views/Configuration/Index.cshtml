@@ -1,0 +1,47 @@
+﻿@model SmokeTest.Settings.Models.ViewConfigurationViewModel
+@{
+    ViewData["Title"] = "View Test Configurations";
+}
+
+<div class="hb">
+    <div class="row">
+        <div class="col">
+            <h1>@ViewData["Title"]</h1>
+        </div>
+    </div>
+</div>
+
+<div class="hb">
+    <div class="row">
+        <div class="col smokeGrid">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (SmokeTest.Settings.Models.TestConfigurationViewDetailsModel test in Model.Configurations)
+                    {
+                        <tr>
+                            <td>@test.Name</td>
+                            <td><a href="/Configuration/Edit/@test.UniqueId/">Edit</a></td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<div class="hb">
+    <div class="row">
+        <div class="col">
+            @using (Html.BeginForm(nameof(SmokeTest.Settings.Controllers.ConfigurationController.New), SmokeTest.Settings.Controllers.ConfigurationController.Name, FormMethod.Get))
+            {
+                <button type="submit" class="btn btn-primary">Create</button>
+            }
+        </div>
+    </div>
+</div>
+

@@ -1,20 +1,24 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Text;
 using System.Threading;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using WebSmokeTest.Engine;
 
-namespace WebSmokeTest.UnitTests
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+
+using Shared.Classes;
+
+using SmokeTest.Engine;
+
+namespace SmokeTest.UnitTests
 {
     [TestClass]
     public class AnalyseDocumentTests
     {
         [TestMethod]
+        [Ignore]
         public void LoadHomePageRunAnalysys()
         {
-            Shared.Classes.ThreadManager.Initialise();
+            ThreadManager.Initialise();
             string path = Path.GetFullPath(Directory.GetCurrentDirectory() + "..\\..\\..\\..\\TestDocs\\");
 
             Report report = Report.LoadFromFile(Path.Combine(path, "HomePagePluginManagerWebsite.dat"));
@@ -26,13 +30,19 @@ namespace WebSmokeTest.UnitTests
             {
                 ClearHtmlDataAfterAnalysis = true,
                 ClearImageDataAfterAnalysis = true,
-            }; 
+            };
 
             pages.ForEach(p => report.PageAdd(p, null, properties));
+
+            DateTime startTime = DateTime.Now;
 
             while (!report.AnalysisComplete)
             {
                 Thread.Sleep(50);
+
+                TimeSpan span = DateTime.Now - startTime;
+
+                Assert.IsTrue(span.TotalSeconds < 10);
             }
 
             Assert.AreEqual(244, pages[0].NodeCount);

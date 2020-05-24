@@ -3,7 +3,7 @@
 using PluginManager;
 using PluginManager.Abstractions;
 
-namespace WebSmokeTest.Classes
+namespace SmokeTest.Classes
 {
     public class Logger : ILogger
     {

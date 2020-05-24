@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace WebSmokeTest.Engine
+namespace SmokeTest.Engine
 {
     public sealed class BodyAnalysis
     {

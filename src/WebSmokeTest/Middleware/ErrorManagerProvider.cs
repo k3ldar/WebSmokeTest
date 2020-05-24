@@ -1,8 +1,10 @@
 ﻿using System;
+
 using PluginManager.Abstractions;
+
 using SharedPluginFeatures;
 
-namespace WebSmokeTest.Middleware
+namespace SmokeTest.Middleware
 {
     public class ErrorManagerProvider : IErrorManager
     {
