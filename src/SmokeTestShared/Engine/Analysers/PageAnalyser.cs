@@ -6,7 +6,7 @@ using System.Xml;
 
 using Shared.Classes;
 
-namespace SmokeTest.Engine
+namespace SmokeTest.Shared.Engine
 {
     public sealed class PageAnalyser : ThreadManager
     {

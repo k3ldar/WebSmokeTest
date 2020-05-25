@@ -1,18 +1,20 @@
 ﻿using System;
+using System.Collections.Generic;
 
-namespace SmokeTest.Engine
+namespace SmokeTest.Shared.Engine
 {
-    public class FormInput
+    public class FormOption
     {
-        public FormInput()
+        public FormOption()
         {
-            Value = String.Empty;
+            Options = new List<FormOptionValue>();
             Type = String.Empty;
             Id = String.Empty;
             Name = String.Empty;
             Contents = String.Empty;
         }
-        internal string Value { get; set; }
+
+        public List<FormOptionValue> Options { get; set; }
 
         public string Type { get; set; }
 

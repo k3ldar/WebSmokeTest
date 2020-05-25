@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace SmokeTest.Engine
+namespace SmokeTest.Shared.Engine
 {
     public sealed class HeaderAnalysis
     {

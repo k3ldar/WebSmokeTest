@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace SmokeTest.Engine
+namespace SmokeTest.Shared.Engine
 {
     public sealed class SmokeTestProperties
     {
@@ -211,7 +211,7 @@ namespace SmokeTest.Engine
 
         #region Internal Methods
 
-        internal bool IsValid()
+        public bool IsValid()
         {
             if (CrawlDepth < 0 || CrawlDepth > 40)
                 return false;
@@ -225,7 +225,7 @@ namespace SmokeTest.Engine
         }
 
 
-        internal bool ContainsFormReport(FormReport form)
+        public bool ContainsFormReport(FormReport form)
         {
             if (form == null)
             {
@@ -235,7 +235,7 @@ namespace SmokeTest.Engine
             return false;
         }
 
-        internal FormReport GetFormReport(FormReport form)
+        public FormReport GetFormReport(FormReport form)
         {
             if (form == null)
             {

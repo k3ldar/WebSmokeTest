@@ -9,8 +9,9 @@ using Newtonsoft.Json;
 using Shared.Classes;
 
 using SharedPluginFeatures;
+using SmokeTest.Shared;
 
-namespace SmokeTest.Engine
+namespace SmokeTest.Shared.Engine
 {
     public sealed class Report
     {
@@ -38,6 +39,14 @@ namespace SmokeTest.Engine
         #endregion Constructors
 
         #region Properties
+
+        public DateTime StartTime { get; set; }
+
+        public DateTime EndTime { get; set; }
+
+        public LastRunResult RunResult { get; set; }
+
+        public long TestSchedule { get; set; }
 
         public List<PageReport> Pages { get; set; }
 
@@ -169,7 +178,7 @@ namespace SmokeTest.Engine
 
         #region Internal Methods
 
-        internal void ImageAdd(string url)
+        public void ImageAdd(string url)
         {
             using (TimedLock timedLock = TimedLock.Lock(_lockObject))
             {
@@ -182,7 +191,7 @@ namespace SmokeTest.Engine
             }
         }
 
-        internal bool ImageParsed(string url)
+        public bool ImageParsed(string url)
         {
             using (TimedLock timedLock = TimedLock.Lock(_lockObject))
             {
@@ -192,7 +201,7 @@ namespace SmokeTest.Engine
             }
         }
 
-        internal void LinkAdd(string url)
+        public void LinkAdd(string url)
         {
             using (TimedLock timedLock = TimedLock.Lock(_lockObject))
             {
@@ -205,12 +214,12 @@ namespace SmokeTest.Engine
             }
         }
 
-        internal void LinkAdd(Uri url)
+        public void LinkAdd(Uri url)
         {
             LinkAdd(url.ToString());
         }
 
-        internal void LinkRemove(in Uri url)
+        public void LinkRemove(in Uri url)
         {
             using (TimedLock timedLock = TimedLock.Lock(_lockObject))
             {
@@ -223,7 +232,7 @@ namespace SmokeTest.Engine
             }
         }
 
-        internal bool LinkParsed(string url)
+        public bool LinkParsed(string url)
         {
             using (TimedLock timedLock = TimedLock.Lock(_lockObject))
             {
@@ -233,12 +242,12 @@ namespace SmokeTest.Engine
             }
         }
 
-        internal bool LinkParsed(Uri url)
+        public bool LinkParsed(Uri url)
         {
             return LinkParsed(url.ToString());
         }
 
-        internal void ClearParsedLinks()
+        public void ClearParsedLinks()
         {
             using (TimedLock timedLock = TimedLock.Lock(_lockObject))
             {

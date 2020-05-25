@@ -3,6 +3,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SharedPluginFeatures;
 
 using SmokeTest.Engine;
+using SmokeTest.Shared.Engine;
 
 namespace SmokeTest.UnitTests
 {

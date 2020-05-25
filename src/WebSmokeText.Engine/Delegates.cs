@@ -1,4 +1,6 @@
-﻿namespace SmokeTest.Engine
+﻿using SmokeTest.Shared.Engine;
+
+namespace SmokeTest.Engine
 {
 
     #region Delegates

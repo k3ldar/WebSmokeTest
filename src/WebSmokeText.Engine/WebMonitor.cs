@@ -10,6 +10,9 @@ using Shared.Classes;
 
 using SharedPluginFeatures;
 
+using SmokeTest.Shared;
+using SmokeTest.Shared.Engine;
+
 namespace SmokeTest.Engine
 {
     public sealed class WebMonitor : IDisposable
@@ -121,6 +124,7 @@ namespace SmokeTest.Engine
 
             try
             {
+                _report.StartTime = DateTime.Now;
                 RetrieveIpAddresses(_properties.Url);
                 _urlProcessList.Enqueue(new Uri(_properties.Url));
 
@@ -148,6 +152,7 @@ namespace SmokeTest.Engine
             finally
             {
                 _report.ClearParsedLinks();
+                _report.EndTime = DateTime.Now;
             }
 
             //foreach (Cookie cookie in _client.CookieContainer.GetCookies(new Uri(_properties.Url)))

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace SmokeTest.Engine
+namespace SmokeTest.Shared.Engine
 {
     public sealed class FormAnalysis
     {

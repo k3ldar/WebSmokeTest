@@ -16,4 +16,8 @@
     <PackageReference Include="SharedPluginFeatures" Version="4.0.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\SmokeTestShared\SmokeTest.Shared.csproj" />
+  </ItemGroup>
+
 </Project>

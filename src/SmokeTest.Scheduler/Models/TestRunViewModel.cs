@@ -1,5 +1,5 @@
 ﻿using System;
-
+using System.Linq;
 using SmokeTest.Shared;
 
 namespace SmokeTest.Scheduler.Models
@@ -14,7 +14,8 @@ namespace SmokeTest.Scheduler.Models
             in LastRunResult lastRunResult,  
             in DateTime? lastRun, 
             in int[] queuePositions, 
-            in TestItem[] uniqueRunIdentifiers)
+            in TestItem[] uniqueRunIdentifiers,
+            in ReportSummary[] reportSummaries)
         {
             if (String.IsNullOrEmpty(testName))
                 throw new ArgumentNullException(nameof(testName));
@@ -29,6 +30,8 @@ namespace SmokeTest.Scheduler.Models
             LastRunResult = lastRunResult;
             QueuePositions = queuePositions;
             UniqueRunIdentifiers = uniqueRunIdentifiers;
+            ReportSummaries = reportSummaries;
+
         }
 
         #endregion Constructors
@@ -48,6 +51,8 @@ namespace SmokeTest.Scheduler.Models
         public int[] QueuePositions { get; private set; }
 
         public long UniqueId { get; private set; }
+
+        public ReportSummary[] ReportSummaries { get; private set; }
 
         #endregion Properties
     }

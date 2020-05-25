@@ -2,6 +2,8 @@
 
 using Shared.Classes;
 
+using SmokeTest.Shared.Engine;
+
 namespace SmokeTest.Engine
 {
 

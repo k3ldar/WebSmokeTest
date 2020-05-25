@@ -57,6 +57,7 @@ namespace SmokeTest
             PluginManagerService.UsePlugin(typeof(SystemAdmin.Plugin.PluginInitialisation));
             PluginManagerService.UsePlugin(typeof(Settings.PluginInitialisation));
             PluginManagerService.UsePlugin(typeof(Scheduler.PluginInitialisation));
+            PluginManagerService.UsePlugin(typeof(Reports.PluginInitialisation));
             try
             {
                 CreateHostBuilder(args).Build().Run();

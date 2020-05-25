@@ -8,6 +8,7 @@ using Shared.Classes;
 using SharedPluginFeatures;
 
 using SmokeTest.Engine;
+using SmokeTest.Shared.Engine;
 
 namespace SmokeTest.UnitTests
 {

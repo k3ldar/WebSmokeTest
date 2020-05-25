@@ -8,6 +8,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Shared.Classes;
 
 using SmokeTest.Engine;
+using SmokeTest.Shared.Engine;
 
 namespace SmokeTest.UnitTests
 {

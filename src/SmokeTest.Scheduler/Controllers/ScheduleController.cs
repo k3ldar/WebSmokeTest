@@ -25,6 +25,7 @@ namespace SmokeTest.Scheduler.Controllers
 
         private readonly IScheduleHelper _scheduleHelper;
         private readonly ITestRunManager _testRunManager;
+        private readonly IReportHelper _reportHelper;
         private static ITestConfigurationProvider _testConfigurationProvider;
 
         #endregion Private Members
@@ -33,10 +34,12 @@ namespace SmokeTest.Scheduler.Controllers
 
         public ScheduleController(IScheduleHelper scheduleHelper,
             ITestConfigurationProvider testConfigurationProvider,
-            ITestRunManager testRunManager)
+            ITestRunManager testRunManager,
+            IReportHelper reportHelper)
         {
             _scheduleHelper = scheduleHelper ?? throw new ArgumentNullException(nameof(scheduleHelper));
             _testRunManager = testRunManager ?? throw new ArgumentNullException(nameof(testRunManager));
+            _reportHelper = reportHelper ?? throw new ArgumentNullException(nameof(reportHelper));
 
             if (_testConfigurationProvider == null)
             {
@@ -188,13 +191,16 @@ namespace SmokeTest.Scheduler.Controllers
                 if (test == null)
                     continue;
 
+                ReportSummary[] reportSummaries = _reportHelper.ReportSummary(schedule.UniqueId, 10);
+
                 runModels.Add(new TestRunViewModel(schedule.Name, 
                     test.Name, 
                     schedule.UniqueId, 
-                    schedule.LastRunResult, 
-                    schedule.LastRun, 
+                    reportSummaries.Length > 0 ? reportSummaries[0].RunResult : schedule.LastRunResult, 
+                    reportSummaries.Length > 0 ? reportSummaries[0].EndTime : schedule.LastRun, 
                     _testRunManager.QueuePositions(schedule.UniqueId),
-                    _testRunManager.ActiveTests(schedule.UniqueId)));
+                    _testRunManager.ActiveTests(schedule.UniqueId),
+                    reportSummaries));
             }
 
             return new TestRunViewModels(runModels);

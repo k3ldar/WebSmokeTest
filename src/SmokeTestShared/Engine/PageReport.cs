@@ -7,7 +7,7 @@ using Newtonsoft.Json;
 
 using Shared.Classes;
 
-namespace SmokeTest.Engine
+namespace SmokeTest.Shared.Engine
 {
     public sealed class PageReport
     {
@@ -103,7 +103,7 @@ namespace SmokeTest.Engine
 
         public bool BodyFound { get; set; }
 
-        internal bool ProcessingComplete { get; set; }
+        public bool ProcessingComplete { get; set; }
 
         #endregion Analysis
 

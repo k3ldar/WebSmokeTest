@@ -1,4 +1,6 @@
-﻿namespace SmokeTest.Engine
+﻿using SmokeTest.Shared;
+
+namespace SmokeTest.Engine
 {
     public class WebMonitorBeforePageParseArgs
     {

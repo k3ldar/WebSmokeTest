@@ -222,11 +222,41 @@ body {
     background-color: burlywood;
     color: black;
 }
+.prev-status-success {
+    background-color: #bcf3b1;
+    color: black;
+    border: solid 1px #17f115;
+    float: left;
+    width: 12px !important;
+}
+
+.prev-status-error {
+    background-color: red;
+    color: white;
+}
+
+.prev-status-warning {
+    background-color: orange;
+    color: black;
+}
+
+.prev-status-notrun {
+    background-color: burlywood;
+    color: black;
+}
+
+.prev-results {
+    top: 200px;
+    position: absolute;
+    left: 20px;
+    border-bottom: 1px solid #707B7C;
+}
+
 
 .runButton {
-    float: right;
-    top: 75px;
-    position: relative;
+    top: 200px;
+    position: absolute;
+    right: 20px;
 }
 
 .testRunItem {
