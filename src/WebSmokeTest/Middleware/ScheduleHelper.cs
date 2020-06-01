@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+
 using PluginManager.Abstractions;
 
 using SmokeTest.Shared;
@@ -72,7 +73,7 @@ namespace SmokeTest.Middleware
             return false;
         }
 
-        public bool Create(in string name, in string testId, in DateTime startTime, in DateTime? expires, in int frequency)
+        public bool Create(in string name, in string testId, in DateTime startTime, in DateTime? expires, in int frequency, in ScheduleType scheduleType)
         {
             if (String.IsNullOrEmpty(name))
                 throw new ArgumentNullException(nameof(name));
@@ -80,7 +81,7 @@ namespace SmokeTest.Middleware
             if (String.IsNullOrEmpty(testId))
                 throw new ArgumentOutOfRangeException(nameof(testId));
 
-            TestSchedule testSchedule = new TestSchedule(DateTime.Now.Ticks, name, testId, startTime, expires, frequency);
+            TestSchedule testSchedule = new TestSchedule(DateTime.Now.Ticks, name, testId, startTime, expires, frequency, scheduleType);
 
             if (SaveSchedule(testSchedule))
             {

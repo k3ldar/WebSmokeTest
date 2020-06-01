@@ -88,9 +88,11 @@ namespace SmokeTest.Scheduler.Controllers
                     created = _scheduleHelper.Create(model.Name, model.TestId, model.StartTime);
                     break;
 
+                case ScheduleType.Minutes:
+                case ScheduleType.Hours:
                 case ScheduleType.Daily:
                     created = _scheduleHelper.Create(model.Name, model.TestId, model.StartTime,
-                        model.Expires, model.Frequency);
+                        model.Expires, model.Frequency, scheduleType);
                     break;
 
                 case ScheduleType.Weekly:
@@ -197,6 +199,7 @@ namespace SmokeTest.Scheduler.Controllers
                     test.Name, 
                     schedule.UniqueId, 
                     reportSummaries.Length > 0 ? reportSummaries[0].RunResult : schedule.LastRunResult, 
+                    schedule.NextRun,
                     reportSummaries.Length > 0 ? reportSummaries[0].EndTime : schedule.LastRun, 
                     _testRunManager.QueuePositions(schedule.UniqueId),
                     _testRunManager.ActiveTests(schedule.UniqueId),
@@ -354,7 +357,8 @@ namespace SmokeTest.Scheduler.Controllers
 
                 foreach (ScheduleType item in Enum.GetValues(typeof(ScheduleType)))
                 {
-                    Result.Add(new ScheduleTypeModel(item.ToString()));
+                    if (item != ScheduleType.PressureTest)
+                        Result.Add(new ScheduleTypeModel(item.ToString()));
                 }
 
                 return Result;

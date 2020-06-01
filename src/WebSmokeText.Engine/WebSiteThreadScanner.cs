@@ -16,6 +16,7 @@ namespace SmokeTest.Engine
         public ThreadWebsiteScan(in SmokeTestProperties properties, in long uniqueId)
             : base(null, new TimeSpan(0, 0, 1), null, 500, 0)
         {
+            HangTimeout = 0;
             _properties = properties ?? throw new ArgumentNullException(nameof(properties));
             UniqueId = uniqueId;
             ContinueIfGlobalException = true;

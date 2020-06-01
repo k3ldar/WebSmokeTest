@@ -9,7 +9,6 @@ using Newtonsoft.Json;
 using Shared.Classes;
 
 using SharedPluginFeatures;
-using SmokeTest.Shared;
 
 namespace SmokeTest.Shared.Engine
 {
@@ -39,6 +38,8 @@ namespace SmokeTest.Shared.Engine
         #endregion Constructors
 
         #region Properties
+
+        public long UniqueId { get; set; }
 
         public DateTime StartTime { get; set; }
 
@@ -219,18 +220,18 @@ namespace SmokeTest.Shared.Engine
             LinkAdd(url.ToString());
         }
 
-        public void LinkRemove(in Uri url)
-        {
-            using (TimedLock timedLock = TimedLock.Lock(_lockObject))
-            {
-                string loweredUrl = url.ToString().ToLower();
+        //public void LinkRemove(in Uri url)
+        //{
+        //    using (TimedLock timedLock = TimedLock.Lock(_lockObject))
+        //    {
+        //        string loweredUrl = url.ToString().ToLower();
 
-                if (_linksParsed.Contains(loweredUrl))
-                {
-                    _linksParsed.Remove(loweredUrl);
-                }
-            }
-        }
+        //        if (_linksParsed.Contains(loweredUrl))
+        //        {
+        //            _linksParsed.Remove(loweredUrl);
+        //        }
+        //    }
+        //}
 
         public bool LinkParsed(string url)
         {

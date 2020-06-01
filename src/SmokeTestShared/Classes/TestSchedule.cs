@@ -29,10 +29,12 @@ namespace SmokeTest.Shared.Classes
             ScheduleType = ScheduleType.Once;
             StartTime = startTime;
             LastRunResult = LastRunResult.NotRun;
+            NextRun = startTime;
         }
 
         public TestSchedule(in long uniqidId, in string name, in string testId,
-            in DateTime startTime, in DateTime? expires, in int frequency)
+            in DateTime startTime, in DateTime? expires, in int frequency,
+            in ScheduleType scheduleType)
         {
             if (String.IsNullOrEmpty(name))
                 throw new ArgumentNullException(nameof(name));
@@ -49,11 +51,12 @@ namespace SmokeTest.Shared.Classes
             UniqueId = uniqidId;
             Name = name;
             TestId = testId;
-            ScheduleType = ScheduleType.Daily;
+            ScheduleType = scheduleType;
             StartTime = startTime;
             Frequency = frequency;
             Expires = expires;
             LastRunResult = LastRunResult.NotRun;
+            NextRun = startTime;
         }
 
         public TestSchedule(in long uniqidId, in string name, in string testId,
@@ -84,6 +87,7 @@ namespace SmokeTest.Shared.Classes
             Frequency = frequency;
             Expires = expires;
             LastRunResult = LastRunResult.NotRun;
+            NextRun = startTime;
         }
 
         #endregion Constructors
@@ -103,6 +107,8 @@ namespace SmokeTest.Shared.Classes
         public int Frequency { get; set; }
 
         public ScheduleDay ScheduleDays { get; set; }
+
+        public DateTime NextRun { get; set; }
 
         public DateTime? LastRun { get; set; }
 
@@ -133,23 +139,34 @@ namespace SmokeTest.Shared.Classes
 
         #region Public Methods
 
-        public TimeSpan NextRun()
+        public void CalculateNextRun()
         {
             if (!LastRun.HasValue)
             {
-                return DateTime.Now - StartTime;
+                return;
             }
 
             switch (ScheduleType)
             {
                 case ScheduleType.Once:
-                    return DateTime.Now - StartTime;
+                    NextRun = StartTime;
+                    return;
 
                 case ScheduleType.Daily:
-                    return CalculateNextRunDaily();
+                    CalculateNextRunDaily();
+                    return;
+
+                case ScheduleType.Minutes:
+                    CalculateNextRunMinutes();
+                    return;
+
+                case ScheduleType.Hours:
+                    CalculateNextRunHours();
+                    return;
 
                 case ScheduleType.Weekly:
-                    return CalculateNextWeeklyRun();
+                    CalculateNextWeeklyRun();
+                    return;
 
                     //case ScheduleType.Monthly:
                     //    return CalculateNextMonthlyRun();
@@ -162,15 +179,22 @@ namespace SmokeTest.Shared.Classes
 
         #region Private Methods
 
-        private TimeSpan CalculateNextRunDaily()
+        private void CalculateNextRunDaily()
         {
-            DateTime startTime = LastRun.Value;
-            startTime = new DateTime(startTime.Year, startTime.Month, startTime.Day + Frequency, StartTime.Hour, StartTime.Minute, StartTime.Second);
-
-            return startTime - DateTime.Now;
+            NextRun = NextRun.AddDays(Frequency);
         }
 
-        private TimeSpan CalculateNextWeeklyRun()
+        private void CalculateNextRunMinutes()
+        {
+            NextRun = NextRun.AddMinutes(Frequency);
+        }
+
+        private void CalculateNextRunHours()
+        {
+            NextRun = NextRun.AddHours(Frequency);
+        }
+
+        private void CalculateNextWeeklyRun()
         {
             DateTime startTime = LastRun.Value.AddDays(1);
             startTime = new DateTime(startTime.Year, startTime.Month, startTime.Day, StartTime.Hour, StartTime.Minute, StartTime.Second);
@@ -181,37 +205,37 @@ namespace SmokeTest.Shared.Classes
             {
                 if (startTime.DayOfWeek == DayOfWeek.Monday && ScheduleDays.HasFlag(ScheduleDay.Monday))
                 {
-                    return DateTime.Now - startTime;
+                    break;
                 }
 
                 if (startTime.DayOfWeek == DayOfWeek.Tuesday && ScheduleDays.HasFlag(ScheduleDay.Tuesday))
                 {
-                    return DateTime.Now - startTime;
+                    break;
                 }
 
                 if (startTime.DayOfWeek == DayOfWeek.Wednesday && ScheduleDays.HasFlag(ScheduleDay.Wednesday))
                 {
-                    return DateTime.Now - startTime;
+                    break;
                 }
 
                 if (startTime.DayOfWeek == DayOfWeek.Thursday && ScheduleDays.HasFlag(ScheduleDay.Thursday))
                 {
-                    return DateTime.Now - startTime;
+                    break;
                 }
 
                 if (startTime.DayOfWeek == DayOfWeek.Friday && ScheduleDays.HasFlag(ScheduleDay.Friday))
                 {
-                    return DateTime.Now - startTime;
+                    break;
                 }
 
                 if (startTime.DayOfWeek == DayOfWeek.Saturday && ScheduleDays.HasFlag(ScheduleDay.Saturday))
                 {
-                    return DateTime.Now - startTime;
+                    break;
                 }
 
                 if (startTime.DayOfWeek == DayOfWeek.Sunday && ScheduleDays.HasFlag(ScheduleDay.Sunday))
                 {
-                    return DateTime.Now - startTime;
+                    break;
                 }
 
                 if (loopCount > 5000)
@@ -220,7 +244,7 @@ namespace SmokeTest.Shared.Classes
                 startTime = startTime.AddDays(1);
             }
 
-            return new TimeSpan();
+            NextRun = startTime;
         }
 
         //private TimeSpan CalculateNextMonthlyRun()

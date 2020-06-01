@@ -225,31 +225,38 @@ body {
 .prev-status-success {
     background-color: #bcf3b1;
     color: black;
-    border: solid 1px #17f115;
+    border-top: solid 1px #17f115;
+    border-bottom:none;
     float: left;
     width: 12px !important;
+    margin-right: 1px;
 }
 
 .prev-status-error {
-    background-color: red;
-    color: white;
+    background-color: #ffcccc;
+    color: black;
+    border-top: solid 1px red;
+    border-bottom: none;
+    float: left;
+    width: 12px !important;
+    margin-right: 1px;
 }
 
 .prev-status-warning {
-    background-color: orange;
+    background-color: #ffe4b3;
     color: black;
-}
-
-.prev-status-notrun {
-    background-color: burlywood;
-    color: black;
+    border-top: solid 1px orange;
+    border-bottom: none;
+    float: left;
+    width: 12px !important;
+    margin-right: 1px;
 }
 
 .prev-results {
     top: 200px;
     position: absolute;
     left: 20px;
-    border-bottom: 1px solid #707B7C;
+    border-bottom: 1px solid white;
 }
 
 
@@ -278,6 +285,10 @@ body {
     border: 1px solid;
     font-weight: bold;
     padding: 1px 6px 1px 6px;
+}
+
+.h-spacer {
+    margin-top: 20px;
 }
 
 @media (min-width: 1200px) {

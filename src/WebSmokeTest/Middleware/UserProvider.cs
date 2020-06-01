@@ -360,6 +360,9 @@ namespace SmokeTest.Middleware
         {
             List<User> Result = _loadData.Load<List<User>>(_dataPath, "Users.dat");
 
+            if (Result == null)
+                Result = new List<User>();
+
             if (Result.Count == 0)
                 Result.Add(CreateDefaultUser());
 
@@ -382,7 +385,9 @@ namespace SmokeTest.Middleware
                     "ViewConfiguration",
                     "AddConfiguration",
                     "EditConfiguration",
-                    "ViewSchedules"
+                    "ViewSchedules",
+                    "ManageConfiguration",
+                    "ManageSchedules"
                 },
             };
 

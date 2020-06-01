@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
@@ -15,6 +16,7 @@ namespace SmokeTest.Shared.Engine
         private readonly Report _report;
         private readonly bool _clearData;
         private readonly bool _clearImages;
+        private const int MaxDepth = 30;
 
         #endregion Private Members
 
@@ -47,11 +49,23 @@ namespace SmokeTest.Shared.Engine
             try
             {
                 page.ClearAnalysisData();
+                XmlDocument doc = null;
 
-                XmlDocument xml = new XmlDocument();
-                xml.LoadXml(page.Content.Replace("&copy;", "&#169;"));
+                using (TextReader reader = new StringReader(page.Content))
+                {
+                    Sgml.SgmlReader sgmlReader = new Sgml.SgmlReader();
+                    sgmlReader.DocType = "HTML";
+                    sgmlReader.WhitespaceHandling = WhitespaceHandling.All;
+                    sgmlReader.CaseFolding = Sgml.CaseFolding.ToLower;
+                    sgmlReader.InputStream = reader;
 
-                AnalyseXmlDocument(page, xml.FirstChild, 0);
+                    doc = new XmlDocument();
+                    doc.PreserveWhitespace = true;
+                    doc.XmlResolver = null;
+                    doc.Load(sgmlReader);
+                }
+
+                AnalyseXmlDocument(page, doc.FirstChild, 0);
             }
             catch (Exception err)
             {
@@ -99,6 +113,13 @@ namespace SmokeTest.Shared.Engine
             if (depth > page.Depth)
                 page.Depth = depth;
 
+            if (depth > MaxDepth)
+            {
+                _report.AddError(new ErrorData(new Exception("Node depth exceeded during AnalyseXmlDocument"),
+                    new Uri(page.Url), null, null));
+                return;
+            }
+
             if (node.NodeType == XmlNodeType.DocumentType)
             {
                 page.DocumentTypeFound = true;
@@ -117,7 +138,14 @@ namespace SmokeTest.Shared.Engine
             else if (node.NodeType == XmlNodeType.Element && page.HtmlNodeFound && node.Name == "body")
             {
                 page.BodyFound = true;
-                AnalyseBody(page, node.FirstChild, depth + 1);
+
+                XmlNode bodyNode = node.FirstChild;
+
+                while (bodyNode != null)
+                {
+                    AnalyseBody(page, bodyNode, depth + 1);
+                    bodyNode = bodyNode.NextSibling;
+                }
             }
             else if (node.HasChildNodes)
             {
@@ -139,6 +167,13 @@ namespace SmokeTest.Shared.Engine
 
             if (depth > page.Depth)
                 page.Depth = depth;
+
+            if (depth > MaxDepth)
+            {
+                _report.AddError(new ErrorData(new Exception("Node depth exceeded during AnalyseHeader"),
+                    new Uri(page.Url), null, null));
+                return;
+            }
 
             bool hasAttributes = node.Attributes != null && node.Attributes.Count > 0;
 
@@ -197,7 +232,16 @@ namespace SmokeTest.Shared.Engine
             page.NodeCount++;
 
             if (depth > page.Depth)
+            { 
                 page.Depth = depth;
+            }
+
+            if (depth > MaxDepth)
+            {
+                _report.AddError(new ErrorData(new Exception("Node depth exceeded during AnalyseBody"),
+                    new Uri(page.Url), null, null));
+                return;
+            }
 
             bool hasAttributes = node.Attributes != null && node.Attributes.Count > 0;
 
@@ -263,9 +307,6 @@ namespace SmokeTest.Shared.Engine
             {
                 AnalyseBody(page, node.FirstChild, depth + 1);
             }
-
-            if (node.NextSibling != null)
-                AnalyseBody(page, node.NextSibling, depth);
         }
 
         private void AnalyseForm(in PageReport page, in XmlNode node, in int depth, in FormAnalysis form)
@@ -278,6 +319,13 @@ namespace SmokeTest.Shared.Engine
 
             if (depth > page.Depth)
                 page.Depth = depth;
+
+            if (depth > MaxDepth)
+            {
+                _report.AddError(new ErrorData(new Exception("Node depth exceeded during AnalyseForm"),
+                    new Uri(page.Url), null, null));
+                return;
+            }
 
             if (node.Name == "input")
             {
@@ -351,6 +399,14 @@ namespace SmokeTest.Shared.Engine
 
             if (depth > page.Depth)
                 page.Depth = depth;
+
+
+            if (depth > MaxDepth)
+            {
+                _report.AddError(new ErrorData(new Exception("Node depth exceeded during AnalyseSelect"),
+                    new Uri(page.Url), null, null));
+                return;
+            }
 
             bool hasAttributes = node.Attributes != null && node.Attributes.Count > 0;
 

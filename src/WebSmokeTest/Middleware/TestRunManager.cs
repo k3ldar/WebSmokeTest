@@ -231,7 +231,8 @@ namespace SmokeTest.Middleware
 
             if (updateLastRun)
             {
-                testSchedule.LastRun = new DateTime(DateTime.Now.Ticks - testSchedule.NextRun().Ticks);
+                testSchedule.LastRun = DateTime.Now;
+                testSchedule.CalculateNextRun();
                 _scheduleHelper.Update(testSchedule);
             }
 
@@ -240,7 +241,7 @@ namespace SmokeTest.Middleware
 
         private void PrepareAutomaticTestsForRunning()
         {
-            List<TestSchedule> dueSchedules = _scheduleHelper.Schedules.Where(s => s.Enabled && s.NextRun().TotalSeconds > 0).ToList();
+            List<TestSchedule> dueSchedules = _scheduleHelper.Schedules.Where(s => s.Enabled && DateTime.Now >= s.NextRun).ToList();
 
             foreach (TestSchedule testSchedule in dueSchedules)
             {
@@ -265,17 +266,33 @@ namespace SmokeTest.Middleware
                 LastRunResult result = LastRunResult.NotRun;
 
                 if (threadWebsiteScan.Report.Pages.Count == 0 && threadWebsiteScan.Report.Errors.Count > 0)
+                {
                     result = LastRunResult.Error;
+                }
                 else if (threadWebsiteScan.Report.Errors.Count > 0)
-                    result = LastRunResult.Warning;
+                {
+                    int timeOutErrors = threadWebsiteScan.Report.Errors.Where(e => e.Error.Message.Equals("The operation has timed out.")).Count();
+
+                    if (threadWebsiteScan.Report.Errors.Count == timeOutErrors)
+                    {
+                        result = LastRunResult.Success;
+                    }
+                    else
+                    {
+                        result = LastRunResult.Warning;
+                    }
+                }
                 else
+                {
                     result = LastRunResult.Success;
+                }
 
                 threadWebsiteScan.Report.RunResult = result;
                 threadWebsiteScan.Report.TestSchedule = currentTestRun.TestId;
 
                 currentTestRun.Test.LastRunResult = result;
                 _scheduleHelper.Update(currentTestRun.Test);
+                threadWebsiteScan.Report.UniqueId = threadWebsiteScan.UniqueId;
                 _reportHelper.AddReport(threadWebsiteScan.Report);
                 _saveData.Save<Report>(threadWebsiteScan.Report,
                     Path.Combine(_dataPath, currentTestRun.TestId.ToString("X")),

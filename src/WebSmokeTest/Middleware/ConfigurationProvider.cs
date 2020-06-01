@@ -32,7 +32,7 @@ namespace SmokeTest.Middleware
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _saveData = saveData ?? throw new ArgumentNullException(nameof(saveData));
             _configurations = new List<TestConfiguration>();
-            _dataPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "SmokeTest", "Data", "Configurations");
+            _dataPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "SmokeTest", "Configurations");
 
             if (!Directory.Exists(_dataPath))
                 Directory.CreateDirectory(_dataPath);

@@ -274,12 +274,6 @@ namespace SmokeTest.Engine
             {
                 if (_report.LinkParsed(url))
                     return true;
-
-                if (!_report.LinkParsed(url) &&
-                    !_urlProcessList.Contains(url))
-                {
-                    _report.LinkAdd(url);
-                }
             }
 
             if (_cancelScan)
@@ -319,7 +313,6 @@ namespace SmokeTest.Engine
 
                         using (TimedLock timedLock = TimedLock.Lock(_lockObject))
                         {
-                            _report.LinkRemove(url);
                             _urlProcessList.Enqueue(url);
                             return true;
                         }
@@ -335,7 +328,7 @@ namespace SmokeTest.Engine
             }
 
             if (String.IsNullOrEmpty(webData))
-                return false;
+                return true;
 
             List<string> links = ParseHtml(url.ToString(), webData);
             try
@@ -344,6 +337,11 @@ namespace SmokeTest.Engine
                 try
                 {
                     _report.PageAdd(pageReport, _parentThread, _properties);
+
+                    using (TimedLock.Lock(_lockObject))
+                    {
+                        _report.LinkAdd(url);
+                    }
 
                     if (!SessionCookieAdded &&
                         _client.ResponseCookies != null &&
@@ -432,11 +430,12 @@ namespace SmokeTest.Engine
 
                         if (imageLink != "")
                         {
-                            if (!_report.ImageParsed(imageLink))
+                            if (_report.ImageParsed(imageLink))
                             {
-                                _report.ImageAdd(imageLink);
+                                continue;
                             }
 
+                            _report.ImageAdd(imageLink);
                             try
                             {
                                 ImageReport imageReport = new ImageReport(imageLink);

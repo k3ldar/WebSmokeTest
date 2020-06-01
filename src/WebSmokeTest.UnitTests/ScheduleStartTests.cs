@@ -64,7 +64,7 @@ namespace SmokeTest.UnitTests
 
             IScheduleHelper sut = new ScheduleHelper(logger, saveData, loadData);
 
-            sut.Create("test", "123", DateTime.Now.AddDays(-1), DateTime.Now.AddHours(-1), 1);
+            sut.Create("test", "123", DateTime.Now.AddDays(-1), DateTime.Now.AddHours(-1), 1, ScheduleType.Daily);
 
 
             Assert.IsNotNull(sut);
@@ -96,7 +96,7 @@ namespace SmokeTest.UnitTests
             Assert.IsNotNull(item);
 
             Assert.IsTrue(item.Enabled);
-            TimeSpan nextRun = item.NextRun();
+            TimeSpan nextRun = DateTime.Now - item.NextRun;
             Assert.IsTrue(Convert.ToInt32(-nextRun.TotalMinutes) >= 1439);
             Assert.IsTrue(Convert.ToInt32(-nextRun.TotalMinutes) <= 1440);
         }
@@ -122,7 +122,7 @@ namespace SmokeTest.UnitTests
 
             Assert.IsTrue(item.Enabled);
 
-            TimeSpan nextRun = item.NextRun();
+            TimeSpan nextRun = DateTime.Now - item.NextRun;
             Assert.IsTrue(nextRun.TotalMinutes > -1440);
             Assert.IsTrue(nextRun.TotalMinutes < -1439);
         }
@@ -171,7 +171,7 @@ namespace SmokeTest.UnitTests
 
             Assert.IsTrue(item.Enabled);
 
-            TimeSpan nextRun = item.NextRun();
+            TimeSpan nextRun = DateTime.Now - item.NextRun;
             Assert.IsTrue(nextRun.TotalMinutes > -60);
             Assert.IsTrue(nextRun.TotalMinutes < -59);
         }
@@ -197,7 +197,7 @@ namespace SmokeTest.UnitTests
 
             Assert.IsTrue(item.Enabled);
 
-            TimeSpan nextRun = item.NextRun();
+            TimeSpan nextRun = DateTime.Now - item.NextRun;
             Assert.IsTrue(nextRun.TotalMinutes > 60);
             Assert.IsTrue(nextRun.TotalMinutes < 61);
         }
@@ -232,7 +232,7 @@ namespace SmokeTest.UnitTests
 
             Assert.IsTrue(item.Enabled);
 
-            TimeSpan nextRun = item.NextRun();
+            TimeSpan nextRun = DateTime.Now - item.NextRun;
             DateTime nextRuntime = new DateTime(DateTime.Now.Ticks - nextRun.Ticks);
 
             nextRun = runDate - nextRuntime;
@@ -272,7 +272,7 @@ namespace SmokeTest.UnitTests
 
             Assert.IsTrue(item.Enabled);
 
-            TimeSpan nextRun = item.NextRun();
+            TimeSpan nextRun = DateTime.Now - item.NextRun;
             DateTime nextRuntime = new DateTime(DateTime.Now.Ticks - nextRun.Ticks);
 
             nextRun = runDate - nextRuntime;
@@ -312,7 +312,7 @@ namespace SmokeTest.UnitTests
 
             Assert.IsTrue(item.Enabled);
 
-            TimeSpan nextRun = item.NextRun();
+            TimeSpan nextRun = DateTime.Now - item.NextRun;
             DateTime nextRuntime = new DateTime(DateTime.Now.Ticks - nextRun.Ticks);
 
             nextRun = runDate - nextRuntime;
@@ -330,7 +330,7 @@ namespace SmokeTest.UnitTests
         //    IScheduleHelper sut = new ScheduleHelper(logger, saveData, loadData);
 
         //    DateTime runDate = DateTime.Now.Date.AddMonths(-1).AddHours(6);
-            
+
         //    sut.Create("test", "123", runDate, null, 1);
 
 

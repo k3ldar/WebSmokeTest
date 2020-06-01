@@ -1,6 +1,6 @@
 ﻿@model SmokeTest.Scheduler.Models.ScheduleModel
 @{
-    ViewData["Title"] = "Create New Schedule";
+    ViewData["Title"] = "Create New Test Schedule";
 }
 
 <div class="hb">
@@ -120,19 +120,33 @@
                 $('#divRepeat').hide();
                 $('#divExpires').hide();
                 break;
+            case "Minutes":
+                $('#divDaysofWeek').hide();
+                $('#divFrequency').show();
+                $('#divRepeat').show();
+                $('#divExpires').show();
+                document.getElementById('divFrequencyValue').textContent = "Minutes";
+                break;
+            case "Hours":
+                $('#divDaysofWeek').hide();
+                $('#divFrequency').show();
+                $('#divRepeat').show();
+                $('#divExpires').show();
+                document.getElementById('divFrequencyValue').textContent = "Hours";
+                break;
             case "Daily":
                 $('#divDaysofWeek').hide();
                 $('#divFrequency').show();
                 $('#divRepeat').show();
                 $('#divExpires').show();
-                document.getElementById('divFrequencyValue').textContent = "Day";
+                document.getElementById('divFrequencyValue').textContent = "Days";
                 break;
             case "Weekly":
                 $('#divDaysofWeek').show();
                 $('#divFrequency').hide();
                 $('#divRepeat').show();
                 $('#divExpires').show();
-                document.getElementById('divFrequencyValue').textContent = "Week";
+                document.getElementById('divFrequencyValue').textContent = "Weeks";
                 break;
         }
     }

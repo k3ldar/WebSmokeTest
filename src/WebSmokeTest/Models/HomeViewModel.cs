@@ -16,5 +16,9 @@ namespace SmokeTest.Models
         }
 
         public List<HomeCard> HomeCards { get; private set; }
+
+        public bool AutoUpdatePage { get; set; }
+
+        public int AutoUpdateFrequency { get; set; }
     }
 }

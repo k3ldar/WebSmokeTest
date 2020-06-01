@@ -7,14 +7,14 @@
     UserSession session = (UserSession)Context.Items[SharedPluginFeatures.Constants.UserSession];
     bool loggedIn = !String.IsNullOrEmpty(session.UserName);
 
-    string title = (string)Context.Items[SharedPluginFeatures.Constants.SeoTitle] ?? "";
+    string title = (string)Context.Items[SharedPluginFeatures.Constants.SeoTitle] ?? "Web Smoke Test";
 }
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@title - Web Smoke Test</title>
+    <title>@title</title>
 </head>
 <body>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" />
@@ -32,7 +32,7 @@
     <header>
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
             <div class="container">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">SmokeTest</a>
+                @*<a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">SmokeTest</a>*@
                 <button class="navbar-toggler" type="button" data-toggle="collapse" data-target=".navbar-collapse" aria-controls="navbarSupportedContent"
                         aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
@@ -41,6 +41,9 @@
                     <ul class="navbar-nav flex-grow-1">
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="SystemAdmin" asp-action="Index">System Admin</a>
                         </li>
                         <ul class="navbar-nav flex-grow-1">
                             @{
@@ -69,9 +72,9 @@
                                 <a class="nav-link text-dark" href="/Login/Logout">@Localizer[nameof(Languages.LanguageStrings.Logout)]</a>
                             }
                         </li>
-                        <li class="nav-item nav-item-nohover">
-                            @await Html.PartialAsync("~/Views/Search/_ShowQuickSearch.cshtml", new SearchPlugin.Models.QuickSearchViewModel())
-                        </li>
+                        @*<li class="nav-item nav-item-nohover">
+                                @await Html.PartialAsync("~/Views/Search/_ShowQuickSearch.cshtml", new SearchPlugin.Models.QuickSearchViewModel())
+                            </li>*@
                     </ul>
                 </div>
             </div>
@@ -94,14 +97,15 @@
     <footer class="border-top footer text-muted">
         <div class="row footer">
             @*<div class="col-xs-2 col-lg-2"><a href="/Company/About/">@Localizer[nameof(Languages.LanguageStrings.About)]</a></div>
-            <div class="col-xs-2 col-lg-2"><a href="/Company/Cookies/">@Localizer[nameof(Languages.LanguageStrings.CookiePolicy)]</a></div>
-            <div class="col-xs-2 col-lg-2"><a href="/Docs/">@Localizer[nameof(Languages.LanguageStrings.Documentation)]</a></div>*@
+                <div class="col-xs-2 col-lg-2"><a href="/Company/Cookies/">@Localizer[nameof(Languages.LanguageStrings.CookiePolicy)]</a></div>
+                <div class="col-xs-2 col-lg-2"><a href="/Docs/">@Localizer[nameof(Languages.LanguageStrings.Documentation)]</a></div>*@
         </div>
         <div class="row footer">
             <div class="col-xs-12"><p>&copy; 2020 - Simon Carter.  All Rights Reserved.</p></div>
         </div>
     </footer>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/Popper/popper.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
     @RenderSection("Scripts", required: false)

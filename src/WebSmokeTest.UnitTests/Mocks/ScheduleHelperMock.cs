@@ -15,7 +15,7 @@ namespace SmokeTest.UnitTests.Mocks
             throw new NotImplementedException();
         }
 
-        public bool Create(in string name, in string testId, in DateTime startTime, in DateTime? expires, in int frequency)
+        public bool Create(in string name, in string testId, in DateTime startTime, in DateTime? expires, in int frequency, in ScheduleType scheduleType)
         {
             throw new NotImplementedException();
         }

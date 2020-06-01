@@ -34,11 +34,13 @@ namespace SmokeTest.Shared
 
     public enum ScheduleType
     {
-        Once = 1,
-        Daily = 2,
-        Weekly = 3,
-        //Monthly = 4,
-        PressureTest = 5,
+        Once,
+        Minutes,
+        Hours,
+        Daily,
+        Weekly,
+        //Monthly,
+        PressureTest,
     }
 
     [Flags]

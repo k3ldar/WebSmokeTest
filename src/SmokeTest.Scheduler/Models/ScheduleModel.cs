@@ -1,5 +1,5 @@
 ﻿using System;
-
+using System.ComponentModel.DataAnnotations;
 using SharedPluginFeatures;
 using SmokeTest.Shared;
 
@@ -49,6 +49,7 @@ namespace SmokeTest.Scheduler.Models
 
         public DateTime StartTime { get; set; }
 
+        [Display(Name = "Test Name")]
         public string TestId { get; set; }
 
         public string TestName { get; set; }

@@ -219,7 +219,10 @@ namespace SmokeTest.Shared.Engine
             if (!Uri.TryCreate(Url, UriKind.Absolute, out _))
                 return false;
 
-            PauseBetweenRequests = Math.Min(100, Math.Max(2500, PauseBetweenRequests));
+            if (PauseBetweenRequests < 100)
+                PauseBetweenRequests = 100;
+            else if (PauseBetweenRequests > 2500)
+                PauseBetweenRequests = 2500;
 
             return true;
         }

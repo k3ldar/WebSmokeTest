@@ -63,6 +63,9 @@ namespace SmokeTest.Reports.Internal
                 foreach (ReportSummary summary in Result)
                 {
                     summary.TimePercentage = su.Percentage(longestTime, summary.TotalTime);
+
+                    if (summary.TimePercentage < 15)
+                        summary.TimePercentage = 15;
                 }
             }
 
@@ -86,7 +89,7 @@ namespace SmokeTest.Reports.Internal
 
         private void LoadReportSummary(in Report report)
         {
-            ReportSummary summary = new ReportSummary(report.TestSchedule, report.StartTime, report.EndTime, 
+            ReportSummary summary = new ReportSummary(report.UniqueId, report.TestSchedule, report.StartTime, report.EndTime, 
                 report.RunResult, report.TotalRequests);
             _reportSummary.Add(summary);
         }

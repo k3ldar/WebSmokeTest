@@ -11,7 +11,7 @@ namespace SmokeTest.Shared
 
         bool Create(in string name, in string testId, in DateTime startTime);
 
-        bool Create(in string name, in string testId, in DateTime startTime, in DateTime? expires, in int frequency);
+        bool Create(in string name, in string testId, in DateTime startTime, in DateTime? expires, in int frequency, in ScheduleType scheduleType);
 
         bool Create(in string name, in string testId, in DateTime startTime, in DateTime? expires, in int frequency, in ScheduleDay scheduleDay);
 

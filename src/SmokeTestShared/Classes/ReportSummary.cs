@@ -6,9 +6,10 @@ namespace SmokeTest.Shared
     {
         #region Constructors
 
-        public ReportSummary(in long testId, in DateTime startTime, DateTime endTime,
+        public ReportSummary(in long reportId, in long testId, in DateTime startTime, DateTime endTime,
             LastRunResult runResult, uint totalRequests)
         {
+            ReportId = reportId;
             TestId = testId;
             StartTime = startTime;
             EndTime = endTime;
@@ -21,6 +22,8 @@ namespace SmokeTest.Shared
         #endregion Constructors
 
         #region Properties
+
+        public long ReportId { get; private set; }
 
         public long TestId { get; private set; }
 

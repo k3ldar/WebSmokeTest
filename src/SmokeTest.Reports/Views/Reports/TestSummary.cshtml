@@ -1,0 +1,277 @@
+﻿@model SmokeTest.Reports.Models.TestSummaryModel
+@{
+    ViewData["Title"] = "Test Summary";
+}
+
+
+    <div class="hb">
+        <div class="row">
+            <div class="col">
+                <h1>@ViewData["Title"]</h1>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="col smokeGrid">
+                    <table>
+                        <tbody>
+                            <tr>
+                                <td>@Html.NameFor(m => m.StartTime)</td>
+                                <td>@Model.StartTime.ToString(System.Threading.Thread.CurrentThread.CurrentUICulture.DateTimeFormat)</td>
+                            </tr>
+                            <tr>
+                                <td>@Html.NameFor(m => m.EndTime)</td>
+                                <td>@Model.EndTime.ToString(System.Threading.Thread.CurrentThread.CurrentUICulture.DateTimeFormat)</td>
+                            </tr>
+                            <tr>
+                                <td>@Html.NameFor(m => m.RunResult)</td>
+                                <td>@Model.RunResult</td>
+                            </tr>
+                            <tr>
+                                <td>@Html.NameFor(m => m.TotalRequests)</td>
+                                <td>@Model.TotalRequests</td>
+                            </tr>
+                            <tr>
+                                <td>@Html.NameFor(m => m.TotalSlowest)</td>
+                                <td>@Model.TotalSlowest.ToString("F3") ms</td>
+                            </tr>
+                            <tr>
+                                <td>@Html.NameFor(m => m.TotalFastest)</td>
+                                <td>@Model.TotalFastest.ToString("F3") ms</td>
+                            </tr>
+                            <tr>
+                                <td>@Html.NameFor(m => m.TotalAverage)</td>
+                                <td>@Model.TotalAverage.ToString("F3") ms</td>
+                            </tr>
+                            <tr>
+                                <td>@Html.NameFor(m => m.TrimmedAverage)</td>
+                                <td>@Model.TrimmedAverage.ToString("F3") ms</td>
+                            </tr>
+                            <tr>
+                                <td>@Html.NameFor(m => m.TotalTime)</td>
+                                <td>@Model.TotalTime.ToString("F3") ms</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        @if (Model.Headers.Count > 0)
+        {
+            <div class="row h-spacer">
+                <div class="col-sm-12 col-md-3">
+                    <h3>Cookies</h3>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="col smokeGrid">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Value</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var header in Model.Headers)
+                                {
+                                    <tr>
+                                        <td>@header.Key</td>
+                                        <td>@header.Value</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        }
+
+        @if (Model.Errors.Count > 0)
+        {
+            <div class="row h-spacer">
+                <div class="col-sm-12 col-md-3">
+                    <h3>Errors</h3>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="col smokeGrid">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Error Message</th>
+                                    <th>Missing Link</th>
+                                    <th>Originating Link</th>
+                                    <th>Uri</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var error in Model.Errors)
+                                {
+                                    <tr>
+                                        <td>@error.Error</td>
+                                        <td>@error.MissingLink</td>
+                                        <td>@error.OriginatingLink</td>
+                                        <td>@error.Uri.ToString()</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        }
+
+        @if (Model.Pages.Count > 0)
+        {
+            <div class="row h-spacer">
+                <div class="col-sm-12 col-md-3">
+                    <h3>Pages</h3>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="col smokeGrid">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Load Time</th>
+                                    <th>Url</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in Model.Pages)
+                                {
+                                    int formId = 1;
+
+                                    <tr>
+                                        <td>@item.LoadTime.ToString("F3") ms</td>
+                                        <td>@item.Url</td>
+                                        <td></td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        }
+
+        @if (Model.Forms.Count > 0)
+        {
+            <div class="row h-spacer">
+                <div class="col-sm-12 col-md-3">
+                    <h3>Forms</h3>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="col smokeGrid">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th style="width:12.5%;">Id</th>
+                                    <th style="width:12.5%;">Method</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in Model.Forms)
+                                {
+                                    <tr>
+                                        <td>@item.Id</td>
+                                        <td>@item.Method</td>
+                                        <td>@item.Action</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        }
+
+        @if (Model.Images.Count > 0)
+        {
+            <div class="row h-spacer">
+                <div class="col-sm-12 col-md-3">
+                    <h3>Images</h3>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="col smokeGrid">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th style="width:12.5%;">Load Time</th>
+                                    <th style="width:12.5%;">Size</th>
+                                    <th>Url</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in Model.Images)
+                                {
+                                    <tr>
+                                        <td>@item.LoadTime.ToString("F3") ms</td>
+                                        <td>@Shared.Utilities.FileSize(item.Size, 2)</td>
+                                        <td><a href="@item.Url" target="_blank">@item.Url</a></td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        }
+
+        @if (Model.Cookies.Count > 0)
+        {
+            <div class="row h-spacer">
+                <div class="col-sm-12 col-md-3">
+                    <h3>Cookies</h3>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="col smokeGrid">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Expires</th>
+                                    <th>Path</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (System.Net.Cookie cookie in Model.Cookies)
+                                {
+                                    string expire = "Session";
+                                    if (cookie.Expires > DateTime.MinValue)
+                                        expire = cookie.Expires.ToString(System.Threading.Thread.CurrentThread.CurrentUICulture.DateTimeFormat);
+
+                                    <tr>
+                                        <td>@cookie.Name</td>
+                                        <td>@expire</td>
+                                        <td>@cookie.Path</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+

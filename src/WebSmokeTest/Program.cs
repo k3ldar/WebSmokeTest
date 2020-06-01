@@ -35,7 +35,18 @@ namespace SmokeTest
 
             AppDomain.CurrentDomain.FirstChanceException += (sender, eventArgs) =>
             {
-                logger.AddToLog(LogLevel.Critical, eventArgs.Exception);
+                if (eventArgs.Exception.Message.Equals("Unable to read data from the transport connection: The I/O operation has been aborted because of either a thread exit or an application request"))
+                {
+
+                }
+                else if (eventArgs.Exception.Message.StartsWith("The response ended prematurely."))
+                {
+
+                }
+                else
+                {
+                    logger.AddToLog(LogLevel.Critical, eventArgs.Exception);
+                }
             };
 
             PluginManagerService.UsePlugin(typeof(ErrorManager.Plugin.PluginInitialisation));

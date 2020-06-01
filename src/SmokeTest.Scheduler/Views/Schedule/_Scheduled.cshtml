@@ -26,6 +26,7 @@
 </div>
 @foreach (SmokeTest.Scheduler.Models.TestRunViewModel runModel in Model.RunModels)
 {
+    int futureCounter = 0;
     string lastRun = "Never";
 
     if (runModel.LastRun.HasValue)
@@ -45,10 +46,13 @@
         </div>
         <div class="card-body">
             <div class="run-schedule-card">
+                <p class="@status">Last Run: @lastRun</p>
+                <p>Next Run: @runModel.NextRun</p>
                 <p class="@runModel.LastRunResult.ToString()">
                     @runModel.ConfigurationName
                     @foreach (var item in runModel.UniqueRunIdentifiers)
                     {
+                        futureCounter++;
                         DateTime startTime = new DateTime(item.Start);
                         TimeSpan elapsed = DateTime.Now - startTime;
                         System.Text.StringBuilder elapsedtime = new System.Text.StringBuilder();
@@ -72,14 +76,23 @@
                             elapsedtime.AppendFormat("{0} seconds", elapsed.Seconds);
                         }
 
-                        <span class="testRunItem" data-toggle="tooltip" data-placement="bottom" data-html="true" title="<em>Test running</em><u>Started: @startTime.ToShortTimeString()</u><u>Elapsed: @elapsedtime.ToString()</u>">R</span>
+                        string tooltip = String.Format("Test Running\r\n\r\nStarted: {0}\r\nElapsed: {1}",
+                            startTime.ToShortTimeString(), elapsedtime.ToString());
+                        <span class="testRunItem" title="@tooltip">R</span>
+
+                        if (futureCounter > 9)
+                            break;
                     }
                     @foreach (int item in runModel.QueuePositions)
                     {
-                        <span class="queueItem" data-toggle="tooltip" data-placement="bottom" title="Test run Queud at position @item">Q</span>
+                        futureCounter++;
+
+                        <span class="queueItem" title="Test run Queud at position @item">Q</span>
+
+                        if (futureCounter > 9)
+                            break;
                     }
                 </p>
-                <p class="@status">Last Run: @lastRun</p>
 
                 <div class="prev-results">
                     @for (int i = runModel.ReportSummaries.Length - 1; i >= 0; i--)
@@ -88,17 +101,20 @@
                         var longest = runModel.ReportSummaries.OrderByDescending(o => o.TotalTime).Take(1);
                         string prevStatus = "prev-status-success";
 
-                        if (runModel.LastRunResult == SmokeTest.Shared.LastRunResult.Error)
+                        if (summary.RunResult == SmokeTest.Shared.LastRunResult.Error)
                             prevStatus = "prev-status-error";
-                        else if (runModel.LastRunResult == SmokeTest.Shared.LastRunResult.Warning)
+                        else if (summary.RunResult == SmokeTest.Shared.LastRunResult.Warning)
                             prevStatus = "prev-status-warning";
-                        else if (runModel.LastRunResult == SmokeTest.Shared.LastRunResult.NotRun)
-                            prevStatus = "prev-status-notrun";
 
                         double top = (100 - summary.TimePercentage) / 3;
-                        string summaryStyle = $"height:{summary.TimePercentage / 3}px;margin-top:{top}px;";
+                        double height = summary.TimePercentage / 3;
+                        string summaryStyle = $"height:{height}px;margin-top:{top}px;";
+                        string tooltip = String.Format("Test Results\r\n\r\nStarted: {0}\r\nFinished: {1}\r\nTotal Requests: {2}\r\nResult: {3}",
+                            summary.StartTime.ToString(System.Threading.Thread.CurrentThread.CurrentUICulture.DateTimeFormat),
+                            summary.EndTime.ToString(System.Threading.Thread.CurrentThread.CurrentUICulture.DateTimeFormat),
+                            summary.TotalRequests, summary.RunResult);
 
-                        <span class="@prevStatus" style="@summaryStyle" data-toggle="tooltip" data-placement="bottom" data-html="true" title="<em>Test running</em><u>Started: </u><u>Elapsed: </u>"></span>
+                        <a href="/Reports/TestSummary/@summary.ReportId.ToString("X")/@summary.TestId.ToString("X")/"><span class="@prevStatus" style="@summaryStyle" title="@tooltip"></span></a>
 
                     }
                 </div>

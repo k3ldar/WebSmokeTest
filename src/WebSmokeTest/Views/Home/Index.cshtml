@@ -15,7 +15,11 @@
             },
         })
 
-        //setTimeout(updateDynamicData, 5000, divName, url);
+        var autoUpdate = @Model.AutoUpdatePage.ToString().ToLower();
+
+        if (autoUpdate) {
+            setTimeout(updateDynamicData, @Model.AutoUpdateFrequency, divName, url);
+        }
     };
 </script>
 <div class="hb">

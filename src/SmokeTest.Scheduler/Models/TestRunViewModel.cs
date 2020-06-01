@@ -11,7 +11,8 @@ namespace SmokeTest.Scheduler.Models
         public TestRunViewModel(in string testName,
             in string configurationName, 
             in long uniqueId,
-            in LastRunResult lastRunResult,  
+            in LastRunResult lastRunResult,
+            in DateTime nextRun,
             in DateTime? lastRun, 
             in int[] queuePositions, 
             in TestItem[] uniqueRunIdentifiers,
@@ -25,6 +26,7 @@ namespace SmokeTest.Scheduler.Models
 
             TestName = testName;
             ConfigurationName = configurationName;
+            NextRun = nextRun;
             LastRun = lastRun;
             UniqueId = uniqueId;
             LastRunResult = lastRunResult;
@@ -41,6 +43,8 @@ namespace SmokeTest.Scheduler.Models
         public string TestName { get; private set; }
 
         public string ConfigurationName { get; private set; }
+
+        public DateTime NextRun { get; private set; }
 
         public DateTime? LastRun { get; private set; }
 
