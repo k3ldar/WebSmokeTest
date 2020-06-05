@@ -259,8 +259,6 @@ namespace SmokeTest.Engine
         private bool ParsePage(string startsWith,
             Uri url, int depth, Uri originatingLink)
         {
-            _testRunLogger.Log($"Processing Url: {url.ToString()}");
-
             if (_report.Pages.Count >= _properties.MaximumPages)
             {
                 _testRunLogger.Log($"Maximum page count exceeded: {_properties.MaximumPages}");
@@ -273,7 +271,6 @@ namespace SmokeTest.Engine
                 {
                     if (!_report.LinkParsed(url.ToString()))
                     {
-                        _testRunLogger.Log($"Crawl depth exceeded, queueing url: {url.ToString()}");
                         _urlProcessList.Enqueue(url);
                     }
                 }
@@ -287,8 +284,11 @@ namespace SmokeTest.Engine
                     return true;
             }
 
+            _testRunLogger.Log($"Processing Url: {url.ToString()}");
+
             if (_cancelScan)
             {
+                _testRunLogger.Log("Test run cancelled");
                 return false;
             }
 
@@ -397,10 +397,8 @@ namespace SmokeTest.Engine
 
                     pageReport.Content = webData ?? String.Empty;
 
-                    _testRunLogger.Log("Processing Images");
                     ProcessImages(pageReport, originatingLink, modifiedUri);
 
-                    _testRunLogger.Log("Processing Forms");
                     ProcessForms(pageReport, originatingLink, modifiedUri);
                 }
                 finally
@@ -459,7 +457,6 @@ namespace SmokeTest.Engine
                 {
                     foreach (string imageLink in links)
                     {
-                        _testRunLogger.Log($"Retrieving image data: {imageLink}");
 
                         if (imageLink != "")
                         {
@@ -467,6 +464,8 @@ namespace SmokeTest.Engine
                             {
                                 continue;
                             }
+
+                            _testRunLogger.Log($"Retrieving image data: {imageLink}");
 
                             _report.ImageAdd(imageLink);
                             try
