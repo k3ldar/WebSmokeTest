@@ -334,7 +334,7 @@ namespace SmokeTest.Scheduler.Controllers
             Result.Name = model == null ? String.Empty : model.Name;
             Result.UniqueId = model == null ? _idManager.GenerateId() : model.UniqueId;
             Result.ScheduleType = model == null ? String.Empty : model.ScheduleType;
-            Result.StartTime = model == null ? DateTime.Now.AddHours(1) : model.StartTime;
+            Result.StartTime = model == null ? DateTime.UtcNow.AddHours(1) : model.StartTime;
             Result.Frequency = model == null ? 1 : model.Frequency;
             Result.DayMonday = model == null ? false : model.DayMonday;
             Result.DayTuesday = model == null ? false : model.DayTuesday;

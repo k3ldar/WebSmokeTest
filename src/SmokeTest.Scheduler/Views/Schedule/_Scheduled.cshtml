@@ -30,7 +30,7 @@
     string lastRun = "Never";
 
     if (runModel.LastRun.HasValue)
-        lastRun = runModel.LastRun.Value.ToString(System.Threading.Thread.CurrentThread.CurrentUICulture.DateTimeFormat);
+        lastRun = runModel.LastRun.Value.ToLocalTime().ToString(System.Threading.Thread.CurrentThread.CurrentUICulture.DateTimeFormat);
 
     string status = "status-success";
 
@@ -47,14 +47,14 @@
         <div class="card-body">
             <div class="run-schedule-card">
                 <p class="@status">Last Run: @lastRun</p>
-                <p>Next Run: @runModel.NextRun</p>
+                <p>Next Run: @runModel.NextRun.ToLocalTime()</p>
                 <p class="@runModel.LastRunResult.ToString()">
                     @runModel.ConfigurationName
                     @foreach (var item in runModel.UniqueRunIdentifiers)
                     {
                         futureCounter++;
                         DateTime startTime = new DateTime(item.Start);
-                        TimeSpan elapsed = DateTime.Now - startTime;
+                        TimeSpan elapsed = DateTime.UtcNow - startTime;
                         System.Text.StringBuilder elapsedtime = new System.Text.StringBuilder();
 
                         if (elapsed.Hours > 0)
@@ -77,7 +77,7 @@
                         }
 
                         string tooltip = String.Format("Test Running\r\n\r\nStarted: {0}\r\nElapsed: {1}",
-                            startTime.ToShortTimeString(), elapsedtime.ToString());
+                            startTime.ToLocalTime().ToShortTimeString(), elapsedtime.ToString());
                         <a href="/Reports/TestRunProgress/@item.UniqueId/"><span class="testRunItem" title="@tooltip">R</span></a>
 
                         if (futureCounter > 9)
@@ -110,8 +110,8 @@
                         double height = summary.TimePercentage / 3;
                         string summaryStyle = $"height:{height}px;margin-top:{top}px;";
                         string tooltip = String.Format("Test Results\r\n\r\nStarted: {0}\r\nFinished: {1}\r\nTotal Requests: {2}\r\nResult: {3}",
-                            summary.StartTime.ToString(System.Threading.Thread.CurrentThread.CurrentUICulture.DateTimeFormat),
-                            summary.EndTime.ToString(System.Threading.Thread.CurrentThread.CurrentUICulture.DateTimeFormat),
+                            summary.StartTime.ToLocalTime().ToString(System.Threading.Thread.CurrentThread.CurrentUICulture.DateTimeFormat),
+                            summary.EndTime.ToLocalTime().ToString(System.Threading.Thread.CurrentThread.CurrentUICulture.DateTimeFormat),
                             summary.TotalRequests, summary.RunResult);
 
                         <a href="/Reports/TestSummary/@summary.ReportId.ToString("X")/@summary.TestId.ToString("X")/"><span class="@prevStatus" style="@summaryStyle" title="@tooltip"></span></a>
@@ -131,7 +131,7 @@
             url: '/Schedule/RunTest/' + id + '/',
             cache: false,
             success: function (response) {
-                
+
             },
         })
     };

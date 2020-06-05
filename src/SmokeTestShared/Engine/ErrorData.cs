@@ -12,7 +12,7 @@ namespace SmokeTest.Shared.Engine
         public ErrorData(in Exception error)
         {
             Error = error ?? throw new ArgumentNullException(nameof(error));
-            DateTime = DateTime.Now;
+            DateTime = DateTime.UtcNow;
         }
 
         public ErrorData(in Exception error, in Uri uri, in Uri missingLink,

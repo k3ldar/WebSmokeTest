@@ -34,7 +34,7 @@ namespace SmokeTest.Shared
         {
             using (TimedLock tl = TimedLock.Lock(_lockObject))
             {
-                File.AppendAllText(_dataFile, $"{DateTime.Now.ToString("HH:mm:ss")}\t{logData}\r\n");
+                File.AppendAllText(_dataFile, $"{DateTime.UtcNow.ToLocalTime().ToString("HH:mm:ss")}\t{logData}\r\n");
             }
         }
 

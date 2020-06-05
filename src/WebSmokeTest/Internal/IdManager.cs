@@ -9,7 +9,7 @@ namespace SmokeTest.Internal
     {
         #region Private Members
 
-        private static long _lastId = DateTime.Now.Ticks;
+        private static long _lastId = DateTime.UtcNow.Ticks;
 
         #endregion Private Members
 
@@ -17,12 +17,12 @@ namespace SmokeTest.Internal
 
         public long GenerateId()
         {
-            long Result = DateTime.Now.Ticks;
+            long Result = DateTime.UtcNow.Ticks;
 
             while (Result.Equals(_lastId))
             {
                 Thread.Sleep(0);
-                Result = DateTime.Now.Ticks;
+                Result = DateTime.UtcNow.Ticks;
             }
 
             _lastId = Result;

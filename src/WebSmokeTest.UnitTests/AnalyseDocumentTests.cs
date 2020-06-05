@@ -35,13 +35,13 @@ namespace SmokeTest.UnitTests
 
             pages.ForEach(p => report.PageAdd(p, null, properties));
 
-            DateTime startTime = DateTime.Now;
+            DateTime startTime = DateTime.UtcNow;
 
             while (!report.AnalysisComplete)
             {
                 Thread.Sleep(50);
 
-                TimeSpan span = DateTime.Now - startTime;
+                TimeSpan span = DateTime.UtcNow - startTime;
 
                 Assert.IsTrue(span.TotalSeconds < 10);
             }

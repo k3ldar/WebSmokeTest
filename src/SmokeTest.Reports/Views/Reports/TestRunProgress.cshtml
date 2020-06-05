@@ -26,7 +26,6 @@
             </div>
         </div>
     </div>
-    <div id="divFooter"></div>
 </div>
 
 <script type="text/javascript">
@@ -48,13 +47,12 @@
                 var autoUpdate = crd && @Model.AutoUpdatePage.ToString().ToLower();
 
                 if (crd) {
-                    var f = document.getElementById('divFooter');
-                    f.scrollIntoView();
-                    //window.scrollTo(0, document.body.scrollHeight);
+                    window.scrollTo(0, document.body.scrollHeight);
                     setTimeout(updateLogData, @Model.AutoUpdateFrequency, divName, url, newPos);
                 } else {
                     var sp = document.getElementById('rowSpinner');
                     sp.style.display = 'none';
+                    window.scrollTo(0, document.body.scrollHeight);
                 }
             },
         })

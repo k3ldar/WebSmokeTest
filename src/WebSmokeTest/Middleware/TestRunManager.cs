@@ -36,6 +36,7 @@ namespace SmokeTest.Middleware
         private readonly int _maxTestRuns;
         private readonly ISaveData _saveData;
         private readonly string _dataPath;
+        private readonly IIdManager _idManager;
 
         #endregion Private Members
 
@@ -43,13 +44,14 @@ namespace SmokeTest.Middleware
 
         public TestRunManager(ILogger logger, ISettingsProvider settingsProvider, ISaveData saveData,
             IScheduleHelper scheduleHelper, ITestConfigurationProvider configurationProvider,
-            IReportHelper reportHelper)
+            IReportHelper reportHelper, IIdManager idManager)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _saveData = saveData ?? throw new ArgumentNullException(nameof(saveData));
             _scheduleHelper = scheduleHelper ?? throw new ArgumentNullException(nameof(scheduleHelper));
             _testConfigurationProvider = configurationProvider ?? throw new ArgumentNullException(nameof(configurationProvider));
             _reportHelper = reportHelper ?? throw new ArgumentNullException(nameof(reportHelper));
+            _idManager = idManager ?? throw new ArgumentNullException(nameof(idManager));
 
             if (settingsProvider == null)
                 throw new ArgumentNullException(nameof(settingsProvider));
@@ -75,8 +77,8 @@ namespace SmokeTest.Middleware
                 {
                     if (_scheduledTests.TryDequeue(out TestQueueItem testQueueItem))
                     {
-                        testQueueItem.End = DateTime.Now.Ticks;
-                        long uniqueId = DateTime.UtcNow.Ticks;
+                        testQueueItem.End = DateTime.UtcNow.Ticks;
+                        long uniqueId = _idManager.GenerateId();
                         ITestRunLogger testRunLogger = new TestRunLogger(uniqueId);
                         ThreadWebsiteScan websiteScan = new ThreadWebsiteScan(testQueueItem.SmokeTestProperties,
                             uniqueId, testRunLogger);
@@ -245,7 +247,7 @@ namespace SmokeTest.Middleware
 
             if (updateLastRun)
             {
-                testSchedule.LastRun = DateTime.Now;
+                testSchedule.LastRun = DateTime.UtcNow;
                 testSchedule.CalculateNextRun();
                 _scheduleHelper.Update(testSchedule);
             }
@@ -255,7 +257,7 @@ namespace SmokeTest.Middleware
 
         private void PrepareAutomaticTestsForRunning()
         {
-            List<TestSchedule> dueSchedules = _scheduleHelper.Schedules.Where(s => s.Enabled && DateTime.Now >= s.NextRun).ToList();
+            List<TestSchedule> dueSchedules = _scheduleHelper.Schedules.Where(s => s.Enabled && DateTime.UtcNow >= s.NextRun).ToList();
 
             foreach (TestSchedule testSchedule in dueSchedules)
             {
@@ -329,7 +331,7 @@ namespace SmokeTest.Middleware
             SmokeTestProperties = smokeTestProperties ?? throw new ArgumentNullException(nameof(smokeTestProperties));
             Test = testSchedule ?? throw new ArgumentNullException(nameof(testSchedule));
             TestId = testSchedule.UniqueId;
-            Start = DateTime.Now.Ticks;
+            Start = DateTime.UtcNow.Ticks;
         }
 
         internal SmokeTestProperties SmokeTestProperties { get; private set; }
@@ -346,7 +348,7 @@ namespace SmokeTest.Middleware
             UniqueId = websiteScan.UniqueId;
             Test = testSchedule ?? throw new ArgumentNullException(nameof(testSchedule));
             TestId = testSchedule.UniqueId;
-            Start = DateTime.Now.Ticks;
+            Start = DateTime.UtcNow.Ticks;
         }
 
         internal ThreadWebsiteScan WebsiteScan { get; private set; }

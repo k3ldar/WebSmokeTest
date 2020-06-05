@@ -45,7 +45,7 @@ namespace SmokeTest.Engine
                 _crawler.Dispose();
             }
 
-            _properties.LastVerified = DateTime.Now;
+            _properties.LastVerified = DateTime.UtcNow;
                 
             _testRunLogger.Log("Finished, closing, going home!");
 

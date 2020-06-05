@@ -31,7 +31,7 @@ namespace SmokeTest.Engine
 
         private readonly Report _report;
         private readonly ThreadManager _parentThread;
-        private DateTime _tcpConnectionChecked = DateTime.Now.AddHours(-1);
+        private DateTime _tcpConnectionChecked = DateTime.UtcNow.AddHours(-1);
         private bool _lastTcpConnectionResult = false;
         private const int MillisecondsBetweenTcpChecks = 2000;
         private int MaximumOpenEndpoints { get; set; }
@@ -126,7 +126,7 @@ namespace SmokeTest.Engine
             _testRunLogger.Log("Starting Test Run");
             try
             {
-                _report.StartTime = DateTime.Now;
+                _report.StartTime = DateTime.UtcNow;
                 RetrieveIpAddresses(_properties.Url);
                 _urlProcessList.Enqueue(new Uri(_properties.Url));
 
@@ -158,7 +158,7 @@ namespace SmokeTest.Engine
             finally
             {
                 _report.ClearParsedLinks();
-                _report.EndTime = DateTime.Now;
+                _report.EndTime = DateTime.UtcNow;
             }
 
             //foreach (Cookie cookie in _client.CookieContainer.GetCookies(new Uri(_properties.Url)))
@@ -185,13 +185,13 @@ namespace SmokeTest.Engine
 
             _report.SetTimings(_pageLoadTimings);
 
-            DateTime timeoutStart = DateTime.Now;
+            DateTime timeoutStart = DateTime.UtcNow;
 
             while (!_report.AnalysisComplete)
             {
                 Thread.Sleep(100);
 
-                TimeSpan span = DateTime.Now - timeoutStart;
+                TimeSpan span = DateTime.UtcNow - timeoutStart;
 
                 if (span.TotalSeconds > 30)
                     break;
@@ -472,12 +472,12 @@ namespace SmokeTest.Engine
                             {
                                 ImageReport imageReport = new ImageReport(imageLink);
                                 pageReport.AddPageImage(imageReport);
-                                DateTime startTimeImage = DateTime.Now;
+                                DateTime startTimeImage = DateTime.UtcNow;
 
                                 _report.Images.Add(imageReport);
                                 imageReport.Bytes = _client.DownloadData(imageLink);
 
-                                TimeSpan span = DateTime.Now.Subtract(startTimeImage);
+                                TimeSpan span = DateTime.UtcNow.Subtract(startTimeImage);
                                 imageReport.LoadTime = span.TotalMilliseconds / TimeSpan.TicksPerSecond;
                             }
                             catch (WebException err)
@@ -728,7 +728,7 @@ namespace SmokeTest.Engine
 
         private bool TcpConnectionLimitExceeded()
         {
-            TimeSpan span = DateTime.Now - _tcpConnectionChecked;
+            TimeSpan span = DateTime.UtcNow - _tcpConnectionChecked;
 
             if (span.TotalMilliseconds > MillisecondsBetweenTcpChecks)
             {
@@ -736,7 +736,7 @@ namespace SmokeTest.Engine
 
                 int endpoints = properties.GetActiveTcpConnections().Where(c => ContainsEndPoint(c.RemoteEndPoint)).Count();
 
-                _tcpConnectionChecked = DateTime.Now;
+                _tcpConnectionChecked = DateTime.UtcNow;
                 _lastTcpConnectionResult = endpoints > MaximumOpenEndpoints;
 
                 return _lastTcpConnectionResult;

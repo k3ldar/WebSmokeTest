@@ -122,7 +122,7 @@ namespace SmokeTest.Shared.Classes
             {
                 if (Expires.HasValue)
                 {
-                    if (DateTime.Now > Expires.Value)
+                    if (DateTime.UtcNow > Expires.Value)
                         return false;
                 }
 
