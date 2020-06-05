@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using SharedPluginFeatures;
 
 using SmokeTest.Reports.Models;
+using SmokeTest.Shared;
 using SmokeTest.Shared.Engine;
 using SmokeTest.Shared.Interfaces;
 
@@ -24,13 +25,15 @@ namespace SmokeTest.Reports.Controllers
 
         private readonly string _dataPath;
         private readonly ILoadData _loadData;
+        private readonly ITestRunManager _testRunManager;
 
         #endregion Private Members
 
         #region Constructors
 
-        public ReportsController()
+        public ReportsController(ITestRunManager testRunManager)
         {
+            _testRunManager = testRunManager ?? throw new ArgumentNullException(nameof(testRunManager));
             _dataPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "SmokeTest");
         }
 
@@ -52,6 +55,29 @@ namespace SmokeTest.Reports.Controllers
             }
 
             return View(ConvertReportToReportModel(Report.LoadFromFile(reportFile)));
+        }
+
+        [HttpGet]
+        [Route("[controller]/[action]/{uniqueRunId}")]
+        public IActionResult TestRunProgress(long uniqueRunId)
+        {
+            TestRunProgressModel model = new TestRunProgressModel(GetModelData(), uniqueRunId);
+
+            return View(model);
+        }
+
+        [HttpGet]
+        [Route("[controller]/[action]/{uniqueRunId}/{position}")]
+        public IActionResult Running(long uniqueRunId, long position)
+        {
+            ITestRunLogger testRunLogger = new TestRunLogger(uniqueRunId);
+            string Result = testRunLogger.RetrieveData(position);
+            position += Result.Length;
+            
+            Result = Result.Replace("\r\n", "<br />").Replace("'", "&apos;");
+            bool isRunning = _testRunManager.TestRunning(uniqueRunId);
+
+            return Json(new { content = Result, running = isRunning, position });
         }
 
         #endregion Public Action Methods

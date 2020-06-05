@@ -222,6 +222,10 @@ body {
     background-color: burlywood;
     color: black;
 }
+
+.status-success, .status-error, .status-warning, .status-notrun a:hover, a:link, a:visited, a:active {
+    text-decoration: none;
+}
 .prev-status-success {
     background-color: #bcf3b1;
     color: black;
@@ -289,6 +293,10 @@ body {
 
 .h-spacer {
     margin-top: 20px;
+}
+
+.logData {
+    font-size: 12px;
 }
 
 @media (min-width: 1200px) {

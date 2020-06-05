@@ -2,3 +2,6 @@
 
 # IDE0032: Use auto property
 dotnet_style_prefer_auto_properties = false:silent
+
+# IDE0071: Simplify interpolation
+dotnet_style_prefer_simplified_interpolation = false:suggestion

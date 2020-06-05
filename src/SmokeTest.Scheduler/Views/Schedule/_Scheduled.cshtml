@@ -78,7 +78,7 @@
 
                         string tooltip = String.Format("Test Running\r\n\r\nStarted: {0}\r\nElapsed: {1}",
                             startTime.ToShortTimeString(), elapsedtime.ToString());
-                        <span class="testRunItem" title="@tooltip">R</span>
+                        <a href="/Reports/TestRunProgress/@item.UniqueId/"><span class="testRunItem" title="@tooltip">R</span></a>
 
                         if (futureCounter > 9)
                             break;
@@ -131,6 +131,7 @@
             url: '/Schedule/RunTest/' + id + '/',
             cache: false,
             success: function (response) {
+                
             },
         })
     };

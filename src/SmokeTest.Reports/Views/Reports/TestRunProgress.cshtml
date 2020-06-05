@@ -1,0 +1,65 @@
+﻿@model SmokeTest.Reports.Models.TestRunProgressModel
+@{
+    ViewData["Title"] = "Test Run Progress";
+}
+
+
+<div class="hb">
+    <div class="row">
+        <div class="col">
+            <h1>@ViewData["Title"]</h1>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col">
+            <p class="logData" id="testRunProgress">
+
+            </p>
+        </div>
+    </div>
+
+    <div class="row" id="rowSpinner">
+        <div class="col">
+            <div class="spinner-border spinner-border-sm" role="status">
+                <span class="sr-only">Loading...</span>
+            </div>
+        </div>
+    </div>
+    <div id="divFooter"></div>
+</div>
+
+<script type="text/javascript">
+    function updateLogData(divName, url, position) {
+
+        $.ajax({
+            type: 'GET',
+            url: url + position + "/",
+            cache: false,
+            success: function (response) {
+                var newPos = response.position;
+                var crd = response.running;
+
+                if (response.content.length > 0) {
+                    var logData = document.getElementById(divName);
+                    logData.innerHTML += response.content;
+                }
+
+                var autoUpdate = crd && @Model.AutoUpdatePage.ToString().ToLower();
+
+                if (crd) {
+                    var f = document.getElementById('divFooter');
+                    f.scrollIntoView();
+                    //window.scrollTo(0, document.body.scrollHeight);
+                    setTimeout(updateLogData, @Model.AutoUpdateFrequency, divName, url, newPos);
+                } else {
+                    var sp = document.getElementById('rowSpinner');
+                    sp.style.display = 'none';
+                }
+            },
+        })
+    };
+    $(document).ready(function () {
+        updateLogData("testRunProgress", "@Model.Url", 0);
+    });
+</script>

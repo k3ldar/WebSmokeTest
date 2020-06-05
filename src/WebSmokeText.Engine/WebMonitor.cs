@@ -26,6 +26,7 @@ namespace SmokeTest.Engine
         private WebClientEx _client;
         private bool _cancelScan = false;
         private readonly Timings _pageLoadTimings;
+        private readonly ITestRunLogger _testRunLogger;
         private readonly List<IPEndPoint> _endPoints;
 
         private readonly Report _report;
@@ -40,15 +41,16 @@ namespace SmokeTest.Engine
         #region Constructors / Destructors
 
         public WebMonitor(in SmokeTestProperties properties)
-            : this(properties, null)
+            : this(properties, null, new TestRunLogger(DateTime.UtcNow.Ticks))
         {
 
         }
 
-        public WebMonitor(in SmokeTestProperties properties, in ThreadManager parentThread)
+        public WebMonitor(in SmokeTestProperties properties, in ThreadManager parentThread, ITestRunLogger testRunLogger)
         {
             MaximumOpenEndpoints = 100;
             _properties = properties ?? throw new ArgumentNullException(nameof(properties));
+            _testRunLogger = testRunLogger ?? throw new ArgumentNullException(nameof(testRunLogger));
             _parentThread = parentThread;
             _urlProcessList = new Queue<Uri>();
             _endPoints = new List<IPEndPoint>();
@@ -121,7 +123,7 @@ namespace SmokeTest.Engine
         public bool Run()
         {
             _report.Clear();
-
+            _testRunLogger.Log("Starting Test Run");
             try
             {
                 _report.StartTime = DateTime.Now;
@@ -131,7 +133,10 @@ namespace SmokeTest.Engine
                 while (true)
                 {
                     if (_report.Pages.Count >= _properties.MaximumPages)
+                    {
+                        _testRunLogger.Log($"Maximum pages exceeded {_properties.MaximumPages}");
                         break;
+                    }
 
                     Uri urlToProcess = null;
 
@@ -147,6 +152,7 @@ namespace SmokeTest.Engine
             }
             catch (Exception err)
             {
+                _testRunLogger.Log(err);
                 RaiseError(err, null, null, null);
             }
             finally
@@ -191,6 +197,7 @@ namespace SmokeTest.Engine
                     break;
             }
 
+            _testRunLogger.Log("Running Garbage Collection");
             // finally force a garbage collection
             GC.Collect(2, GCCollectionMode.Forced);
 
@@ -252,8 +259,11 @@ namespace SmokeTest.Engine
         private bool ParsePage(string startsWith,
             Uri url, int depth, Uri originatingLink)
         {
+            _testRunLogger.Log($"Processing Url: {url.ToString()}");
+
             if (_report.Pages.Count >= _properties.MaximumPages)
             {
+                _testRunLogger.Log($"Maximum page count exceeded: {_properties.MaximumPages}");
                 return true;
             }
 
@@ -263,6 +273,7 @@ namespace SmokeTest.Engine
                 {
                     if (!_report.LinkParsed(url.ToString()))
                     {
+                        _testRunLogger.Log($"Crawl depth exceeded, queueing url: {url.ToString()}");
                         _urlProcessList.Enqueue(url);
                     }
                 }
@@ -281,9 +292,24 @@ namespace SmokeTest.Engine
                 return false;
             }
 
-            while (TcpConnectionLimitExceeded())
+            bool tcpConnectionLimitExceeded = TcpConnectionLimitExceeded();
+
+            if (tcpConnectionLimitExceeded)
+            {
+                _testRunLogger.Log($"Tcp connection limit exceeded, pausing...");
+            }
+
+            while (tcpConnectionLimitExceeded)
             {
                 Thread.Sleep(100);
+
+                tcpConnectionLimitExceeded = TcpConnectionLimitExceeded();
+
+                if (!tcpConnectionLimitExceeded)
+                {
+                    _testRunLogger.Log($"Tcp connection limit normalised, resuming...");
+                    break;
+                }
             }
 
             Thread.Sleep(Math.Max(50, _properties.PauseBetweenRequests));
@@ -292,6 +318,7 @@ namespace SmokeTest.Engine
 
             string webData = null;
             Timings pageLoad = new Timings();
+            _testRunLogger.Log($"Retrieving page data: {modifiedUri.ToString()}");
             using (StopWatchTimer pageLoadTimer = StopWatchTimer.Initialise(pageLoad))
             {
                 try
@@ -303,6 +330,7 @@ namespace SmokeTest.Engine
                 }
                 catch (WebException err)
                 {
+                    _testRunLogger.Log(err);
                     if (err.Message.Contains("(404)"))
                     {
                         LogError(err, modifiedUri, modifiedUri, originatingLink);
@@ -323,6 +351,7 @@ namespace SmokeTest.Engine
                 }
                 catch (Exception err)
                 {
+                    _testRunLogger.Log(err);
                     LogError(err, modifiedUri, null, originatingLink);
                 }
             }
@@ -330,6 +359,7 @@ namespace SmokeTest.Engine
             if (String.IsNullOrEmpty(webData))
                 return true;
 
+            _testRunLogger.Log($"Parsing web data: {url.ToString()}");
             List<string> links = ParseHtml(url.ToString(), webData);
             try
             {
@@ -367,8 +397,10 @@ namespace SmokeTest.Engine
 
                     pageReport.Content = webData ?? String.Empty;
 
+                    _testRunLogger.Log("Processing Images");
                     ProcessImages(pageReport, originatingLink, modifiedUri);
 
+                    _testRunLogger.Log("Processing Forms");
                     ProcessForms(pageReport, originatingLink, modifiedUri);
                 }
                 finally
@@ -427,6 +459,7 @@ namespace SmokeTest.Engine
                 {
                     foreach (string imageLink in links)
                     {
+                        _testRunLogger.Log($"Retrieving image data: {imageLink}");
 
                         if (imageLink != "")
                         {

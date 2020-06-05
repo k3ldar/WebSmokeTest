@@ -76,7 +76,10 @@ namespace SmokeTest.Middleware
                     if (_scheduledTests.TryDequeue(out TestQueueItem testQueueItem))
                     {
                         testQueueItem.End = DateTime.Now.Ticks;
-                        ThreadWebsiteScan websiteScan = new ThreadWebsiteScan(testQueueItem.SmokeTestProperties, DateTime.Now.Ticks);
+                        long uniqueId = DateTime.UtcNow.Ticks;
+                        ITestRunLogger testRunLogger = new TestRunLogger(uniqueId);
+                        ThreadWebsiteScan websiteScan = new ThreadWebsiteScan(testQueueItem.SmokeTestProperties, 
+                            uniqueId, testRunLogger);
                         websiteScan.ThreadFinishing += WebsiteScan_ThreadFinishing;
                         TestRunItem testRunItem = new TestRunItem(websiteScan, testQueueItem.Test);
 
@@ -148,6 +151,17 @@ namespace SmokeTest.Middleware
             }
 
             AddTestScheduleToQueue(testSchedule, false);
+        }
+
+        public bool TestRunning(in long testId)
+        {
+            foreach (TestRunItem testRunItem in _activeTestRuns)
+            {
+                if (testRunItem.UniqueId.Equals(testId))
+                    return true;
+            }
+
+            return false;
         }
 
         #endregion ITestRunManager Methods
@@ -329,6 +343,7 @@ namespace SmokeTest.Middleware
             : base()
         {
             WebsiteScan = websiteScan ?? throw new ArgumentNullException(nameof(websiteScan));
+            UniqueId = websiteScan.UniqueId;
             Test = testSchedule ?? throw new ArgumentNullException(nameof(testSchedule));
             TestId = testSchedule.UniqueId;
             Start = DateTime.Now.Ticks;

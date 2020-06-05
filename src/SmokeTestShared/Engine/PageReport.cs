@@ -143,7 +143,7 @@ namespace SmokeTest.Shared.Engine
             if (headers == null)
                 throw new ArgumentNullException(nameof(headers));
 
-            foreach (string item in headers)
+            foreach (string item in headers.AllKeys)
             {
                 Headers.Add(item, headers[item]);
             }
