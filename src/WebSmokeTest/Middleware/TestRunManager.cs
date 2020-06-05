@@ -9,8 +9,8 @@ using PluginManager.Abstractions;
 using Shared;
 using Shared.Classes;
 
-using SmokeTest.Classes;
 using SmokeTest.Engine;
+using SmokeTest.Internal;
 using SmokeTest.Shared;
 using SmokeTest.Shared.Classes;
 using SmokeTest.Shared.Engine;
@@ -78,7 +78,7 @@ namespace SmokeTest.Middleware
                         testQueueItem.End = DateTime.Now.Ticks;
                         long uniqueId = DateTime.UtcNow.Ticks;
                         ITestRunLogger testRunLogger = new TestRunLogger(uniqueId);
-                        ThreadWebsiteScan websiteScan = new ThreadWebsiteScan(testQueueItem.SmokeTestProperties, 
+                        ThreadWebsiteScan websiteScan = new ThreadWebsiteScan(testQueueItem.SmokeTestProperties,
                             uniqueId, testRunLogger);
                         websiteScan.ThreadFinishing += WebsiteScan_ThreadFinishing;
                         TestRunItem testRunItem = new TestRunItem(websiteScan, testQueueItem.Test);

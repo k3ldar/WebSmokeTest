@@ -11,7 +11,7 @@ using PluginManager;
 
 using Shared.Classes;
 
-using SmokeTest.Classes;
+using SmokeTest.Internal;
 
 namespace SmokeTest
 {

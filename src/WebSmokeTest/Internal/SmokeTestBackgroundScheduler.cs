@@ -8,9 +8,9 @@ using PluginManager.Abstractions;
 
 using SmokeTest.Shared;
 
-namespace SmokeTest
+namespace SmokeTest.Internal
 {
-    public class SmokeTestBackgroundScheduler : BackgroundService
+    internal class SmokeTestBackgroundScheduler : BackgroundService
     {
         #region Private Members
 

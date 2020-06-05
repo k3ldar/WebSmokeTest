@@ -58,4 +58,10 @@
     <PackageReference Include="Microsoft.AspNetCore.Authorization.Policy" Version="2.2.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
+      <_Parameter1>$(AssemblyName).UnitTests</_Parameter1>
+    </AssemblyAttribute>
+  </ItemGroup>
+
 </Project>

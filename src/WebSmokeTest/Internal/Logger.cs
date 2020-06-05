@@ -3,9 +3,9 @@
 using PluginManager;
 using PluginManager.Abstractions;
 
-namespace SmokeTest.Classes
+namespace SmokeTest.Internal
 {
-    public class Logger : ILogger
+    internal class Logger : ILogger
     {
         #region ILogger Methods
 

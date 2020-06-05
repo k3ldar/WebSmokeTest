@@ -9,7 +9,7 @@ using SharedPluginFeatures;
 
 using SmokeTest.Shared;
 
-namespace SmokeTest.Classes
+namespace SmokeTest.Internal
 {
     internal class SmokeTestHelper : ISmokeTestHelper
     {

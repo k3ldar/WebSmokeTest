@@ -5,7 +5,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using PluginManager.Abstractions;
 
-using SmokeTest.Classes;
+using SmokeTest.Internal;
 using SmokeTest.Middleware;
 using SmokeTest.Shared;
 using SmokeTest.Shared.Classes;
@@ -22,8 +22,9 @@ namespace SmokeTest.UnitTests
         {
             ISaveData saveData = new Mocks.SaveDataMock();
             ILoadData loadData = new Mocks.LoadDataMock();
+            IIdManager idManager = new IdManager();
 
-            new ScheduleHelper(null, saveData, loadData);
+            new ScheduleHelper(null, saveData, loadData, idManager);
         }
 
         [TestMethod]
@@ -32,7 +33,9 @@ namespace SmokeTest.UnitTests
         {
             ILogger logger = new Logger();
             ILoadData loadData = new Mocks.LoadDataMock();
-            new ScheduleHelper(logger, null, loadData);
+            IIdManager idManager = new IdManager();
+
+            new ScheduleHelper(logger, null, loadData, idManager);
         }
 
         [TestMethod]
@@ -41,7 +44,20 @@ namespace SmokeTest.UnitTests
         {
             ILogger logger = new Logger();
             ISaveData saveData = new Mocks.SaveDataMock();
-            new ScheduleHelper(logger, saveData, null);
+            IIdManager idManager = new IdManager();
+
+            new ScheduleHelper(logger, saveData, null, idManager);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentNullException))]
+        public void ScheduleHelper_Create_NullIdManager_ThrowsException()
+        {
+            ILogger logger = new Logger();
+            ISaveData saveData = new Mocks.SaveDataMock();
+            ILoadData loadData = new Mocks.LoadDataMock();
+
+            new ScheduleHelper(logger, saveData, loadData, null);
         }
 
         [TestMethod]
@@ -50,7 +66,9 @@ namespace SmokeTest.UnitTests
             ILogger logger = new Logger();
             ISaveData saveData = new Mocks.SaveDataMock();
             ILoadData loadData = new Mocks.LoadDataMock();
-            IScheduleHelper sut = new ScheduleHelper(logger, saveData, loadData);
+            IIdManager idManager = new IdManager();
+
+            IScheduleHelper sut = new ScheduleHelper(logger, saveData, loadData, idManager);
 
             Assert.IsNotNull(sut);
         }
@@ -61,8 +79,9 @@ namespace SmokeTest.UnitTests
             ILogger logger = new Logger();
             ISaveData saveData = new Mocks.SaveDataMock();
             ILoadData loadData = new Mocks.LoadDataMock();
+            IIdManager idManager = new IdManager();
 
-            IScheduleHelper sut = new ScheduleHelper(logger, saveData, loadData);
+            IScheduleHelper sut = new ScheduleHelper(logger, saveData, loadData, idManager);
 
             sut.Create("test", "123", DateTime.Now.AddDays(-1), DateTime.Now.AddHours(-1), 1, ScheduleType.Daily);
 
@@ -82,8 +101,9 @@ namespace SmokeTest.UnitTests
             ILogger logger = new Logger();
             ISaveData saveData = new Mocks.SaveDataMock();
             ILoadData loadData = new Mocks.LoadDataMock();
+            IIdManager idManager = new IdManager();
 
-            IScheduleHelper sut = new ScheduleHelper(logger, saveData, loadData);
+            IScheduleHelper sut = new ScheduleHelper(logger, saveData, loadData, idManager);
 
             DateTime runDate = DateTime.Now.AddDays(1);
             sut.Create("test", "123", runDate);
@@ -107,8 +127,9 @@ namespace SmokeTest.UnitTests
             ILogger logger = new Logger();
             ISaveData saveData = new Mocks.SaveDataMock();
             ILoadData loadData = new Mocks.LoadDataMock();
+            IIdManager idManager = new IdManager();
 
-            IScheduleHelper sut = new ScheduleHelper(logger, saveData, loadData);
+            IScheduleHelper sut = new ScheduleHelper(logger, saveData, loadData, idManager);
 
             DateTime runDate = DateTime.Now.AddDays(1);
             sut.Create("test", "123", runDate);
@@ -133,8 +154,9 @@ namespace SmokeTest.UnitTests
             ILogger logger = new Logger();
             ISaveData saveData = new Mocks.SaveDataMock();
             ILoadData loadData = new Mocks.LoadDataMock();
+            IIdManager idManager = new IdManager();
 
-            IScheduleHelper sut = new ScheduleHelper(logger, saveData, loadData);
+            IScheduleHelper sut = new ScheduleHelper(logger, saveData, loadData, idManager);
 
             DateTime runDate = DateTime.Now.AddDays(-1);
             sut.Create("test", "123", runDate);
@@ -156,8 +178,9 @@ namespace SmokeTest.UnitTests
             ILogger logger = new Logger();
             ISaveData saveData = new Mocks.SaveDataMock();
             ILoadData loadData = new Mocks.LoadDataMock();
+            IIdManager idManager = new IdManager();
 
-            IScheduleHelper sut = new ScheduleHelper(logger, saveData, loadData);
+            IScheduleHelper sut = new ScheduleHelper(logger, saveData, loadData, idManager);
 
             DateTime runDate = DateTime.Now.AddHours(1);
             sut.Create("test", "123", runDate);
@@ -182,8 +205,9 @@ namespace SmokeTest.UnitTests
             ILogger logger = new Logger();
             ISaveData saveData = new Mocks.SaveDataMock();
             ILoadData loadData = new Mocks.LoadDataMock();
+            IIdManager idManager = new IdManager();
 
-            IScheduleHelper sut = new ScheduleHelper(logger, saveData, loadData);
+            IScheduleHelper sut = new ScheduleHelper(logger, saveData, loadData, idManager);
 
             DateTime runDate = DateTime.Now.AddHours(-1);
             sut.Create("test", "123", runDate);
@@ -208,8 +232,9 @@ namespace SmokeTest.UnitTests
             ILogger logger = new Logger();
             ISaveData saveData = new Mocks.SaveDataMock();
             ILoadData loadData = new Mocks.LoadDataMock();
+            IIdManager idManager = new IdManager();
 
-            IScheduleHelper sut = new ScheduleHelper(logger, saveData, loadData);
+            IScheduleHelper sut = new ScheduleHelper(logger, saveData, loadData, idManager);
 
             DateTime runDate = DateTime.Now.AddDays(1);
 
@@ -246,8 +271,9 @@ namespace SmokeTest.UnitTests
             ILogger logger = new Logger();
             ISaveData saveData = new Mocks.SaveDataMock();
             ILoadData loadData = new Mocks.LoadDataMock();
+            IIdManager idManager = new IdManager();
 
-            IScheduleHelper sut = new ScheduleHelper(logger, saveData, loadData);
+            IScheduleHelper sut = new ScheduleHelper(logger, saveData, loadData, idManager);
 
             DateTime runDate = DateTime.Now.AddDays(1);
 
@@ -286,8 +312,9 @@ namespace SmokeTest.UnitTests
             ILogger logger = new Logger();
             ISaveData saveData = new Mocks.SaveDataMock();
             ILoadData loadData = new Mocks.LoadDataMock();
+            IIdManager idManager = new IdManager();
 
-            IScheduleHelper sut = new ScheduleHelper(logger, saveData, loadData);
+            IScheduleHelper sut = new ScheduleHelper(logger, saveData, loadData, idManager);
 
             DateTime runDate = DateTime.Now.AddDays(1);
 

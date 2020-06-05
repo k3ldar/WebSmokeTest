@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net;
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -27,6 +27,7 @@ namespace SmokeTest.Scheduler.Controllers
         private readonly ITestRunManager _testRunManager;
         private readonly IReportHelper _reportHelper;
         private static ITestConfigurationProvider _testConfigurationProvider;
+        private readonly IIdManager _idManager;
 
         #endregion Private Members
 
@@ -35,11 +36,13 @@ namespace SmokeTest.Scheduler.Controllers
         public ScheduleController(IScheduleHelper scheduleHelper,
             ITestConfigurationProvider testConfigurationProvider,
             ITestRunManager testRunManager,
-            IReportHelper reportHelper)
+            IReportHelper reportHelper,
+            IIdManager idManager)
         {
             _scheduleHelper = scheduleHelper ?? throw new ArgumentNullException(nameof(scheduleHelper));
             _testRunManager = testRunManager ?? throw new ArgumentNullException(nameof(testRunManager));
             _reportHelper = reportHelper ?? throw new ArgumentNullException(nameof(reportHelper));
+            _idManager = idManager ?? throw new ArgumentNullException(nameof(idManager));
 
             if (_testConfigurationProvider == null)
             {
@@ -195,12 +198,12 @@ namespace SmokeTest.Scheduler.Controllers
 
                 ReportSummary[] reportSummaries = _reportHelper.ReportSummary(schedule.UniqueId, 10);
 
-                runModels.Add(new TestRunViewModel(schedule.Name, 
-                    test.Name, 
-                    schedule.UniqueId, 
-                    reportSummaries.Length > 0 ? reportSummaries[0].RunResult : schedule.LastRunResult, 
+                runModels.Add(new TestRunViewModel(schedule.Name,
+                    test.Name,
+                    schedule.UniqueId,
+                    reportSummaries.Length > 0 ? reportSummaries[0].RunResult : schedule.LastRunResult,
                     schedule.NextRun,
-                    reportSummaries.Length > 0 ? reportSummaries[0].EndTime : schedule.LastRun, 
+                    reportSummaries.Length > 0 ? reportSummaries[0].EndTime : schedule.LastRun,
                     _testRunManager.QueuePositions(schedule.UniqueId),
                     _testRunManager.ActiveTests(schedule.UniqueId),
                     reportSummaries));
@@ -329,7 +332,7 @@ namespace SmokeTest.Scheduler.Controllers
             ScheduleModel Result = new ScheduleModel(GetModelData());
 
             Result.Name = model == null ? String.Empty : model.Name;
-            Result.UniqueId = model == null ? DateTime.Now.Ticks : model.UniqueId;
+            Result.UniqueId = model == null ? _idManager.GenerateId() : model.UniqueId;
             Result.ScheduleType = model == null ? String.Empty : model.ScheduleType;
             Result.StartTime = model == null ? DateTime.Now.AddHours(1) : model.StartTime;
             Result.Frequency = model == null ? 1 : model.Frequency;

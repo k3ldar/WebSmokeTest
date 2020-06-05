@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.CodeAnalysis.Differencing;
+
 using Shared.Classes;
+
 using SharedPluginFeatures;
 
 using SmokeTest.Settings.Models;
@@ -21,14 +23,16 @@ namespace SmokeTest.Settings.Controllers
         #region Private Members
 
         private readonly ITestConfigurationProvider _testConfigurationProvider;
+        private readonly IIdManager _idManager;
 
         #endregion Private Members
 
         #region Constructors
 
-        public ConfigurationController(ITestConfigurationProvider testConfigurationProvider)
+        public ConfigurationController(ITestConfigurationProvider testConfigurationProvider, IIdManager idManager)
         {
             _testConfigurationProvider = testConfigurationProvider ?? throw new ArgumentNullException(nameof(testConfigurationProvider));
+            _idManager = idManager ?? throw new ArgumentNullException(nameof(idManager));
         }
 
         #endregion Constructors
@@ -153,7 +157,7 @@ namespace SmokeTest.Settings.Controllers
                 Name = model == null ? String.Empty : model.Name,
                 Url = model == null ? String.Empty : model.Url,
                 MillisecondsBetweenRequests = model == null ? 250 : model.MillisecondsBetweenRequests,
-                UniqueId = model == null ? DateTime.Now.Ticks.ToString("X") : model.UniqueId,
+                UniqueId = model == null ? _idManager.GenerateId().ToString("X") : model.UniqueId,
                 UserAgent = model == null ? DefaultUseragent : model.UserAgent,
                 CrawlDepth = model == null ? 10 : model.CrawlDepth,
                 MaximumPages = model == null ? 10000 : model.MaximumPages,

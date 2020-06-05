@@ -1,12 +1,16 @@
 ﻿
 using System;
 using System.Linq;
+
 using Microsoft.AspNetCore.Mvc;
+
 using PluginManager.Abstractions;
+
 using Shared.Classes;
 
 using SharedPluginFeatures;
-using SmokeTest.Classes;
+
+using SmokeTest.Internal;
 using SmokeTest.Models;
 using SmokeTest.Shared;
 

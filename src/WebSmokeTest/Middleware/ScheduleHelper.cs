@@ -20,16 +20,18 @@ namespace SmokeTest.Middleware
         private readonly ILogger _logger;
         private readonly ISaveData _saveData;
         private readonly ILoadData _loadData;
+        private readonly IIdManager _idManager;
 
         #endregion Private Members
 
         #region Constructors
 
-        public ScheduleHelper(ILogger logger, ISaveData saveData, ILoadData loadData)
+        public ScheduleHelper(ILogger logger, ISaveData saveData, ILoadData loadData, IIdManager idManager)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _saveData = saveData ?? throw new ArgumentNullException(nameof(saveData));
             _loadData = loadData ?? throw new ArgumentNullException(nameof(loadData));
+            _idManager = idManager ?? throw new ArgumentNullException(nameof(idManager));
 
             _testSchedules = new List<TestSchedule>();
 
@@ -62,7 +64,7 @@ namespace SmokeTest.Middleware
             if (String.IsNullOrEmpty(testId))
                 throw new ArgumentOutOfRangeException(nameof(testId));
 
-            TestSchedule testSchedule = new TestSchedule(DateTime.Now.Ticks, name, testId, startTime);
+            TestSchedule testSchedule = new TestSchedule(_idManager.GenerateId(), name, testId, startTime);
 
             if (SaveSchedule(testSchedule))
             {
@@ -81,7 +83,7 @@ namespace SmokeTest.Middleware
             if (String.IsNullOrEmpty(testId))
                 throw new ArgumentOutOfRangeException(nameof(testId));
 
-            TestSchedule testSchedule = new TestSchedule(DateTime.Now.Ticks, name, testId, startTime, expires, frequency, scheduleType);
+            TestSchedule testSchedule = new TestSchedule(_idManager.GenerateId(), name, testId, startTime, expires, frequency, scheduleType);
 
             if (SaveSchedule(testSchedule))
             {
@@ -101,7 +103,7 @@ namespace SmokeTest.Middleware
             if (String.IsNullOrEmpty(testId))
                 throw new ArgumentOutOfRangeException(nameof(testId));
 
-            TestSchedule testSchedule = new TestSchedule(DateTime.Now.Ticks, name, testId, startTime, expires, frequency, scheduleDay);
+            TestSchedule testSchedule = new TestSchedule(_idManager.GenerateId(), name, testId, startTime, expires, frequency, scheduleDay);
 
             if (SaveSchedule(testSchedule))
             {

@@ -2,6 +2,7 @@
 
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 using Middleware;
 using Middleware.Accounts;
@@ -14,7 +15,7 @@ using SmokeTest.Middleware;
 using SmokeTest.Shared;
 using SmokeTest.Shared.Interfaces;
 
-namespace SmokeTest.Classes
+namespace SmokeTest.Internal
 {
     public class PluginInitialisation : IPlugin, IInitialiseEvents
     {
@@ -44,20 +45,21 @@ namespace SmokeTest.Classes
                 saveData,
                 loadData);
 
-            services.AddSingleton<ISaveData>(saveData);
-            services.AddSingleton<ILoadData>(loadData);
-            services.AddSingleton<ILoginProvider>(userProvider);
-            services.AddSingleton<IClaimsProvider>(userProvider);
-            services.AddSingleton<IAccountProvider>(userProvider);
-            services.AddSingleton<IUserSearch>(userProvider);
-            services.AddSingleton<IDownloadProvider, DownloadProvider>();
-            services.AddSingleton<ICountryProvider, CountryProvider>();
-            services.AddSingleton<ILicenceProvider, LicenseProvider>();
-            services.AddSingleton<IErrorManager, ErrorManagerProvider>();
-            services.AddSingleton<ISmokeTestHelper, SmokeTestHelper>();
-            services.AddSingleton<ISeoProvider, SeoProvider>();
-            services.AddSingleton<ITestConfigurationProvider, ConfigurationProvider>();
-            services.AddSingleton<IScheduleHelper, ScheduleHelper>();
+            services.TryAddSingleton<ISaveData>(saveData);
+            services.TryAddSingleton<ILoadData>(loadData);
+            services.TryAddSingleton<ILoginProvider>(userProvider);
+            services.TryAddSingleton<IClaimsProvider>(userProvider);
+            services.TryAddSingleton<IAccountProvider>(userProvider);
+            services.TryAddSingleton<IUserSearch>(userProvider);
+            services.TryAddSingleton<IDownloadProvider, DownloadProvider>();
+            services.TryAddSingleton<ICountryProvider, CountryProvider>();
+            services.TryAddSingleton<ILicenceProvider, LicenseProvider>();
+            services.TryAddSingleton<IErrorManager, ErrorManagerProvider>();
+            services.TryAddSingleton<ISmokeTestHelper, SmokeTestHelper>();
+            services.TryAddSingleton<ISeoProvider, SeoProvider>();
+            services.TryAddSingleton<ITestConfigurationProvider, ConfigurationProvider>();
+            services.TryAddSingleton<IScheduleHelper, ScheduleHelper>();
+            services.TryAddSingleton<IIdManager, IdManager>();
         }
 
         public void BeforeConfigure(in IApplicationBuilder app)
