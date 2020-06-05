@@ -154,6 +154,56 @@ namespace SmokeTest.Scheduler.Controllers
         }
 
         [HttpGet]
+        [Authorize(Policy = STConsts.PolicyManageSchedules)]
+        [Breadcrumb(nameof(Delete), Name, nameof(Index))]
+        public IActionResult Delete(string id)
+        {
+            if (Int64.TryParse(id, out long scheduleId))
+            {
+                TestSchedule schedule = _scheduleHelper.Schedules.Where(s => s.UniqueId == scheduleId).FirstOrDefault();
+
+                if (schedule != null)
+                {
+                    return View(new DeleteScheduleModel(GetModelData(), schedule.UniqueId));
+                }
+            }
+
+            return RedirectToAction(nameof(Index));
+        }
+
+        [HttpPost]
+        [Authorize(Policy = STConsts.PolicyManageSchedules)]
+        public IActionResult Delete(DeleteScheduleModel model)
+        {
+            if (model == null)
+                throw new ArgumentNullException(nameof(model));
+
+            TestSchedule schedule = _scheduleHelper.Schedules.Where(s => s.UniqueId == model.UniqueId).FirstOrDefault();
+
+            if (schedule == null)
+            {
+                return RedirectToAction(nameof(Index));
+            }
+
+            if (String.IsNullOrEmpty(model.Confirm) || !model.Confirm.Equals("delete", StringComparison.InvariantCultureIgnoreCase))
+            {
+                ModelState.AddModelError(nameof(model.Confirm), "Please type confirm to delete the test schedule");
+            }
+
+            if (ModelState.IsValid && !_scheduleHelper.Delete(schedule))
+            {
+                ModelState.AddModelError(String.Empty, "Failed to delete test schedule");
+            }
+
+            if (!ModelState.IsValid)
+            {
+                return View(new DeleteScheduleModel(GetModelData(), model.UniqueId));
+            }
+
+            return RedirectToAction(nameof(Index));
+        }
+
+        [HttpGet]
         public IActionResult RunSchedules()
         {
             return PartialView("_Scheduled", BuildRunSchedule());

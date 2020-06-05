@@ -22,6 +22,7 @@
                         <th>Test Name</th>
                         <th>Epires</th>
                         <th></th>
+                        <th></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -33,13 +34,14 @@
                             expire = schedule.Expires.Value.ToString("dd/MM/yyyy");
                         }
                         
-                        <tr>
-                            <td>@schedule.Name</td>
-                            <td>@schedule.ScheduleType</td>
-                            <td><a href="/Configuration/Edit/@schedule.TestId/">@schedule.TestName</a></td>
-                            <td>@expire</td>
-                            <td><a href="/Schedule/Edit/@schedule.UniqueId/">Edit</a></td>
-                        </tr>
+                    <tr>
+                        <td>@schedule.Name</td>
+                        <td>@schedule.ScheduleType</td>
+                        <td><a href="/Configuration/Edit/@schedule.TestId/">@schedule.TestName</a></td>
+                        <td>@expire</td>
+                        <td><a href="/Schedule/Edit/@schedule.UniqueId/">Edit</a></td>
+                        <td><a href="/Schedule/Delete/@schedule.UniqueId/">Delete</a></td>
+                    </tr>
                     }
                 </tbody>
             </table>

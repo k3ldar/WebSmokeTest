@@ -127,6 +127,30 @@ namespace SmokeTest.Middleware
             return false;
         }
 
+        public bool Delete(in TestSchedule testSchedule)
+        {
+            if (testSchedule == null)
+                throw new ArgumentNullException(nameof(testSchedule));
+
+            string scheduleFile = Path.Combine(_dataPath, $"{testSchedule.UniqueId}.sch");
+
+            if (!File.Exists(scheduleFile))
+            {
+                return false;
+            }
+
+            File.Delete(scheduleFile);
+
+            bool Result = !File.Exists(scheduleFile);
+
+            if (Result)
+            {
+                _testSchedules.Remove(testSchedule);
+            }
+
+            return Result;
+        }
+
         #endregion IScheduleHelper Methods
 
         #region Private Methods
