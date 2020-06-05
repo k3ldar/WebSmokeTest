@@ -155,7 +155,7 @@ namespace SmokeTest.Shared.Engine
             if (cookie == null)
                 throw new ArgumentNullException(nameof(cookie));
 
-            if (Cookies.Where(c => c.Name.Equals(cookie.Name) && c.Value.Equals(cookie.Value) && c.Expires.Equals(cookie.Expires)).Any())
+            if (Cookies.Where(c => c.Name.Equals(cookie.Name)).Any())
                 return;
 
             Cookies.Add(cookie);
