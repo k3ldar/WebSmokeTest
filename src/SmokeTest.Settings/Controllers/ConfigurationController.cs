@@ -141,6 +141,56 @@ namespace SmokeTest.Settings.Controllers
             return View(CreateTestConfigurationViewModel(model));
         }
 
+        [HttpGet]
+        [Authorize(Policy = STConsts.PolicyManageSchedules)]
+        [Breadcrumb(nameof(Delete), Name, nameof(Index))]
+        public IActionResult Delete(string id)
+        {
+            if (!String.IsNullOrEmpty(id))
+            {
+                TestConfiguration configuration = _testConfigurationProvider.Configurations.Where(c => c.UniqueId == id).FirstOrDefault();
+
+                if (configuration != null)
+                {
+                    return View(new DeleteConfigurationModel(GetModelData(), configuration.UniqueId));
+                }
+            }
+
+            return RedirectToAction(nameof(Index));
+        }
+
+        [HttpPost]
+        [Authorize(Policy = STConsts.PolicyManageSchedules)]
+        public IActionResult Delete(DeleteConfigurationModel model)
+        {
+            if (model == null)
+                throw new ArgumentNullException(nameof(model));
+
+            TestConfiguration configuration = _testConfigurationProvider.Configurations.Where(c => c.UniqueId == model.UniqueId).FirstOrDefault();
+
+            if (configuration == null)
+            {
+                return RedirectToAction(nameof(Index));
+            }
+
+            if (String.IsNullOrEmpty(model.Confirm) || !model.Confirm.Equals("delete", StringComparison.InvariantCultureIgnoreCase))
+            {
+                ModelState.AddModelError(nameof(model.Confirm), "Please type confirm to delete the configuration");
+            }
+
+            if (ModelState.IsValid && !_testConfigurationProvider.Delete(configuration))
+            {
+                ModelState.AddModelError(String.Empty, "Failed to delete test schedule");
+            }
+
+            if (!ModelState.IsValid)
+            {
+                return View(new DeleteConfigurationModel(GetModelData(), model.UniqueId));
+            }
+
+            return RedirectToAction(nameof(Index));
+        }
+
         #endregion Public Action Methods
 
         #region Private Methods

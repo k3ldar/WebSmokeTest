@@ -16,5 +16,7 @@ namespace SmokeTest.Shared
             in List<string> additionalUrls, in NVPCodec headers);
 
         bool SaveConfiguration(in TestConfiguration configuration);
+
+        bool Delete(in TestConfiguration configuration);
     }
 }

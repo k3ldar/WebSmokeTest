@@ -122,6 +122,30 @@ namespace SmokeTest.Middleware
             return SaveConfigurationToFile(configuration);
         }
 
+        public bool Delete(in TestConfiguration configuration)
+        {
+            if (configuration == null)
+                throw new ArgumentNullException(nameof(configuration));
+
+            string scheduleFile = Path.Combine(_dataPath, $"{configuration.UniqueId}.test");
+
+            if (!File.Exists(scheduleFile))
+            {
+                return false;
+            }
+
+            File.Delete(scheduleFile);
+
+            bool Result = !File.Exists(scheduleFile);
+
+            if (Result)
+            {
+                _configurations.Remove(configuration);
+            }
+
+            return Result;
+        }
+
         #endregion ITestConfigurationProvider Methods
 
         #region Private Methods
