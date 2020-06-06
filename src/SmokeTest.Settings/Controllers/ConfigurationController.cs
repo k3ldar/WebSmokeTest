@@ -229,7 +229,7 @@ namespace SmokeTest.Settings.Controllers
             if (!ModelState.IsValid && !Uri.TryCreate(model.Url, UriKind.Absolute, out Uri _))
                 ModelState.AddModelError(nameof(model.Url), "Url must be a valid web site address");
 
-            if (_testConfigurationProvider.ConfigurationExists(model.Name))
+            if (_testConfigurationProvider.ConfigurationExists(model.Name, model.UniqueId))
                 ModelState.AddModelError(String.Empty, $"A test configuration with the name {model.Name} already exists.");
 
             if (model.MaximumPages < 1)

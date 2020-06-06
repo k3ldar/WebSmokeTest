@@ -8,7 +8,7 @@ namespace SmokeTest.Shared
     {
         List<TestConfiguration> Configurations { get; }
 
-        bool ConfigurationExists(string name);
+        bool ConfigurationExists(string name, string currentId);
 
         bool SaveConfiguration(in string name, in string url, in int crawlDepth, in int maxPages,
             in int millisecondsBetweenRequest, in string userAgent, in string uniqueId,

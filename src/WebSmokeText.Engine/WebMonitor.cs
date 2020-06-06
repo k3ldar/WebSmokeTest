@@ -319,7 +319,7 @@ namespace SmokeTest.Engine
 
             string webData = null;
             Timings pageLoad = new Timings();
-            _testRunLogger.Log($"Retrieving page data: {modifiedUri.ToString()}");
+
             using (StopWatchTimer pageLoadTimer = StopWatchTimer.Initialise(pageLoad))
             {
                 try

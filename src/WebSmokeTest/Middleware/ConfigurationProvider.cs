@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 
@@ -61,9 +62,9 @@ namespace SmokeTest.Middleware
 
         #region ITestConfigurationProvider Methods
 
-        public bool ConfigurationExists(string name)
+        public bool ConfigurationExists(string name, string currentId)
         {
-            return _configurations.Where(c => c.Name.Equals(name)).Count() > 0;
+            return _configurations.Where(c => c.Name.Equals(name, StringComparison.InvariantCultureIgnoreCase) && c.UniqueId != currentId).Count() > 0;
         }
 
         public bool SaveConfiguration(in string name, in string url, in int crawlDepth, in int maxPages,
