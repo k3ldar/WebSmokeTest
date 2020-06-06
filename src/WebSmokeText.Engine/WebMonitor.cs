@@ -4,6 +4,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Mail;
 using System.Net.NetworkInformation;
+using System.Security.Policy;
 using System.Threading;
 
 using Shared.Classes;
@@ -505,7 +506,7 @@ namespace SmokeTest.Engine
             in Uri originatingLink, in Uri url)
         {
             //Look at any forms, can we process those too
-            List<FormReport> forms = ParseForms(pageReport.Content);
+            List<FormReport> forms = ParseForms(url, pageReport.Content);
             try
             {
                 foreach (FormReport form in forms)
@@ -628,7 +629,7 @@ namespace SmokeTest.Engine
             return Result;
         }
 
-        private List<FormReport> ParseForms(string text)
+        private List<FormReport> ParseForms(Uri url, string text)
         {
             List<FormReport> Result = new List<FormReport>();
 
@@ -641,6 +642,7 @@ namespace SmokeTest.Engine
                 if (tag.Attributes.TryGetValue("action", out string _))
                 {
                     FormReport form = new FormReport();
+                    form.Url = url;
                     form.Action = tag.Attributes["action"];
                     form.Id = tag.Attributes.ContainsKey("id") ? tag.Attributes["id"] : String.Empty;
                     form.Method = tag.Attributes.ContainsKey("method") ? tag.Attributes["method"] : String.Empty;

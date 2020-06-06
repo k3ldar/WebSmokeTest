@@ -102,18 +102,32 @@ namespace SmokeTest.Shared.Engine
 
         public void FormReportAdd(FormReport form)
         {
-            if (form == null)
+            if (form == null) 
                 throw new ArgumentNullException(nameof(form));
 
-            if (Forms
-                .Where(f => f.Action.Equals(form.Action, StringComparison.OrdinalIgnoreCase) &&
-                        f.Method.Equals(form.Method, StringComparison.OrdinalIgnoreCase))
-                .Any())
+            string action = form.Action;
+
+            if (action.Contains("?"))
             {
-                return;
+                form.AdditionalLinks.Add(new Uri(form.Action, UriKind.RelativeOrAbsolute));
+                action = action.Substring(0, action.IndexOf('?'));
+                form.Action = action;
+            }
+            else
+            {
+                form.AdditionalLinks.Add(new Uri(form.Action, UriKind.RelativeOrAbsolute));
             }
 
-            Forms.Add(form);
+            FormReport existing = Forms.Where(f => f.Action.Equals(action, StringComparison.InvariantCultureIgnoreCase)).FirstOrDefault();
+
+            if (existing == null)
+            {
+                Forms.Add(form);
+            }
+            else
+            {
+                existing.AdditionalLinks.Add(form.AdditionalLinks[0]);
+            }
         }
 
         public void PageAdd(in PageReport page, in ThreadManager parent, in SmokeTestProperties properties)
