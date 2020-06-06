@@ -42,8 +42,8 @@ namespace SmokeTest.Reports.Controllers
         #region Public Action Methods
 
         [HttpGet]
-        [Route("[controller]/[action]/{reportId}/{testId}")]
-        [Breadcrumb(nameof(TestSummary))]
+        [Route("/Reports/TestSummary/{reportId}/{testId}")]
+        [Breadcrumb(nameof(TestSummary), "Home", "Index", HasParams = true)]
         public IActionResult TestSummary(string reportId, string testId)
         {
             string reportFile = Path.Combine(_dataPath, "Reports", testId, reportId + ".rpt");
@@ -58,7 +58,8 @@ namespace SmokeTest.Reports.Controllers
         }
 
         [HttpGet]
-        [Route("[controller]/[action]/{uniqueRunId}")]
+        [Route("/Reports/TestRunProgress/{uniqueRunId}")]
+        [Breadcrumb(nameof(TestRunProgress), "Home", "Index", HasParams = true)]
         public IActionResult TestRunProgress(long uniqueRunId)
         {
             TestRunProgressModel model = new TestRunProgressModel(GetModelData(), uniqueRunId);
