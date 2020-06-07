@@ -263,7 +263,6 @@ body {
     border-bottom: 1px solid white;
 }
 
-
 .runButton {
     top: 200px;
     position: absolute;
@@ -280,6 +279,7 @@ body {
     font-weight: bold;
     padding: 1px 6px 1px 6px;
 }
+
 .queueItem {
     background-color: white;
     color: black;
@@ -341,7 +341,6 @@ body {
 .smokeGrid table thead tr td {
     padding-right: 20px;
 }
-
 
 .smokeGrid tr:nth-child(even) {
     background-color: #f2f2f2;
