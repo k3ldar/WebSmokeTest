@@ -204,13 +204,14 @@ namespace SmokeTest.Scheduler.Controllers
         }
 
         [HttpGet]
-        public IActionResult RunSchedules()
+        public IActionResult RunSchedules(string id)
         {
-            return PartialView("_Scheduled", BuildRunSchedule());
+            return PartialView("_Scheduled", BuildRunSchedule(id));
         }
 
         [HttpGet]
-        public IActionResult RunTest(string id)
+        [Route("/Schedule/RunTest/{id}/{position}")]
+        public IActionResult RunTest(string id, string position)
         {
             TestSchedule testSchedule = null;
 
@@ -219,23 +220,30 @@ namespace SmokeTest.Scheduler.Controllers
                 testSchedule = _scheduleHelper.Schedules.Where(s => s.UniqueId.Equals(scheduleId)).FirstOrDefault();
             }
 
+            bool update = !String.IsNullOrEmpty(position);
+            bool testScheduled = false;
+            string url = String.Empty;
+
             if (testSchedule == null)
             {
                 HttpContext.Response.StatusCode = 404;
+
             }
             else
             {
                 _testRunManager.RunTest(testSchedule);
+                url = $"/{ScheduleController.Name}/{nameof(ScheduleController.RunSchedules)}/{position}";
+                testScheduled = true;
             }
 
-            return new EmptyResult();
+            return Json(new { update, testScheduled, id = position, url });
         }
 
         #endregion Public Action Methods
 
         #region Privte Methods
 
-        private TestRunViewModels BuildRunSchedule()
+        private TestRunViewModels BuildRunSchedule(in string position)
         {
             List<TestRunViewModel> runModels = new List<TestRunViewModel>();
 
@@ -259,7 +267,7 @@ namespace SmokeTest.Scheduler.Controllers
                     reportSummaries));
             }
 
-            return new TestRunViewModels(runModels);
+            return new TestRunViewModels(runModels, position);
         }
 
         private ScheduleDay GetScheduledDays(in ScheduleModel model)

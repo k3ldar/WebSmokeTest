@@ -5,9 +5,10 @@ namespace SmokeTest.Scheduler.Models
 {
     public sealed class TestRunViewModels
     {
-        public TestRunViewModels(in List<TestRunViewModel> runModels)
+        public TestRunViewModels(in List<TestRunViewModel> runModels, in string position)
         {
             RunModels = runModels ?? throw new ArgumentNullException(nameof(runModels));
+            Position = position ?? String.Empty;
 
             foreach (TestRunViewModel model in runModels)
             {
@@ -48,5 +49,7 @@ namespace SmokeTest.Scheduler.Models
         public int Running { get; private set; }
 
         public int Queued { get; private set; }
+
+        public string Position { get; private set; }
     }
 }

@@ -128,10 +128,13 @@
     function runTest(id) {
         $.ajax({
             type: 'GET',
-            url: '/Schedule/RunTest/' + id + '/',
+            url: '/Schedule/RunTest/' + id + '/' + @Model.Position + '/',
             cache: false,
             success: function (response) {
-
+                if (response.testScheduled && response.update) {
+                    divName = "#divHomecard" + response.id;
+                    updateDynamicData(divName, response.url);
+                }
             },
         })
     };

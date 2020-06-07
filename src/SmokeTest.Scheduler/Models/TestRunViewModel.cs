@@ -33,7 +33,6 @@ namespace SmokeTest.Scheduler.Models
             QueuePositions = queuePositions;
             UniqueRunIdentifiers = uniqueRunIdentifiers;
             ReportSummaries = reportSummaries;
-
         }
 
         #endregion Constructors

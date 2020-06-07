@@ -4,7 +4,7 @@
     ViewData["Title"] = "Smoke Test";
 }
 
-<script type="text/javascript">
+    <script type="text/javascript">
     function updateDynamicData(divName, url) {
         $.ajax({
             type: 'GET',
@@ -12,16 +12,16 @@
             cache: false,
             success: function (response) {
                 $(divName).html(response);
+
+                var autoUpdate = @Model.AutoUpdatePage.ToString().ToLower();
+
+                if (autoUpdate) {
+                    setTimeout(updateDynamicData, @Model.AutoUpdateFrequency, divName, url);
+                }
             },
         })
-
-        var autoUpdate = @Model.AutoUpdatePage.ToString().ToLower();
-
-        if (autoUpdate) {
-            setTimeout(updateDynamicData, @Model.AutoUpdateFrequency, divName, url);
-        }
     };
-</script>
+    </script>
 <div class="hb">
     <div class="row">
         <div class="col">
@@ -31,12 +31,13 @@
 
                 if (item.PartialView)
                 {
-                    string divName = $"divPartial{i}";
+                    string url = $"{item.Url}{i}";
+                    string divName = $"divHomecard{i}";
                     <div id="@divName">
                     </div>
                     <script type="text/javascript">
                         $(document).ready(function () {
-                            updateDynamicData('#@divName', '@item.Url');
+                            updateDynamicData('#@divName', '@url');
                         });
                     </script>
                 }
