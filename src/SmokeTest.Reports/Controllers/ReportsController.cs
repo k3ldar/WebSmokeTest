@@ -94,6 +94,23 @@ namespace SmokeTest.Reports.Controllers
                 errorData.Add(new ErrorDataModel(item.Error.Message, item.Uri, item.MissingLink, item.OriginatingLink));
             }
 
+            if (report.Headers == null)
+                report.Headers = new Dictionary<string, string>();
+
+            foreach (PageReport page in report.Pages)
+            {
+                foreach (string header in page.Headers.AllKeys)
+                {
+                    if (header.Equals("Expires") || header.Equals("Set-Cookie"))
+                        continue;
+
+                    if (!report.Headers.ContainsKey(header))
+                    {
+                        report.Headers.Add(header, page.Headers[header]);
+                    }
+                }
+            }
+
             return new TestSummaryModel(
                 GetModelData(),
                 report.UniqueId,
