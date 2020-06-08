@@ -6,7 +6,7 @@ using Microsoft.Extensions.Hosting;
 
 using PluginManager.Abstractions;
 
-using SmokeTest.Shared;
+using SmokeTest.Engine;
 
 namespace SmokeTest.Internal
 {

@@ -25,6 +25,11 @@ namespace SmokeTest.UnitTests.Mocks
             throw new NotImplementedException();
         }
 
+        public bool Delete(in TestSchedule testSchedule)
+        {
+            throw new NotImplementedException();
+        }
+
         public bool Update(in TestSchedule testSchedule)
         {
             throw new NotImplementedException();

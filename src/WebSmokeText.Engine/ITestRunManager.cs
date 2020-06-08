@@ -1,6 +1,7 @@
-﻿using SmokeTest.Shared.Classes;
+﻿using SmokeTest.Shared;
+using SmokeTest.Shared.Classes;
 
-namespace SmokeTest.Shared
+namespace SmokeTest.Engine
 {
     public interface ITestRunManager
     {
@@ -10,7 +11,9 @@ namespace SmokeTest.Shared
 
         void RunTest(in TestSchedule testSchedule);
 
-        int[] QueuePositions(in long testId);
+        TestQueueItem[] QueuePositions(in long testId);
+
+        bool CancelQueuedItem(in long testId);
 
         bool TestRunning(in long testId);
 
@@ -18,6 +21,6 @@ namespace SmokeTest.Shared
 
         TestItem[] RunningTests { get; }
 
-        TestItem[] QueuedTests { get; }
+        TestQueueItem[] QueuedTests { get; }
     }
 }

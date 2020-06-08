@@ -83,11 +83,11 @@
                         if (futureCounter > 9)
                             break;
                     }
-                    @foreach (int item in runModel.QueuePositions)
+                    @foreach (SmokeTest.Engine.TestQueueItem item in runModel.QueuePositions)
                     {
                         futureCounter++;
 
-                        <span class="queueItem" title="Test run Queud at position @item">Q</span>
+                        <a href="/Schedule/ViewQueueItem/@item.QueueId"><span class="queueItem" title="Test run Queud at position @item.Position">Q</span></a>
 
                         if (futureCounter > 9)
                             break;

@@ -1,0 +1,64 @@
+﻿@model SmokeTest.Scheduler.Models.QueueItemModel
+@{
+    ViewData["Title"] = "View Queued Item";
+}
+
+<div class="hb">
+    <div class="row">
+        <div class="col">
+            <h1>@ViewData["Title"]</h1>
+        </div>
+    </div>
+</div>
+@if (ViewData.ModelState[""] != null && ViewData.ModelState[""].Errors.Count() > 0)
+{
+    <div class="alert alert-error">
+        <a class="close" data-dismiss="alert">×</a>
+        <h5 class="alert-heading">Please correct the following errors to continue</h5>
+        <div class="row">
+            <div class="col-sm-12">
+                @Html.ValidationSummary(true)
+            </div>
+        </div>
+    </div>
+}
+<div class="row">
+    <div class="col-sm-12 col-md-3">
+        @Html.LabelFor(m => m.TestName)
+    </div>
+    <div class="col-sm-12 col-md-9">
+        @Model.TestName
+    </div>
+</div>
+<div class="row">
+    <div class="col-sm-12 col-md-3">
+        @Html.LabelFor(m => m.Url)
+    </div>
+    <div class="col-sm-12 col-md-9">
+        @Model.Url
+    </div>
+</div>
+<div class="hb">
+
+    @using (Html.BeginForm(nameof(SmokeTest.Scheduler.Controllers.ScheduleController.ViewQueueItem), SmokeTest.Scheduler.Controllers.ScheduleController.Name, FormMethod.Post))
+    {
+        @Html.HiddenFor(m => m.QueueId)
+        <div class="row">
+            <div class="col-sm-12 col-md-3">
+                Type DELETE to confirm deletion of the queued item
+            </div>
+            <div class="col-sm-12 col-md-9">
+                @Html.TextBoxFor(m => m.Confirm, new { @class = "form-control", style = "width:150px;" })
+                @Html.ValidationMessageFor(m => m.Confirm)
+            </div>
+        </div>
+        <div class="row ac-row">
+            <div class="col-sm-12 col-md-3">
+                <button type="submit" class="btn btn-primary">Delete</button>
+            </div>
+            <div class="col-sm-12 col-md-9">
+
+            </div>
+        </div>
+    }
+</div>

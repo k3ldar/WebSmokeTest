@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Linq;
+
 using SmokeTest.Shared;
 
 namespace SmokeTest.Scheduler.Models
@@ -9,12 +9,12 @@ namespace SmokeTest.Scheduler.Models
         #region Constructors
 
         public TestRunViewModel(in string testName,
-            in string configurationName, 
+            in string configurationName,
             in long uniqueId,
             in LastRunResult lastRunResult,
             in DateTime nextRun,
-            in DateTime? lastRun, 
-            in int[] queuePositions, 
+            in DateTime? lastRun,
+            in TestItem[] queuePositions,
             in TestItem[] uniqueRunIdentifiers,
             in ReportSummary[] reportSummaries)
         {
@@ -51,7 +51,7 @@ namespace SmokeTest.Scheduler.Models
 
         public TestItem[] UniqueRunIdentifiers { get; private set; }
 
-        public int[] QueuePositions { get; private set; }
+        public TestItem[] QueuePositions { get; private set; }
 
         public long UniqueId { get; private set; }
 

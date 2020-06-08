@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 
 using SharedPluginFeatures;
 
+using SmokeTest.Engine;
 using SmokeTest.Reports.Models;
 using SmokeTest.Shared;
 using SmokeTest.Shared.Engine;
@@ -74,7 +75,7 @@ namespace SmokeTest.Reports.Controllers
             ITestRunLogger testRunLogger = new TestRunLogger(uniqueRunId);
             string Result = testRunLogger.RetrieveData(position);
             position += Result.Length;
-            
+
             Result = Result.Replace("\r\n", "<br />").Replace("'", "&apos;");
             bool isRunning = _testRunManager.TestRunning(uniqueRunId);
 

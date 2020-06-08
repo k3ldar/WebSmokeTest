@@ -10,6 +10,7 @@ using SharedPluginFeatures;
 using SmokeTest.Scheduler.Models;
 using SmokeTest.Shared;
 using SmokeTest.Shared.Classes;
+using SmokeTest.Engine;
 
 namespace SmokeTest.Scheduler.Controllers
 {
@@ -239,9 +240,69 @@ namespace SmokeTest.Scheduler.Controllers
             return Json(new { update, testScheduled, id = position, url });
         }
 
+        [HttpGet]
+        public IActionResult ViewQueueItem(long id)
+        {
+            TestQueueItem queueItem = _testRunManager.QueuedTests.Where(q => q.QueueId.Equals(id)).FirstOrDefault();
+
+            if (queueItem == null)
+            {
+                Response.StatusCode = 404;
+                return new EmptyResult();
+            }
+
+            return View(BuildQueueItemModel(queueItem));
+        }
+
+        [HttpPost]
+        public IActionResult ViewQueueItem(QueueItemModel model)
+        {
+            if (String.IsNullOrEmpty(model.Confirm) || !model.Confirm.Equals("delete", StringComparison.InvariantCultureIgnoreCase))
+            {
+                ModelState.AddModelError(nameof(model.Confirm), "Please type confirm to delete the configuration");
+            }
+
+            if (ModelState.IsValid)
+            {
+                bool Result = _testRunManager.CancelQueuedItem(model.QueueId);
+
+                if (!Result)
+                {
+                    ModelState.AddModelError(String.Empty, "Failed to remove item from Queue.");
+                    RedirectToAction(nameof(ViewQueueItem), new { id = model.QueueId });
+                }
+            }
+
+            if (!ModelState.IsValid)
+            {
+                TestQueueItem queueItem = _testRunManager.QueuedTests.Where(q => q.QueueId.Equals(model.QueueId)).FirstOrDefault();
+
+                if (queueItem == null)
+                {
+                    Response.StatusCode = 404;
+                    return new EmptyResult();
+                }
+
+                return View(BuildQueueItemModel(queueItem));
+
+            }
+
+            return Redirect("/");
+        }
+
         #endregion Public Action Methods
 
         #region Privte Methods
+
+        private QueueItemModel BuildQueueItemModel(in TestQueueItem queueItem)
+        {
+            return new QueueItemModel(GetModelData(), 
+                queueItem.QueueId, 
+                queueItem.Test.Name, 
+                queueItem.SmokeTestProperties.Url,
+                queueItem.Position,
+                new DateTime(queueItem.Start, DateTimeKind.Utc));
+        }
 
         private TestRunViewModels BuildRunSchedule(in string position)
         {

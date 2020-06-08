@@ -15,6 +15,7 @@ using SmokeTest.Shared;
 using SmokeTest.Shared.Classes;
 using SmokeTest.Shared.Engine;
 
+
 namespace SmokeTest.Middleware
 {
     public class TestRunManager : ITestRunManager
@@ -27,7 +28,7 @@ namespace SmokeTest.Middleware
         #region Private Members
 
         private static readonly object _lockObject = new object();
-        private static readonly Queue<TestQueueItem> _scheduledTests = new Queue<TestQueueItem>();
+        private static readonly List<TestQueueItem> _scheduledTests = new List<TestQueueItem>();
         private static readonly List<TestRunItem> _activeTestRuns = new List<TestRunItem>();
         private readonly ILogger _logger;
         private readonly IScheduleHelper _scheduleHelper;
@@ -73,32 +74,34 @@ namespace SmokeTest.Middleware
             {
                 PrepareAutomaticTestsForRunning();
 
-                if (_activeTestRuns.Count < _maxTestRuns)
+                if (_activeTestRuns.Count < _maxTestRuns && _scheduledTests.Count > 0)
                 {
-                    if (_scheduledTests.TryDequeue(out TestQueueItem testQueueItem))
-                    {
-                        testQueueItem.End = DateTime.UtcNow.Ticks;
-                        long uniqueId = _idManager.GenerateId();
-                        ITestRunLogger testRunLogger = new TestRunLogger(uniqueId);
-                        ThreadWebsiteScan websiteScan = new ThreadWebsiteScan(testQueueItem.SmokeTestProperties,
-                            uniqueId, testRunLogger);
-                        websiteScan.ThreadFinishing += WebsiteScan_ThreadFinishing;
-                        TestRunItem testRunItem = new TestRunItem(websiteScan, testQueueItem.Test);
+                    TestQueueItem testQueueItem = _scheduledTests[0];
+                    _scheduledTests.RemoveAt(0);
 
-                        _activeTestRuns.Add(testRunItem);
+                    for (int i = 0; i < _scheduledTests.Count; i++)
+                        _scheduledTests[i].Position = i + 1;
 
-                        ThreadManager.ThreadStart(websiteScan, $"Smoke Test: {testQueueItem.SmokeTestProperties.Url}", ThreadPriority.Lowest);
+                    testQueueItem.End = DateTime.UtcNow.Ticks;
+                    long uniqueId = _idManager.GenerateId();
+                    ITestRunLogger testRunLogger = new TestRunLogger(uniqueId);
+                    ThreadWebsiteScan websiteScan = new ThreadWebsiteScan(testQueueItem.SmokeTestProperties,
+                        uniqueId, testRunLogger);
+                    websiteScan.ThreadFinishing += WebsiteScan_ThreadFinishing;
+                    TestRunItem testRunItem = new TestRunItem(websiteScan, testQueueItem.Test);
 
-                        //TestSchedule configuration = _scheduleHelper.Schedules
-                        //    .Where(tc => tc.UniqueId.Equals(testQueueItem.TestId)).FirstOrDefault();
+                    _activeTestRuns.Add(testRunItem);
 
-                        //if (configuration != null)
-                        //{
-                        //    //configuration.AddQueueData(testQueueItem);
-                        //    //_testConfigurationProvider.SaveConfiguration(configuration);
-                        //}
+                    ThreadManager.ThreadStart(websiteScan, $"Smoke Test: {testQueueItem.SmokeTestProperties.Url}", ThreadPriority.Lowest);
 
-                    }
+                    //TestSchedule configuration = _scheduleHelper.Schedules
+                    //    .Where(tc => tc.UniqueId.Equals(testQueueItem.TestId)).FirstOrDefault();
+
+                    //if (configuration != null)
+                    //{
+                    //    //configuration.AddQueueData(testQueueItem);
+                    //    //_testConfigurationProvider.SaveConfiguration(configuration);
+                    //}
                 }
             }
         }
@@ -108,24 +111,42 @@ namespace SmokeTest.Middleware
 
         }
 
-        public int[] QueuePositions(in long testId)
+        public TestQueueItem[] QueuePositions(in long testId)
         {
             using (TimedLock timedLock = TimedLock.Lock(_lockObject))
             {
-                List<int> Result = new List<int>();
-                int i = 0;
+                List<TestQueueItem> Result = new List<TestQueueItem>();
 
-                foreach (TestItem item in _scheduledTests)
+                foreach (TestQueueItem item in _scheduledTests)
                 {
                     if (item.TestId.Equals(testId))
                     {
-                        Result.Add(i);
+                        Result.Add(item);
                     }
-
-                    i++;
                 }
 
                 return Result.ToArray();
+            }
+        }
+
+        public bool CancelQueuedItem(in long queueId)
+        {
+            using (TimedLock timedLock = TimedLock.Lock(_lockObject))
+            {
+                foreach (TestQueueItem item in _scheduledTests)
+                {
+                    if (item.QueueId.Equals(queueId))
+                    {
+                        _scheduledTests.Remove(item);
+
+                        for (int i = 0; i < _scheduledTests.Count; i++)
+                            _scheduledTests[i].Position = i + 1;
+
+                        return true;
+                    }
+                }
+
+                return false;
             }
         }
 
@@ -147,12 +168,15 @@ namespace SmokeTest.Middleware
 
         public void RunTest(in TestSchedule testSchedule)
         {
-            if (testSchedule == null)
+            using (TimedLock timedLock = TimedLock.Lock(_lockObject))
             {
-                throw new ArgumentNullException(nameof(testSchedule));
-            }
+                if (testSchedule == null)
+                {
+                    throw new ArgumentNullException(nameof(testSchedule));
+                }
 
-            AddTestScheduleToQueue(testSchedule, false);
+                AddTestScheduleToQueue(testSchedule, false);
+            }
         }
 
         public bool TestRunning(in long testId)
@@ -189,16 +213,16 @@ namespace SmokeTest.Middleware
             }
         }
 
-        public TestItem[] QueuedTests
+        public TestQueueItem[] QueuedTests
         {
             get
             {
                 using (TimedLock timedLock = TimedLock.Lock(_lockObject))
                 {
-                    List<TestItem> Result = new List<TestItem>();
+                    List<TestQueueItem> Result = new List<TestQueueItem>();
 
-                    foreach (TestItem item in _scheduledTests)
-                        Result.Add(new TestItem(item.TestId, item.Start, item.End));
+                    foreach (TestQueueItem item in _scheduledTests)
+                        Result.Add(new TestQueueItem(item.QueueId, item.SmokeTestProperties, item.Test));
 
                     return Result.ToArray();
                 }
@@ -252,7 +276,9 @@ namespace SmokeTest.Middleware
                 _scheduleHelper.Update(testSchedule);
             }
 
-            _scheduledTests.Enqueue(new TestQueueItem(smokeTestProperties, testSchedule));
+            TestQueueItem newQueueItem = new TestQueueItem(_idManager.GenerateId(), smokeTestProperties, testSchedule);
+            _scheduledTests.Add(newQueueItem);
+            newQueueItem.Position = _scheduledTests.Count + 1;
         }
 
         private void PrepareAutomaticTestsForRunning()
@@ -320,39 +346,5 @@ namespace SmokeTest.Middleware
 
 
         #endregion Private Methods
-    }
-
-
-    internal class TestQueueItem : TestItem
-    {
-        internal TestQueueItem(in SmokeTestProperties smokeTestProperties, in TestSchedule testSchedule)
-            : base()
-        {
-            SmokeTestProperties = smokeTestProperties ?? throw new ArgumentNullException(nameof(smokeTestProperties));
-            Test = testSchedule ?? throw new ArgumentNullException(nameof(testSchedule));
-            TestId = testSchedule.UniqueId;
-            Start = DateTime.UtcNow.Ticks;
-        }
-
-        internal SmokeTestProperties SmokeTestProperties { get; private set; }
-
-        internal TestSchedule Test { get; private set; }
-    }
-
-    internal class TestRunItem : TestItem
-    {
-        internal TestRunItem(in ThreadWebsiteScan websiteScan, in TestSchedule testSchedule)
-            : base()
-        {
-            WebsiteScan = websiteScan ?? throw new ArgumentNullException(nameof(websiteScan));
-            UniqueId = websiteScan.UniqueId;
-            Test = testSchedule ?? throw new ArgumentNullException(nameof(testSchedule));
-            TestId = testSchedule.UniqueId;
-            Start = DateTime.UtcNow.Ticks;
-        }
-
-        internal ThreadWebsiteScan WebsiteScan { get; private set; }
-
-        internal TestSchedule Test { get; private set; }
     }
 }

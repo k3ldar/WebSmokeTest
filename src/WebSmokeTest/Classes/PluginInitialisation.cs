@@ -11,6 +11,7 @@ using PluginManager.Abstractions;
 
 using SharedPluginFeatures;
 
+using SmokeTest.Engine;
 using SmokeTest.Middleware;
 using SmokeTest.Shared;
 using SmokeTest.Shared.Interfaces;
