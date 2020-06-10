@@ -259,6 +259,7 @@ namespace SmokeTest.Middleware
                 PauseBetweenRequests = configuration.MillisecondsBetweenRequests,
                 UserAgent = configuration.UserAgent,
                 Url = configuration.Url,
+                SiteId = testSchedule.TestId
             };
 
             NVPCodec headers = new NVPCodec();

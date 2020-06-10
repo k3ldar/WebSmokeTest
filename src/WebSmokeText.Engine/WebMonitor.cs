@@ -4,7 +4,6 @@ using System.Linq;
 using System.Net;
 using System.Net.Mail;
 using System.Net.NetworkInformation;
-using System.Security.Policy;
 using System.Threading;
 
 using Shared.Classes;
@@ -128,27 +127,37 @@ namespace SmokeTest.Engine
             try
             {
                 _report.StartTime = DateTime.UtcNow;
-                RetrieveIpAddresses(_properties.Url);
-                _urlProcessList.Enqueue(new Uri(_properties.Url));
 
-                while (true)
+                if (ValidateTestsCanBeRunAgainstUrl(new Uri(_properties.Url)))
                 {
-                    if (_report.Pages.Count >= _properties.MaximumPages)
-                    {
-                        _testRunLogger.Log($"Maximum pages exceeded {_properties.MaximumPages}");
-                        break;
-                    }
+                    RetrieveIpAddresses(_properties.Url);
+                    _urlProcessList.Enqueue(new Uri(_properties.Url));
 
-                    Uri urlToProcess = null;
+                    RunTestsDiscoveredOnSite();
 
-                    using (TimedLock timedLock = TimedLock.Lock(_lockObject))
+                    while (true)
                     {
-                        if (!_urlProcessList.TryDequeue(out urlToProcess))
+                        if (_report.Pages.Count >= _properties.MaximumPages)
+                        {
+                            _testRunLogger.Log($"Maximum pages exceeded {_properties.MaximumPages}");
                             break;
-                    }
+                        }
 
-                    if (!ParsePage(urlToProcess.ToString(), urlToProcess, 0, urlToProcess))
-                        return false;
+                        Uri urlToProcess = null;
+
+                        using (TimedLock timedLock = TimedLock.Lock(_lockObject))
+                        {
+                            if (!_urlProcessList.TryDequeue(out urlToProcess))
+                                break;
+                        }
+
+                        if (!ParsePage(urlToProcess.ToString(), urlToProcess, 0, urlToProcess))
+                            return false;
+                    }
+                }
+                else
+                {
+                    _testRunLogger.Log("Site is not enabled for WebSmokeTest");
                 }
             }
             catch (Exception err)
@@ -199,9 +208,9 @@ namespace SmokeTest.Engine
             }
 
             _testRunLogger.Log("Running Garbage Collection");
+
             // finally force a garbage collection
             GC.Collect(2, GCCollectionMode.Forced);
-
 
             return _report.Errors.Count == 0;
         }
@@ -225,6 +234,72 @@ namespace SmokeTest.Engine
         #endregion Wrappers
 
         #region Private Methods
+
+        /// <summary>
+        /// Discovers tests on website and executes them
+        /// </summary>
+        private void RunTestsDiscoveredOnSite()
+        {
+            bool tcpConnectionLimitExceeded = TcpConnectionLimitExceeded();
+
+            if (tcpConnectionLimitExceeded)
+            {
+                _testRunLogger.Log($"Tcp connection limit exceeded, pausing...");
+            }
+
+            while (tcpConnectionLimitExceeded)
+            {
+                Thread.Sleep(100);
+
+                tcpConnectionLimitExceeded = TcpConnectionLimitExceeded();
+
+                if (!tcpConnectionLimitExceeded)
+                {
+                    _testRunLogger.Log($"Tcp connection limit normalised, resuming...");
+                    break;
+                }
+            }
+
+            Thread.Sleep(Math.Max(50, _properties.PauseBetweenRequests));
+        }
+
+        /// <summary>
+        /// Validates that the website is setup for WebSmokeTest
+        /// </summary>
+        /// <returns></returns>
+        private bool ValidateTestsCanBeRunAgainstUrl(Uri homepage)
+        {
+            bool Result = false;
+
+
+            try
+            {
+                using (StopWatchTimer stopwatchTimer = StopWatchTimer.Initialise(_pageLoadTimings))
+                {
+                    Uri modifiedUri = new Uri($"{homepage.Scheme}://{homepage.IdnHost}:{homepage.Port}/smoketest/siteid/");
+                    string webData = _client.GetData(modifiedUri);
+
+                    Result = webData.Equals(_properties.SiteId);
+                }
+            }
+            catch (WebException err)
+            {
+                _testRunLogger.Log(err);
+                if (err.Message.Contains("(404)"))
+                {
+                    LogError(err, homepage, homepage, homepage);
+                }
+                else
+                    LogError(err, homepage, null, homepage);
+            }
+            catch (Exception err)
+            {
+                _testRunLogger.Log(err);
+                LogError(err, homepage, null, homepage);
+            }
+
+            return Result;
+        }
 
         /// <summary>
         /// Retrieves information on errors
@@ -360,7 +435,6 @@ namespace SmokeTest.Engine
             if (String.IsNullOrEmpty(webData))
                 return true;
 
-            _testRunLogger.Log($"Parsing web data: {url.ToString()}");
             List<string> links = ParseHtml(url.ToString(), webData);
             try
             {

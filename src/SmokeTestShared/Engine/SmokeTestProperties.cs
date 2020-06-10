@@ -207,6 +207,11 @@ namespace SmokeTest.Shared.Engine
         /// <value>bool</value>
         public bool ClearHtmlDataAfterAnalysis { get; set; }
 
+        /// <summary>
+        /// Unique Id of the site being checked
+        /// </summary>
+        public string SiteId { get; set; }
+
         #endregion Properties
 
         #region Internal Methods
