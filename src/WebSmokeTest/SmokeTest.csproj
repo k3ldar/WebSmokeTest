@@ -15,7 +15,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="ApplicationSettings" Version="1.3.0" />
+    <PackageReference Include="ApplicationSettings" Version="1.4.0" />
     <PackageReference Include="AspNetCore.PluginManager" Version="4.0.0" />
     <PackageReference Include="AspNetCore.PluginManager.Languages" Version="4.0.0" />
     <PackageReference Include="Breadcrumb.Plugin" Version="4.0.0" />
@@ -38,6 +38,7 @@
     <PackageReference Include="SystemAdmin.Plugin" Version="4.0.0" />
     <PackageReference Include="UserAccount.Plugin" Version="4.0.0" />
     <PackageReference Include="UserSessionMiddleware.Plugin" Version="4.0.0" />
+    <PackageReference Include="WebSmokeTest.Plugin" Version="4.0.0" />
   </ItemGroup>
 
   <ItemGroup>
