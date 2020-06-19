@@ -103,6 +103,11 @@ namespace SmokeTest.Shared.Engine
 
         #endregion Overridden Methods
 
+        public bool Analyse(in PageReport pageReport)
+        {
+            return !Run(pageReport);
+        }
+
         public void AnalyseXmlDocument(in PageReport page, in XmlNode node, in int depth)
         {
             if (node == null)
@@ -305,7 +310,13 @@ namespace SmokeTest.Shared.Engine
 
             if (node.HasChildNodes)
             {
-                AnalyseBody(page, node.FirstChild, depth + 1);
+                XmlNode child = node.FirstChild;
+
+                while (child != null)
+                {
+                    AnalyseBody(page, child, depth + 1);
+                    child = child.NextSibling;
+                }
             }
         }
 

@@ -10,7 +10,6 @@ using SmokeTest.Engine;
 using SmokeTest.Reports.Models;
 using SmokeTest.Shared;
 using SmokeTest.Shared.Engine;
-using SmokeTest.Shared.Interfaces;
 
 namespace SmokeTest.Reports.Controllers
 {
@@ -25,7 +24,6 @@ namespace SmokeTest.Reports.Controllers
         #region Private Members
 
         private readonly string _dataPath;
-        private readonly ILoadData _loadData;
         private readonly ITestRunManager _testRunManager;
 
         #endregion Private Members
@@ -130,7 +128,8 @@ namespace SmokeTest.Reports.Controllers
                 report.Cookies,
                 report.Forms,
                 report.Images,
-                report.Pages
+                report.Pages,
+                report.TestResults
                 );
         }
 

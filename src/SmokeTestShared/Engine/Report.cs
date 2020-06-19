@@ -31,6 +31,8 @@ namespace SmokeTest.Shared.Engine
             Errors = new List<ErrorData>();
             Cookies = new List<Cookie>();
             Forms = new List<FormReport>();
+            DiscoveredTests = new List<WebSmokeTestItem>();
+            TestResults = new List<TestResult>();
             _linksParsed = new List<string>();
             _imagesParsed = new List<string>();
         }
@@ -60,6 +62,10 @@ namespace SmokeTest.Shared.Engine
         public List<FormReport> Forms { get; set; }
 
         public Dictionary<string, string> Headers { get; set; }
+
+        public List<WebSmokeTestItem> DiscoveredTests { get; set; }
+
+        public List<TestResult> TestResults { get; set; }
 
         public uint TotalRequests { get; set; }
 
@@ -102,7 +108,7 @@ namespace SmokeTest.Shared.Engine
 
         public void FormReportAdd(FormReport form)
         {
-            if (form == null) 
+            if (form == null)
                 throw new ArgumentNullException(nameof(form));
 
             string action = form.Action;
@@ -287,6 +293,14 @@ namespace SmokeTest.Shared.Engine
                 throw new ArgumentException(nameof(file));
 
             return JsonConvert.DeserializeObject<Report>(File.ReadAllText(file));
+        }
+
+        public void AddDiscoveredTest(WebSmokeTestItem discoveredTest)
+        {
+            if (discoveredTest == null)
+                throw new ArgumentNullException(nameof(discoveredTest));
+
+            DiscoveredTests.Add(discoveredTest);
         }
 
         #endregion Public Static Methods

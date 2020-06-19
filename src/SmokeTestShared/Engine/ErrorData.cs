@@ -15,11 +15,16 @@ namespace SmokeTest.Shared.Engine
             DateTime = DateTime.UtcNow;
         }
 
-        public ErrorData(in Exception error, in Uri uri, in Uri missingLink,
-            in Uri originatingLink)
-            : this(error)
+        public ErrorData(in Exception error, in Uri uri)
+            : this (error)
         {
             Uri = uri ?? throw new ArgumentNullException(nameof(uri));
+        }
+
+        public ErrorData(in Exception error, in Uri uri, in Uri missingLink,
+            in Uri originatingLink)
+            : this(error, uri)
+        {
             MissingLink = missingLink ?? uri;
             OriginatingLink = originatingLink ?? uri;
         }

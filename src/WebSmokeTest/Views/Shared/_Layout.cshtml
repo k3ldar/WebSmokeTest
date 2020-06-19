@@ -17,9 +17,18 @@
     <title>@title</title>
 </head>
 <body>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
+    @*<script src="~/lib/jquery/dist/jquery.min.js"></script>
+        <script src="~/lib/Popper/popper.min.js"></script>
+        <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+        <script src="~/js/site.js" asp-append-version="true"></script>
+        @RenderSection("Scripts", required: false)
+        <script src="~/js/SystemAdmin.js"></script>
+        <link rel="stylesheet" href="~/wwwroot/lib/bootstrap/dist/css/bootstrap.min.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />*@
     <link rel="stylesheet" href="~/css/site.css" />
+
+
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" />
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
@@ -99,20 +108,14 @@
 
     <footer class="border-top footer text-muted">
         @*<div class="row footer">
-            <div class="col-xs-2 col-lg-2"><a href="/Company/About/">@Localizer[nameof(Languages.LanguageStrings.About)]</a></div>
-                <div class="col-xs-2 col-lg-2"><a href="/Company/Cookies/">@Localizer[nameof(Languages.LanguageStrings.CookiePolicy)]</a></div>
-                <div class="col-xs-2 col-lg-2"><a href="/Docs/">@Localizer[nameof(Languages.LanguageStrings.Documentation)]</a></div>
-            </div>
-        <div class="row footer">
-            <div class="col-xs-12">&copy; 2020 - Simon Carter.  All Rights Reserved.</div>
-        </div>*@
+                <div class="col-xs-2 col-lg-2"><a href="/Company/About/">@Localizer[nameof(Languages.LanguageStrings.About)]</a></div>
+                    <div class="col-xs-2 col-lg-2"><a href="/Company/Cookies/">@Localizer[nameof(Languages.LanguageStrings.CookiePolicy)]</a></div>
+                    <div class="col-xs-2 col-lg-2"><a href="/Docs/">@Localizer[nameof(Languages.LanguageStrings.Documentation)]</a></div>
+                </div>
+            <div class="row footer">
+                <div class="col-xs-12">&copy; 2020 - Simon Carter.  All Rights Reserved.</div>
+            </div>*@
     </footer>
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script src="~/lib/Popper/popper.min.js"></script>
-    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="~/js/site.js" asp-append-version="true"></script>
-    @RenderSection("Scripts", required: false)
-    <script src="~/js/SystemAdmin.js"></script>
 
 </body>
 </html>

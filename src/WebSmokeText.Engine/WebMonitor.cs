@@ -4,7 +4,11 @@ using System.Linq;
 using System.Net;
 using System.Net.Mail;
 using System.Net.NetworkInformation;
+using System.Text;
 using System.Threading;
+using System.Web;
+
+using Newtonsoft.Json;
 
 using Shared.Classes;
 
@@ -128,12 +132,16 @@ namespace SmokeTest.Engine
             {
                 _report.StartTime = DateTime.UtcNow;
 
-                if (ValidateTestsCanBeRunAgainstUrl(new Uri(_properties.Url)))
+                Uri homePage = new Uri(_properties.Url);
+
+                if (ValidateTestsCanBeRunAgainstUrl(homePage))
                 {
                     RetrieveIpAddresses(_properties.Url);
-                    _urlProcessList.Enqueue(new Uri(_properties.Url));
+                    _urlProcessList.Enqueue(homePage);
 
-                    RunTestsDiscoveredOnSite();
+                    DiscoverOnSiteTests(homePage, 0);
+
+                    RunDiscoveredTests(homePage);
 
                     while (true)
                     {
@@ -236,61 +244,454 @@ namespace SmokeTest.Engine
         #region Private Methods
 
         /// <summary>
-        /// Discovers tests on website and executes them
+        /// This test first does a get of the url, then proceeds to submit data using post etc
         /// </summary>
-        private void RunTestsDiscoveredOnSite()
+        /// <param name="test"></param>
+        /// <param name="testClient"></param>
+        /// <param name="rootUrl"></param>
+        private string SubmitTestForm(in WebSmokeTestItem test, in WebClientEx testClient, in TestResult testResult,
+            in string rootUrl, out int responseCode)
         {
-            bool tcpConnectionLimitExceeded = TcpConnectionLimitExceeded();
+            responseCode = -1;
+            string route = BuildRouteParameters(rootUrl + test.Route, test.Parameters);
+            Uri uriRoute = new Uri(route);
+            string getData = testClient.GetData(uriRoute, out _);
+            string formId = test.FormId;
+            NVPCodec inputCodec = new NVPCodec();
+            inputCodec.Decode(test.InputData);
+            string cookies = String.Empty;
+            string referer = route;
 
-            if (tcpConnectionLimitExceeded)
+            foreach (string check in test.ResponseData)
             {
-                _testRunLogger.Log($"Tcp connection limit exceeded, pausing...");
-            }
-
-            while (tcpConnectionLimitExceeded)
-            {
-                Thread.Sleep(100);
-
-                tcpConnectionLimitExceeded = TcpConnectionLimitExceeded();
-
-                if (!tcpConnectionLimitExceeded)
+                if (!getData.Contains(check))
                 {
-                    _testRunLogger.Log($"Tcp connection limit normalised, resuming...");
-                    break;
+                    _report.AddError(new ErrorData(new Exception($"Response {check} not found in {test.Name}"), uriRoute));
+                    testResult.ErrorCount++;
                 }
             }
 
-            Thread.Sleep(Math.Max(50, _properties.PauseBetweenRequests));
+            if (referer.EndsWith("/"))
+                referer = referer.Substring(0, referer.Length - 1);
+
+            if (testClient.ResponseCookies != null)
+            {
+                foreach (Cookie cookie in testClient.ResponseCookies)
+                {
+                    if (cookies.Length == 0)
+                        cookies = $"{cookie.Name}={cookie.Value}";
+                    else
+                        cookies += $";{cookie.Name}={cookie.Value}";
+                }
+            }
+
+            if (!String.IsNullOrEmpty(_properties.CookieName) && !String.IsNullOrEmpty(_properties.CookieValue) &&
+                !String.IsNullOrEmpty(_properties.CookiePath) && !String.IsNullOrEmpty(_properties.CookieDomain))
+            {
+                if (cookies.Length == 0)
+                    cookies = $"{_properties.CookieName}={_properties.CookieValue}";
+                else
+                    cookies += $";{_properties.CookieName}={_properties.CookieValue}";
+            }
+
+            testClient.Headers.Add(HttpRequestHeader.Cookie, cookies);
+            PageReport pageReport = new PageReport(route, 0, getData);
+            ProcessForms(pageReport, new Uri(route), new Uri(route));
+            pageReport.ProcessingComplete = true;
+
+            PageAnalyser pageAnalyser = new PageAnalyser(_report, pageReport, null, true, true);
+
+            if (pageAnalyser.Analyse(pageReport))
+            {
+                FormAnalysis form = pageReport.Analysis.Body.Forms.Where(f => f.Id == formId).FirstOrDefault();
+
+                if (form == null)
+                {
+                    _report.AddError(new ErrorData(new Exception($"Form {formId} was not found.  Invalid WebSmokeTest"), uriRoute));
+                    return String.Empty;
+                }
+
+                NVPCodec postValues = new NVPCodec();
+
+                foreach (FormInput item in form.Inputs)
+                {
+                    if (String.IsNullOrEmpty(item.Name))
+                        continue;
+
+                    if (inputCodec.AllKeys.Contains(item.Name))
+                    {
+                        if (postValues.AllKeys.Where(k => k.Equals(item.Name)).Any())
+                            postValues[item.Name] = inputCodec[item.Name];
+                        else
+                            postValues.Add(item.Name, inputCodec[item.Name]);
+                    }
+                    else
+                    {
+                        if (postValues.AllKeys.Where(k => k.Equals(item.Name)).Any())
+                            postValues[item.Name] = item.Contents ?? String.Empty;
+                        else
+                            postValues.Add(item.Name, item.Contents ?? String.Empty);
+                    }
+                }
+
+                string action = form.Action.StartsWith("/") ? form.Action.Substring(1) : form.Action;
+                testClient.Headers.Add("Referer", referer);
+                testClient.Encoding = Encoding.UTF8;
+                testClient.Headers.Add("AcceptEncoding", "gzip, deflate");
+                testClient.Headers.Add("Cache-Control", "max-age=0");
+                try
+                {
+                    return testClient.PostFormData(new Uri(rootUrl + action), postValues, out responseCode);
+                }
+                catch (Exception response)
+                {
+                    _report.AddError(new ErrorData(new Exception($"Test: {test.Name}; Error: {response.Message}"), uriRoute));
+                }
+            }
+
+            return String.Empty;
+        }
+
+        /// <summary>
+        /// This test submits data as part of a body request using post etc
+        /// </summary>
+        /// <param name="test"></param>
+        /// <param name="testClient"></param>
+        /// <param name="rootUrl"></param>
+        private string SubmitTestData(in WebSmokeTestItem test, in WebClientEx testClient, in TestResult testResult,
+            in string rootUrl, out int responseCode)
+        {
+            string data = test.InputData.Trim();
+            responseCode = -1;
+            string route = rootUrl + test.Route;
+            Uri uriRoute = new Uri(route);
+            string getData = testClient.GetData(uriRoute, out _);
+            string formId = test.FormId;
+            NVPCodec inputCodec = new NVPCodec();
+            inputCodec.Decode(test.InputData);
+            string cookies = String.Empty;
+            string referer = route;
+
+            foreach (string check in test.ResponseData)
+            {
+                if (!getData.Contains(check))
+                {
+                    _report.AddError(new ErrorData(new Exception($"Response {check} not found in {test.Name}"), uriRoute));
+                    testResult.ErrorCount++;
+                }
+            }
+
+            if (referer.EndsWith("/"))
+                referer = referer.Substring(0, referer.Length - 1);
+
+            foreach (Cookie cookie in testClient.ResponseCookies)
+            {
+                if (cookies.Length == 0)
+                    cookies = $"{cookie.Name}={cookie.Value}";
+                else
+                    cookies += $";{cookie.Name}={cookie.Value}";
+            }
+
+            if (!String.IsNullOrEmpty(_properties.CookieName) && !String.IsNullOrEmpty(_properties.CookieValue) &&
+                !String.IsNullOrEmpty(_properties.CookiePath) && !String.IsNullOrEmpty(_properties.CookieDomain))
+            {
+                if (cookies.Length == 0)
+                    cookies = $"{_properties.CookieName}={_properties.CookieValue}";
+                else
+                    cookies += $";{_properties.CookieName}={_properties.CookieValue}";
+            }
+
+            testClient.Headers.Add(HttpRequestHeader.Cookie, cookies);
+
+            testClient.Headers.Add("Referer", referer);
+            testClient.Encoding = Encoding.UTF8;
+            testClient.Headers.Add("AcceptEncoding", "gzip, deflate");
+            testClient.Headers.Add("Cache-Control", "max-age=0");
+            try
+            {
+                switch (data[0])
+                {
+                    case '{':
+                    case '[':
+                        return testClient.PostJsonData(new Uri(rootUrl + test.Route), test.InputData, out responseCode);
+
+                    case '<':
+                        return testClient.PostXmlData(new Uri(rootUrl + test.Route), test.InputData, out responseCode);
+                    default:
+                        throw new InvalidOperationException("Unknown data type, could not determine xml or json");
+                }
+            }
+            catch (Exception response)
+            {
+                _report.AddError(new ErrorData(new Exception($"Test: {test.Name}; Error: {response.Message}"), uriRoute));
+            }
+
+            return String.Empty;
+        }
+
+        /// <summary>
+        /// This test submits data as part of a body request using post etc
+        /// </summary>
+        /// <param name="test"></param>
+        /// <param name="testClient"></param>
+        /// <param name="rootUrl"></param>
+        private string SubmitGetRequest(in WebSmokeTestItem test, in WebClientEx testClient,
+            in string rootUrl, out int responseCode)
+        {
+            responseCode = -1;
+            string route = rootUrl + test.Route;
+            NVPCodec inputCodec = new NVPCodec();
+            inputCodec.Decode(test.Parameters);
+
+            if (!String.IsNullOrEmpty(_properties.CookieName) && !String.IsNullOrEmpty(_properties.CookieValue) &&
+                !String.IsNullOrEmpty(_properties.CookiePath) && !String.IsNullOrEmpty(_properties.CookieDomain))
+            {
+                string cookies = $"{_properties.CookieName}={_properties.CookieValue}";
+
+                testClient.Headers.Add(HttpRequestHeader.Cookie, cookies);
+            }
+
+            Uri uriRoute = new Uri(BuildRouteParameters(route, test.Parameters));
+            return testClient.GetData(uriRoute, out responseCode);
+        }
+
+        private string BuildRouteParameters(in string route, in string parameters)
+        {
+            string Result = String.Empty;
+            bool startFound = false;
+            string token = String.Empty;
+
+            foreach (char c in route)
+            {
+                if (!startFound && c == '{')
+                {
+                    startFound = true;
+                    token += c;
+                }
+                else if (startFound && c == '}')
+                {
+                    token += c;
+
+                    Result += GetTokenValue(token, parameters);
+                    token = String.Empty;
+                    startFound = false;
+                }
+                else if (startFound)
+                {
+                    token += c;
+                }
+                else if (!startFound)
+                {
+                    Result += c;
+                }
+            }
+
+            return Result;
+        }
+
+        private string GetTokenValue(in string token, in string parameters)
+        {
+            string Result = String.Empty;
+
+            if (!String.IsNullOrEmpty(parameters))
+            {
+                NVPCodec codec = new NVPCodec();
+                codec.Decode(parameters);
+
+                foreach (string key in codec.AllKeys)
+                {
+                    if (key.Equals(token.Substring(1, token.Length - 2)))
+                    {
+                        Result = HttpUtility.UrlEncode(codec[key]);
+                        break;
+                    }
+                }
+
+            }
+
+            return Result;
+        }
+
+        /// <summary>
+        /// Runs any tests discovered on a website
+        /// </summary>
+        /// <param name="homePage"></param>
+        private void RunDiscoveredTests(in Uri homePage)
+        {
+            List<WebSmokeTestItem> discoveredTests = _report.DiscoveredTests.OrderBy(dt => dt.Position).ToList();
+            string rootSite = $"{homePage.Scheme}://{homePage.Authority}/";
+
+            foreach (WebSmokeTestItem test in discoveredTests)
+            {
+                try
+                {
+                    using (WebClientEx testClient = new WebClientEx())
+                    {
+                        TestResult testResult = new TestResult()
+                        {
+                            Name = test.Name,
+                            Position = test.Position,
+                        };
+                        testClient.UserAgent = _properties.UserAgent;
+                        testClient.Timeout = 60000;
+                        testClient.AllowAutoRedirect = false;
+
+                        Uri uriRoute = new Uri(rootSite + test.Route);
+
+                        foreach (KeyValuePair<string, string> headers in _properties.Headers)
+                        {
+                            testClient.Headers.Add(headers.Key, headers.Value);
+                        }
+
+                        string response = null;
+                        int responseCode = 0;
+                        bool searchSubmitResponseData = false;
+                        Timings testTimings = new Timings();
+
+                        using (StopWatchTimer stopwatchTimer = StopWatchTimer.Initialise(_pageLoadTimings))
+                        {
+                            using (StopWatchTimer testTimer = StopWatchTimer.Initialise(testTimings))
+                            {
+                                if (String.IsNullOrEmpty(test.FormId) && test.Method.Equals("GET", StringComparison.InvariantCultureIgnoreCase))
+                                {
+                                    response = SubmitGetRequest(test, testClient, rootSite, out responseCode);
+                                    searchSubmitResponseData = false;
+                                }
+                                else if (String.IsNullOrEmpty(test.FormId))
+                                {
+                                    response = SubmitTestData(test, testClient, testResult, rootSite, out responseCode);
+                                    searchSubmitResponseData = true;
+                                }
+                                else
+                                {
+                                    response = SubmitTestForm(test, testClient, testResult, rootSite, out responseCode);
+                                    searchSubmitResponseData = true;
+                                }
+
+                                if (!responseCode.Equals(test.Response))
+                                {
+                                    _report.AddError(new ErrorData(new Exception($"Response code {test.Response} expected; {responseCode} received"), uriRoute));
+                                    testResult.ErrorCount++;
+                                }
+
+                                switch (responseCode)
+                                {
+                                    case 301:
+                                    case 302:
+                                        ValidateRedirectUrl(test, testClient, uriRoute);
+                                        break;
+                                }
+
+                                if (searchSubmitResponseData)
+                                {
+                                    foreach (string check in test.SubmitResponseData)
+                                    {
+                                        if (!response.Contains(check))
+                                        {
+                                            _report.AddError(new ErrorData(new Exception($"Response {check} not found in {test.Name}"), uriRoute));
+                                            testResult.ErrorCount++;
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    foreach (string check in test.ResponseData)
+                                    {
+                                        if (!response.Contains(check))
+                                        {
+                                            _report.AddError(new ErrorData(new Exception($"Response {check} not found in {test.Name}"), uriRoute));
+                                            testResult.ErrorCount++;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                        testResult.TimeTaken = testTimings.Slowest;
+
+                        _report.TestResults.Add(testResult);
+                    }
+                }
+                catch (Exception exception)
+                {
+                    LogError(exception, homePage, homePage, homePage);
+                }
+
+                ValidatePortUseage();
+            }
+        }
+
+        private void ValidateRedirectUrl(in WebSmokeTestItem test, in WebClientEx testClient, in Uri route)
+        {
+            string redirectUrl = String.Empty;
+
+            if (testClient.ResponseHeaders.AllKeys.Where(k => k.Equals("Location", StringComparison.InvariantCultureIgnoreCase)).Any())
+            {
+                redirectUrl = testClient.ResponseHeaders["Location"];
+            }
+
+            if (!test.ResponseUrl.Equals(redirectUrl, StringComparison.InvariantCultureIgnoreCase))
+                _report.AddError(new ErrorData(new Exception($"Test {test.Name} recieved incorrect Redirect Url, expection {test.ResponseUrl}; received: {redirectUrl}"), route));
+        }
+
+        /// <summary>
+        /// Discovers tests on website
+        /// </summary>
+        private void DiscoverOnSiteTests(in Uri homePage, in int attempt)
+        {
+            _testRunLogger.Log($"Discovering Site Tests: Attempt: {attempt + 1}");
+
+            int tests = GetSiteTestCount(homePage);
+
+            if (tests == -1 && attempt < 5)
+            {
+                DiscoverOnSiteTests(homePage, attempt + 1);
+                return;
+            }
+
+            int counter = 0;
+            while (counter < tests)
+            {
+                WebSmokeTestItem discoveredTest = GetSiteTestItem(homePage, counter);
+
+                if (discoveredTest != null)
+                {
+                    _testRunLogger.Log($"Discovered Test: {discoveredTest.Name}");
+                    _report.AddDiscoveredTest(discoveredTest);
+                }
+
+                counter++;
+
+                ValidatePortUseage();
+            }
         }
 
         /// <summary>
         /// Validates that the website is setup for WebSmokeTest
         /// </summary>
         /// <returns></returns>
-        private bool ValidateTestsCanBeRunAgainstUrl(Uri homepage)
+        private bool ValidateTestsCanBeRunAgainstUrl(in Uri homepage)
         {
-            bool Result = false;
-
-
             try
             {
-                using (StopWatchTimer stopwatchTimer = StopWatchTimer.Initialise(_pageLoadTimings))
-                {
-                    Uri modifiedUri = new Uri($"{homepage.Scheme}://{homepage.IdnHost}:{homepage.Port}/smoketest/siteid/");
-                    string webData = _client.GetData(modifiedUri);
+                SmokeTestWebRequest(homepage, "/smoketest/siteid/", out string data);
 
-                    Result = webData.Equals(_properties.SiteId);
-                }
+                if (!data.Equals(_properties.SiteId))
+                    throw new InvalidOperationException("Incorrect Site Id returned");
+
+                return true;
             }
             catch (WebException err)
             {
                 _testRunLogger.Log(err);
                 if (err.Message.Contains("(404)"))
                 {
-                    LogError(err, homepage, homepage, homepage);
+                    LogError(new Exception($"{homepage.ToString()} is not configured for Smoke Testing"), homepage, homepage, homepage);
                 }
                 else
+                {
                     LogError(err, homepage, null, homepage);
+                }
             }
             catch (Exception err)
             {
@@ -298,7 +699,33 @@ namespace SmokeTest.Engine
                 LogError(err, homepage, null, homepage);
             }
 
-            return Result;
+            return false;
+        }
+
+        private int GetSiteTestCount(in Uri homepage)
+        {
+            SmokeTestWebRequest(homepage, "/smoketest/count/", out string data);
+
+            if (Int32.TryParse(data, out int Result))
+                return Result;
+
+            return -1;
+        }
+
+        private WebSmokeTestItem GetSiteTestItem(in Uri homepage, in int index)
+        {
+            SmokeTestWebRequest(homepage, $"/smoketest/test/{index}", out string data);
+
+            return JsonConvert.DeserializeObject<WebSmokeTestItem>(data);
+        }
+
+        private void SmokeTestWebRequest(Uri homepage, string url, out string data)
+        {
+            using (StopWatchTimer stopwatchTimer = StopWatchTimer.Initialise(_pageLoadTimings))
+            {
+                Uri modifiedUri = new Uri($"{homepage.Scheme}://{homepage.IdnHost}:{homepage.Port}{url}");
+                data = _client.GetData(modifiedUri, out _);
+            }
         }
 
         /// <summary>
@@ -314,7 +741,11 @@ namespace SmokeTest.Engine
                 ErrorData item = _report.Errors[i];
 
                 Result += String.Format("Error: {0}\r\nURI: {1}\r\nMissing Link: {2}\r\nError: {3}\r\nOriginating URI: {4}\r\n\r\n",
-                    i, item.Uri.ToString(), item.MissingLink.ToString(), item.Error.Message, item.OriginatingLink.ToString());
+                    i,
+                    item.Uri == null ? String.Empty : item.Uri.ToString(),
+                    item.MissingLink == null ? String.Empty : item.MissingLink.ToString(),
+                    item.Error == null ? String.Empty : item.Error.Message,
+                    item.OriginatingLink == null ? String.Empty : item.OriginatingLink.ToString());
 
                 i++;
             }
@@ -332,8 +763,8 @@ namespace SmokeTest.Engine
         /// <param name="depth"></param>
         /// <param name="originatingLink"></param>
         /// <returns>true if parsed, false if parse failed or cancelled</returns>
-        private bool ParsePage(string startsWith,
-            Uri url, int depth, Uri originatingLink)
+        private bool ParsePage(in string startsWith,
+            in Uri url, int depth, in Uri originatingLink)
         {
             if (_report.Pages.Count >= _properties.MaximumPages)
             {
@@ -368,27 +799,7 @@ namespace SmokeTest.Engine
                 return false;
             }
 
-            bool tcpConnectionLimitExceeded = TcpConnectionLimitExceeded();
-
-            if (tcpConnectionLimitExceeded)
-            {
-                _testRunLogger.Log($"Tcp connection limit exceeded, pausing...");
-            }
-
-            while (tcpConnectionLimitExceeded)
-            {
-                Thread.Sleep(100);
-
-                tcpConnectionLimitExceeded = TcpConnectionLimitExceeded();
-
-                if (!tcpConnectionLimitExceeded)
-                {
-                    _testRunLogger.Log($"Tcp connection limit normalised, resuming...");
-                    break;
-                }
-            }
-
-            Thread.Sleep(Math.Max(50, _properties.PauseBetweenRequests));
+            ValidatePortUseage();
 
             Uri modifiedUri = ModifyUrl(url.ToString());
 
@@ -397,17 +808,18 @@ namespace SmokeTest.Engine
 
             using (StopWatchTimer pageLoadTimer = StopWatchTimer.Initialise(pageLoad))
             {
+                int responseCode = -1;
                 try
                 {
                     using (StopWatchTimer stopwatchTimer = StopWatchTimer.Initialise(_pageLoadTimings))
                     {
-                        webData = _client.GetData(modifiedUri);
+                        webData = _client.GetData(modifiedUri, out responseCode);
                     }
                 }
                 catch (WebException err)
                 {
                     _testRunLogger.Log(err);
-                    if (err.Message.Contains("(404)"))
+                    if (responseCode == 404 || err.Message.Contains("(404)"))
                     {
                         LogError(err, modifiedUri, modifiedUri, originatingLink);
                     }
@@ -503,6 +915,31 @@ namespace SmokeTest.Engine
             }
 
             return true;
+        }
+
+        private void ValidatePortUseage()
+        {
+            bool tcpConnectionLimitExceeded = TcpConnectionLimitExceeded();
+
+            if (tcpConnectionLimitExceeded)
+            {
+                _testRunLogger.Log($"Tcp connection limit exceeded, pausing...");
+            }
+
+            while (tcpConnectionLimitExceeded)
+            {
+                Thread.Sleep(100);
+
+                tcpConnectionLimitExceeded = TcpConnectionLimitExceeded();
+
+                if (!tcpConnectionLimitExceeded)
+                {
+                    _testRunLogger.Log($"Tcp connection limit normalised, resuming...");
+                    break;
+                }
+            }
+
+            Thread.Sleep(Math.Max(50, _properties.PauseBetweenRequests));
         }
 
         private Uri ModifyUrl(in string url)
@@ -629,7 +1066,7 @@ namespace SmokeTest.Engine
             }
         }
 
-        private void LogError(Exception error, Uri url, Uri link, Uri originatingLink)
+        private void LogError(in Exception error, in Uri url, in Uri link, in Uri originatingLink)
         {
             RaiseError(error, url, link, originatingLink);
         }
@@ -669,7 +1106,7 @@ namespace SmokeTest.Engine
             return Result;
         }
 
-        private List<string> ParseHtml(string url, string text)
+        private List<string> ParseHtml(in string url, in string text)
         {
             List<string> Result = new List<string>();
 
@@ -703,7 +1140,7 @@ namespace SmokeTest.Engine
             return Result;
         }
 
-        private List<FormReport> ParseForms(Uri url, string text)
+        private List<FormReport> ParseForms(in Uri url, in string text)
         {
             List<FormReport> Result = new List<FormReport>();
 
@@ -727,7 +1164,7 @@ namespace SmokeTest.Engine
             return Result;
         }
 
-        private bool SendEmail(string Message)
+        private bool SendEmail(in string Message)
         {
             bool Result = false;
             try
@@ -780,7 +1217,7 @@ namespace SmokeTest.Engine
             return Result;
         }
 
-        private void RetrieveIpAddresses(string url)
+        private void RetrieveIpAddresses(in string url)
         {
             if (Uri.TryCreate(url, UriKind.Absolute, out Uri host))
             {
@@ -791,7 +1228,7 @@ namespace SmokeTest.Engine
             }
         }
 
-        private bool ContainsEndPoint(IPEndPoint endpoint)
+        private bool ContainsEndPoint(in IPEndPoint endpoint)
         {
             foreach (IPEndPoint item in _endPoints)
             {

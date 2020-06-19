@@ -31,14 +31,11 @@ namespace SmokeTest.Middleware
 
         private const string ClaimIdentityGeneric = "Generic";
 
-        [Obsolete]
         private const string Key = "ASDFasdf8uq43w foasi034q257uwei";
 
         private readonly IPluginClassesService _pluginClassesService;
         private readonly List<User> _users;
         private readonly string _dataPath;
-        private readonly object _lockObject = new object();
-        private readonly ILogger _logger;
         private readonly ISaveData _saveData;
         private readonly ILoadData _loadData;
 
@@ -47,10 +44,9 @@ namespace SmokeTest.Middleware
         #region Constructors
 
         public UserProvider(IPluginClassesService pluginClassesService,
-            ILogger logger, ISaveData saveData, ILoadData loadData)
+            ISaveData saveData, ILoadData loadData)
         {
             _pluginClassesService = pluginClassesService ?? throw new ArgumentNullException(nameof(pluginClassesService));
-            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _saveData = saveData ?? throw new ArgumentNullException(nameof(saveData));
             _loadData = loadData ?? throw new ArgumentNullException(nameof(loadData));
 
@@ -103,7 +99,7 @@ namespace SmokeTest.Middleware
 
         public bool UnlockAccount(in string username, in string unlockCode)
         {
-            throw new NotImplementedException();
+            return true;
         }
 
         #endregion ILoginProvider Methods

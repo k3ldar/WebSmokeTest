@@ -1,0 +1,15 @@
+﻿@model SmokeTest.SystemTests.Models.SimpleTestModel
+
+    <h1>Simple Input Test Form</h1>
+    @using (Html.BeginForm(nameof(SmokeTest.SystemTests.Controllers.SysTestController.SimpleInput), SmokeTest.SystemTests.Controllers.SysTestController.Name, FormMethod.Post, new { id = "frmSimpleInput" }))
+    {
+        @Html.LabelFor(m => m.Username)
+        <br />
+        @Html.TextBoxFor(m => m.Username)
+        <br />
+        @Html.LabelFor(m => m.Password)
+        <br />
+        @Html.TextBoxFor(m => m.Password)
+        <br />
+        <input type="submit" value="submit" />
+    }

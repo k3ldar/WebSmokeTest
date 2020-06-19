@@ -11,9 +11,9 @@ namespace SmokeTest.Reports.Models
                 throw new ArgumentNullException(nameof(error));
 
             Error = error;
-            Uri = uri ?? throw new ArgumentNullException(nameof(uri));
-            MissingLink = missingLink ?? uri;
-            OriginatingLink = originatingLink ?? uri;
+            Uri = uri;
+            MissingLink = missingLink;
+            OriginatingLink = originatingLink;
         }
 
         public DateTime DateTime { get; set; }

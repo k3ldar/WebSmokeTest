@@ -42,7 +42,6 @@ namespace SmokeTest.Internal
             ServiceProvider serviceProvider = services.BuildServiceProvider();
             UserProvider userProvider = new UserProvider(
                 serviceProvider.GetRequiredService<IPluginClassesService>(),
-                _logger,
                 saveData,
                 loadData);
 

@@ -279,7 +279,7 @@ namespace SmokeTest.Middleware
 
             TestQueueItem newQueueItem = new TestQueueItem(_idManager.GenerateId(), smokeTestProperties, testSchedule);
             _scheduledTests.Add(newQueueItem);
-            newQueueItem.Position = _scheduledTests.Count + 1;
+            newQueueItem.Position = _scheduledTests.Count;
         }
 
         private void PrepareAutomaticTestsForRunning()
@@ -308,7 +308,13 @@ namespace SmokeTest.Middleware
 
                 LastRunResult result = LastRunResult.NotRun;
 
-                if (threadWebsiteScan.Report.Pages.Count == 0 && threadWebsiteScan.Report.Errors.Count > 0)
+                if (threadWebsiteScan.Report.Pages.Count == 0 && 
+                    threadWebsiteScan.Report.Errors.Count == 1 &&
+                    threadWebsiteScan.Report.Errors[0].Error.Message.Contains("timed out"))
+                {
+                    result = LastRunResult.Warning;
+                }
+                else if (threadWebsiteScan.Report.Pages.Count == 0 && threadWebsiteScan.Report.Errors.Count > 0)
                 {
                     result = LastRunResult.Error;
                 }
@@ -318,11 +324,11 @@ namespace SmokeTest.Middleware
 
                     if (threadWebsiteScan.Report.Errors.Count == timeOutErrors)
                     {
-                        result = LastRunResult.Success;
+                        result = LastRunResult.Warning;
                     }
                     else
                     {
-                        result = LastRunResult.Warning;
+                        result = LastRunResult.Error;
                     }
                 }
                 else

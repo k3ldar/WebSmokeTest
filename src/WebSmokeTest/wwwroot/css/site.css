@@ -357,3 +357,37 @@ body {
     background-color: #707B7C;
     color: white;
 }
+
+
+.testGrid table {
+    font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+    border-collapse: collapse;
+    width: 100%;
+    width: 100%;
+    padding: 10px 20px 10px 20px;
+}
+
+.testGrid td, .testGrid th {
+    border: 1px solid #ddd;
+    padding: 8px;
+}
+
+.testGrid table thead tr td {
+    padding-right: 20px;
+}
+
+.testGrid th {
+    padding-top: 12px;
+    padding-bottom: 12px;
+    text-align: left;
+    background-color: #707B7C;
+    color: white;
+}
+
+.testSuccess {
+    background-color: lawngreen;
+}
+
+.testFailure {
+    background-color: orangered;
+}

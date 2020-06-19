@@ -45,6 +45,7 @@
     <ProjectReference Include="..\SmokeTest.Reports\SmokeTest.Reports.csproj" />
     <ProjectReference Include="..\SmokeTest.Scheduler\SmokeTest.Scheduler.csproj" />
     <ProjectReference Include="..\SmokeTest.Settings\SmokeTest.Settings.csproj" />
+    <ProjectReference Include="..\SmokeTest.SystemTests\SmokeTest.SystemTests.csproj" />
     <ProjectReference Include="..\SmokeTestShared\SmokeTest.Shared.csproj" />
     <ProjectReference Include="..\WebSmokeText.Engine\SmokeTest.Engine.csproj" />
   </ItemGroup>

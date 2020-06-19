@@ -15,7 +15,8 @@ namespace SmokeTest.Reports.Models
             in decimal average, in decimal trimmedAverage, in decimal totalTime,
             in Dictionary<string, string> headers, in List<ErrorDataModel> errors,
             in List<Cookie> cookies, in List<FormReport> forms,
-            in List<ImageReport> images, in List<PageReport> pages)
+            in List<ImageReport> images, in List<PageReport> pages,
+            in List<TestResult> testResults)
             : base (modelData)
         {
             ReportId = reportId;
@@ -35,6 +36,7 @@ namespace SmokeTest.Reports.Models
             Headers = headers ?? new Dictionary<string, string>();
             Images = images ?? throw new ArgumentNullException(nameof(images));
             Pages = pages ?? throw new ArgumentNullException(nameof(pages));
+            TestResults = testResults;
         }
 
         #region Properties
@@ -64,6 +66,8 @@ namespace SmokeTest.Reports.Models
         public List<Cookie> Cookies { get; set; }
 
         public List<ErrorDataModel> Errors { get; private set; }
+
+        public List<TestResult> TestResults { get; private set; }
 
         public List<FormReport> Forms { get; set; }
 
