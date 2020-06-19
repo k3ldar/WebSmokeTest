@@ -100,6 +100,8 @@ namespace SmokeTest.Shared.Classes
 
         public string TestId { get; set; }
 
+        public string EncryptionKey { get; set; }
+
         public ScheduleType ScheduleType { get; set; }
 
         public DateTime StartTime { get; set; }

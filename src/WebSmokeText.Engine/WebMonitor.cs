@@ -10,6 +10,7 @@ using System.Web;
 
 using Newtonsoft.Json;
 
+using Shared;
 using Shared.Classes;
 
 using SharedPluginFeatures;
@@ -674,7 +675,12 @@ namespace SmokeTest.Engine
         {
             try
             {
+                if (String.IsNullOrEmpty(_properties.EncryptionKey))
+                    throw new InvalidOperationException("Encryption key is invalid");
+
                 SmokeTestWebRequest(homepage, "/smoketest/siteid/", out string data);
+
+                data = Utilities.Decrypt(data, _properties.EncryptionKey);
 
                 if (!data.Equals(_properties.SiteId))
                     throw new InvalidOperationException("Incorrect Site Id returned");
@@ -693,6 +699,12 @@ namespace SmokeTest.Engine
                     LogError(err, homepage, null, homepage);
                 }
             }
+            catch (FormatException)
+            {
+                Exception encryptErr = new Exception($"Unable to decrypt data from {homepage.ToString()}");
+                _testRunLogger.Log(encryptErr);
+                LogError(encryptErr, homepage, null, homepage);
+            }
             catch (Exception err)
             {
                 _testRunLogger.Log(err);
@@ -706,6 +718,8 @@ namespace SmokeTest.Engine
         {
             SmokeTestWebRequest(homepage, "/smoketest/count/", out string data);
 
+            data = Utilities.Decrypt(data, _properties.EncryptionKey);
+
             if (Int32.TryParse(data, out int Result))
                 return Result;
 
@@ -715,6 +729,8 @@ namespace SmokeTest.Engine
         private WebSmokeTestItem GetSiteTestItem(in Uri homepage, in int index)
         {
             SmokeTestWebRequest(homepage, $"/smoketest/test/{index}", out string data);
+
+            data = Utilities.Decrypt(data, _properties.EncryptionKey);
 
             return JsonConvert.DeserializeObject<WebSmokeTestItem>(data);
         }

@@ -212,6 +212,11 @@ namespace SmokeTest.Shared.Engine
         /// </summary>
         public string SiteId { get; set; }
 
+        /// <summary>
+        /// Key used to decrypt data when retrieved using test discovery
+        /// </summary>
+        public string EncryptionKey { get; set; }
+
         #endregion Properties
 
         #region Internal Methods

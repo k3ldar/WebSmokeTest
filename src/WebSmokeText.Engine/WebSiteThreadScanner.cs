@@ -1,6 +1,7 @@
 ﻿using System;
 
 using Shared.Classes;
+
 using SmokeTest.Shared;
 using SmokeTest.Shared.Engine;
 
@@ -46,7 +47,7 @@ namespace SmokeTest.Engine
             }
 
             _properties.LastVerified = DateTime.UtcNow;
-                
+
             _testRunLogger.Log("Finished, closing, going home!");
 
             return false;
