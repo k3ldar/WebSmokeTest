@@ -89,6 +89,8 @@ namespace SmokeTest.Shared.Engine
 
         public int MinimumLoadTime { get; set; }
 
+        public bool SiteScan { get; set; }
+
         #endregion Properties
 
         #region Public Methods

@@ -77,6 +77,8 @@ namespace SmokeTest.Settings.Models
         [Required(ErrorMessage = "Please specify a value between 50 and 2000 milliseconds")]
         public int MinimumLoadTime { get; set; }
 
+        public bool SiteScan { get; set; }
+
         #endregion Properties
     }
 }

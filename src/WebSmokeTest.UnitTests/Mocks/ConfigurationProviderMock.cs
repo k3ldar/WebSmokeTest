@@ -35,7 +35,8 @@ namespace SmokeTest.UnitTests.Mocks
         public bool SaveConfiguration(in string name, in string url, in int crawlDepth, in int maxPages,
             in int millisecondsBetweenRequest, in string userAgent, in string uniqueId, in bool checkImages,
             in bool clearHtmlData, in bool clearImageData,
-            in int minimumLoadTime, in List<string> additionalUrls, in NVPCodec headers)
+            in int minimumLoadTime, in bool scanSite,
+            in List<string> additionalUrls, in NVPCodec headers)
         {
             throw new NotImplementedException();
         }

@@ -63,6 +63,7 @@ namespace SmokeTest.Engine
             _pageLoadTimings = new Timings();
             _report = new Report();
             _report.MinimumLoadTime = _properties.MinimumLoadTime;
+            _report.SiteScan = _properties.SiteScan;
 
             if (!_properties.IsValid())
                 throw new ArgumentException(nameof(properties));
@@ -139,7 +140,11 @@ namespace SmokeTest.Engine
                 if (ValidateTestsCanBeRunAgainstUrl(homePage))
                 {
                     RetrieveIpAddresses(_properties.Url);
-                    _urlProcessList.Enqueue(homePage);
+
+                    if (_report.SiteScan)
+                    {
+                        _urlProcessList.Enqueue(homePage);
+                    }
 
                     DiscoverOnSiteTests(homePage, 0);
 

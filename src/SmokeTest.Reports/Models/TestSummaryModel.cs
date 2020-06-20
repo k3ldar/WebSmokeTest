@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Net;
+using System.Security.Policy;
+
 using SharedPluginFeatures;
 using SmokeTest.Shared;
 using SmokeTest.Shared.Engine;
@@ -17,7 +19,7 @@ namespace SmokeTest.Reports.Models
             in Dictionary<string, string> headers, in List<ErrorDataModel> errors,
             in List<Cookie> cookies, in List<FormReport> forms,
             in List<ImageReport> images, in List<PageReport> pages,
-            in int minimumLoadTime,
+            in int minimumLoadTime, in bool siteScan,
             in List<TestResult> testResults)
             : base (modelData)
         {
@@ -40,6 +42,7 @@ namespace SmokeTest.Reports.Models
             Pages = pages ?? throw new ArgumentNullException(nameof(pages));
             TestResults = testResults;
             MinimumLoadTime = minimumLoadTime;
+            SiteScan = siteScan;
         }
 
         #region Properties
@@ -67,6 +70,8 @@ namespace SmokeTest.Reports.Models
         public decimal TotalTime { get; private set; }
 
         public int MinimumLoadTime { get; private set; }
+
+        public bool SiteScan { get; private set; }
 
         public List<Cookie> Cookies { get; set; }
 

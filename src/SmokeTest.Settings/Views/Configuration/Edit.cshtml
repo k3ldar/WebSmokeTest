@@ -24,145 +24,178 @@
 }
 @using (Html.BeginForm(nameof(SmokeTest.Settings.Controllers.ConfigurationController.Edit), SmokeTest.Settings.Controllers.ConfigurationController.Name, FormMethod.Post))
 {
-<div class="hb">
-    <div class="row">
-        <div class="col-sm-12 col-md-3">
-            @Html.NameFor(m => m.Name)
+    <div class="hb">
+        <div class="row">
+            <div class="col-sm-12 col-md-3">
+                @Html.NameFor(m => m.Name)
+            </div>
+            <div class="col-sm-12 col-md-9">
+                @Html.TextBoxFor(m => m.Name, new { @class = "form-control" })
+                @Html.ValidationMessageFor(m => m.Name)
+            </div>
         </div>
-        <div class="col-sm-12 col-md-9">
-            @Html.TextBoxFor(m => m.Name, new { @class = "form-control" })
-            @Html.ValidationMessageFor(m => m.Name)
+        <div class="row ac-row">
+            <div class="col-sm-12 col-md-3">
+                @Html.NameFor(m => m.Url)
+            </div>
+            <div class="col-sm-12 col-md-9">
+                @Html.TextBoxFor(m => m.Url, new { @class = "form-control" })
+                @Html.ValidationMessageFor(m => m.Url)
+            </div>
         </div>
-    </div>
-    <div class="row ac-row">
-        <div class="col-sm-12 col-md-3">
-            @Html.NameFor(m => m.Url)
+        <div class="row ac-row">
+            <div class="col-sm-12 col-md-3">
+                @Html.NameFor(m => m.MinimumLoadTime)
+            </div>
+            <div class="col-sm-12 col-md-9">
+                Display warning if page load exceeds @Html.TextBoxFor(m => m.MinimumLoadTime, new { @class = "form-control", style = "width:100px;margin: 0 5px 0 5px;display: inline-block;" }) ms
+                @Html.ValidationMessageFor(m => m.MinimumLoadTime)
+            </div>
         </div>
-        <div class="col-sm-12 col-md-9">
-            @Html.TextBoxFor(m => m.Url, new { @class = "form-control" })
-            @Html.ValidationMessageFor(m => m.Url)
+        <div class="row  ac-row">
+            <div class="col-sm-12 col-md-3">
+                @Html.NameFor(m => m.SiteScan)
+            </div>
+            <div class="col-sm-12 col-md-9">
+                @Html.CheckBoxFor(m => m.SiteScan, new { @class = "form-control", style = "width:18px;height:18px;", onchange = "updateSiteScan(this);" })
+            </div>
         </div>
-    </div>
-    <div class="row ac-row">
-        <div class="col-sm-12 col-md-3">
-            @Html.NameFor(m => m.MinimumLoadTime)
+        <div class="row  ac-row" id="divCrawl">
+            <div class="col-sm-12 col-md-3">
+                @Html.NameFor(m => m.CrawlDepth)
+            </div>
+            <div class="col-sm-12 col-md-9">
+                @Html.TextBoxFor(m => m.CrawlDepth, new { @class = "form-control", style = "width:100px;" })
+                @Html.ValidationMessageFor(m => m.CrawlDepth)
+            </div>
         </div>
-        <div class="col-sm-12 col-md-9">
-            Display warning if page load exceeds @Html.TextBoxFor(m => m.MinimumLoadTime, new { @class = "form-control", style = "width:100px;margin: 0 5px 0 5px;display: inline-block;" }) ms
-            @Html.ValidationMessageFor(m => m.MinimumLoadTime)
+        <div class="row ac-row" id="divMaxPages">
+            <div class="col-sm-12 col-md-3">
+                @Html.NameFor(m => m.MaximumPages)
+            </div>
+            <div class="col-sm-12 col-md-9">
+                @Html.TextBoxFor(m => m.MaximumPages, new { @class = "form-control", style = "width:100px;" })
+                @Html.ValidationMessageFor(m => m.MaximumPages)
+            </div>
         </div>
-    </div>
-    <div class="row  ac-row">
-        <div class="col-sm-12 col-md-3">
-            @Html.NameFor(m => m.CrawlDepth)
+        <div class="row ac-row">
+            <div class="col-sm-12 col-md-3">
+                @Html.NameFor(m => m.MillisecondsBetweenRequests)
+            </div>
+            <div class="col-sm-12 col-md-9">
+                @Html.TextBoxFor(m => m.MillisecondsBetweenRequests, new { @class = "form-control", style = "width:100px;" })
+                @Html.ValidationMessageFor(m => m.MillisecondsBetweenRequests)
+            </div>
         </div>
-        <div class="col-sm-12 col-md-9">
-            @Html.TextBoxFor(m => m.CrawlDepth, new { @class = "form-control", style = "width:100px;" })
-            @Html.ValidationMessageFor(m => m.CrawlDepth)
+        <div class="row ac-row">
+            <div class="col-sm-12 col-md-3">
+                @Html.NameFor(m => m.UserAgent)
+            </div>
+            <div class="col-sm-12 col-md-9">
+                @Html.TextBoxFor(m => m.UserAgent, new { @class = "form-control" })
+                @Html.ValidationMessageFor(m => m.UserAgent)
+            </div>
         </div>
-    </div>
-    <div class="row ac-row">
-        <div class="col-sm-12 col-md-3">
-            @Html.NameFor(m => m.MaximumPages)
+        <div class="row ac-row">
+            <div class="col-sm-12 col-md-3">
+                @Html.NameFor(m => m.UniqueId)
+            </div>
+            <div class="col-sm-12 col-md-9">
+                @Html.TextBoxFor(m => m.UniqueId, new { @readonly = "readonly", @class = "form-control", style = "width:200px;" })
+            </div>
         </div>
-        <div class="col-sm-12 col-md-9">
-            @Html.TextBoxFor(m => m.MaximumPages, new { @class = "form-control", style = "width:100px;" })
-            @Html.ValidationMessageFor(m => m.MaximumPages)
+        <div class="row ac-row">
+            <div class="col-sm-12 col-md-3">
+                @Html.NameFor(m => m.CheckImages)
+            </div>
+            <div class="col-sm-12 col-md-9">
+                @Html.CheckBoxFor(m => m.CheckImages, new { @class = "form-control", style = "width:18px;height:18px;" })
+            </div>
         </div>
-    </div>
-    <div class="row ac-row">
-        <div class="col-sm-12 col-md-3">
-            @Html.NameFor(m => m.MillisecondsBetweenRequests)
+        <div class="row ac-row">
+            <div class="col-sm-12 col-md-3">
+                @Html.NameFor(m => m.ClearHtmlData)
+            </div>
+            <div class="col-sm-12 col-md-9">
+                @Html.CheckBoxFor(m => m.ClearHtmlData, new { @class = "form-control", style = "width:18px;height:18px;" })
+            </div>
         </div>
-        <div class="col-sm-12 col-md-9">
-            @Html.TextBoxFor(m => m.MillisecondsBetweenRequests, new { @class = "form-control", style = "width:100px;" })
-            @Html.ValidationMessageFor(m => m.MillisecondsBetweenRequests)
+        <div class="row ac-row">
+            <div class="col-sm-12 col-md-3">
+                @Html.NameFor(m => m.ClearImageData)
+            </div>
+            <div class="col-sm-12 col-md-9">
+                @Html.CheckBoxFor(m => m.ClearImageData, new { @class = "form-control", style = "width:18px;height:18px;" })
+            </div>
         </div>
-    </div>
-    <div class="row ac-row">
-        <div class="col-sm-12 col-md-3">
-            @Html.NameFor(m => m.UserAgent)
+        <div class="row  ac-row">
+            <div class="col-sm-12 col-md-3">
+                @Html.NameFor(m => m.BasicAuthUsername)
+            </div>
+            <div class="col-sm-12 col-md-9">
+                @Html.TextBoxFor(m => m.BasicAuthUsername, new { @class = "form-control", style = "width:180px;" })
+                @Html.ValidationMessageFor(m => m.BasicAuthUsername)
+            </div>
         </div>
-        <div class="col-sm-12 col-md-9">
-            @Html.TextBoxFor(m => m.UserAgent, new { @class = "form-control" })
-            @Html.ValidationMessageFor(m => m.UserAgent)
+        <div class="row  ac-row">
+            <div class="col-sm-12 col-md-3">
+                @Html.NameFor(m => m.BasicAuthPassword)
+            </div>
+            <div class="col-sm-12 col-md-9">
+                @Html.TextBoxFor(m => m.BasicAuthPassword, new { @class = "form-control", style = "width:180px;" })
+                @Html.ValidationMessageFor(m => m.BasicAuthPassword)
+            </div>
         </div>
-    </div>
-    <div class="row ac-row">
-        <div class="col-sm-12 col-md-3">
-            @Html.NameFor(m => m.UniqueId)
+        <div class="row ac-row">
+            <div class="col-sm-12 col-md-3">
+                @Html.NameFor(m => m.AdditionalUrls)
+            </div>
+            <div class="col-sm-12 col-md-9">
+                @Html.TextAreaFor(m => m.AdditionalUrls, new { @class = "form-control", style = "height:100px;" })
+                @Html.ValidationMessageFor(m => m.AdditionalUrls)
+            </div>
         </div>
-        <div class="col-sm-12 col-md-9">
-            @Html.TextBoxFor(m => m.UniqueId, new { @readonly = "readonly", @class = "form-control", style = "width:200px;" })
+        <div class="row ac-row">
+            <div class="col-sm-12 col-md-3">
+                @Html.NameFor(m => m.Headers)
+            </div>
+            <div class="col-sm-12 col-md-9">
+                @Html.TextAreaFor(m => m.Headers, new { @class = "form-control", style = "height:100px;" })
+                @Html.ValidationMessageFor(m => m.Headers)
+            </div>
         </div>
-    </div>
-    <div class="row ac-row">
-        <div class="col-sm-12 col-md-3">
-            @Html.NameFor(m => m.CheckImages)
-        </div>
-        <div class="col-sm-12 col-md-9">
-            @Html.CheckBoxFor(m => m.CheckImages, new { @class = "form-control", style = "width:18px;height:18px;" })
-        </div>
-    </div>
-    <div class="row ac-row">
-        <div class="col-sm-12 col-md-3">
-            @Html.NameFor(m => m.ClearHtmlData)
-        </div>
-        <div class="col-sm-12 col-md-9">
-            @Html.CheckBoxFor(m => m.ClearHtmlData, new { @class = "form-control", style = "width:18px;height:18px;" })
-        </div>
-    </div>
-    <div class="row ac-row">
-        <div class="col-sm-12 col-md-3">
-            @Html.NameFor(m => m.ClearImageData)
-        </div>
-        <div class="col-sm-12 col-md-9">
-            @Html.CheckBoxFor(m => m.ClearImageData, new { @class = "form-control", style = "width:18px;height:18px;" })
-        </div>
-    </div>
-    <div class="row  ac-row">
-        <div class="col-sm-12 col-md-3">
-            @Html.NameFor(m => m.BasicAuthUsername)
-        </div>
-        <div class="col-sm-12 col-md-9">
-            @Html.TextBoxFor(m => m.BasicAuthUsername, new { @class = "form-control", style = "width:180px;" })
-            @Html.ValidationMessageFor(m => m.BasicAuthUsername)
-        </div>
-    </div>
-    <div class="row  ac-row">
-        <div class="col-sm-12 col-md-3">
-            @Html.NameFor(m => m.BasicAuthPassword)
-        </div>
-        <div class="col-sm-12 col-md-9">
-            @Html.TextBoxFor(m => m.BasicAuthPassword, new { @class = "form-control", style = "width:180px;" })
-            @Html.ValidationMessageFor(m => m.BasicAuthPassword)
-        </div>
-    </div>
-    <div class="row ac-row">
-        <div class="col-sm-12 col-md-3">
-            @Html.NameFor(m => m.AdditionalUrls)
-        </div>
-        <div class="col-sm-12 col-md-9">
-            @Html.TextAreaFor(m => m.AdditionalUrls, new { @class = "form-control", style = "height:100px;" })
-            @Html.ValidationMessageFor(m => m.AdditionalUrls)
-        </div>
-    </div>
-    <div class="row ac-row">
-        <div class="col-sm-12 col-md-3">
-            @Html.NameFor(m => m.Headers)
-        </div>
-        <div class="col-sm-12 col-md-9">
-            @Html.TextAreaFor(m => m.Headers, new { @class = "form-control", style = "height:100px;" })
-            @Html.ValidationMessageFor(m => m.Headers)
-        </div>
-    </div>
-    <div class="row ac-row">
-        <div class="col-sm-12 col-md-3">
-            <button type="submit" class="btn btn-primary">Save</button>
-        </div>
-        <div class="col-sm-12 col-md-9">
+        <div class="row ac-row">
+            <div class="col-sm-12 col-md-3">
+                <button type="submit" class="btn btn-primary">Save</button>
+            </div>
+            <div class="col-sm-12 col-md-9">
 
+            </div>
         </div>
     </div>
-</div>
 }
+
+
+<script type="text/javascript">
+    function updateSiteScan(ctl) {
+        var selected = ctl.checked;
+
+        if (selected === undefined || selected === '') {
+            selected = true;
+        }
+
+        if (selected) {
+            $('#divMaxPages').show();
+            $('#divCrawl').show();
+        }
+        else {
+            $('#divMaxPages').hide();
+            $('#divCrawl').hide();
+        }
+    }
+
+    $(document).ready(function () {
+        var siteScan = $('#@Html.IdFor(m => m.SiteScan)');
+        updateSiteScan(siteScan[0]);
+    });
+</script>

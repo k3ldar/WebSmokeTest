@@ -13,11 +13,12 @@ namespace SmokeTest.Shared
         {
             QueueData = new List<TestItem>();
             MinimumLoadTime = 500;
+            SiteScan = true;
         }
 
         public TestConfiguration(in string name, in string url, in int crawlDepth, in int maxPages,
             in int millisecondsBetweenRequest, in string userAgent, in string uniqueId, in bool checkImages,
-            in bool clearHtmlData, in bool clearImageData, in int minimumLoadTime, 
+            in bool clearHtmlData, in bool clearImageData, in int minimumLoadTime, in bool scanSite,
             in List<string> additionalUrls, in NVPCodec headers)
             : this()
         {
@@ -55,6 +56,7 @@ namespace SmokeTest.Shared
             AdditionalUrls = String.Join(";", additionalUrls.ToArray());
             Headers = headers.Encode();
             MinimumLoadTime = minimumLoadTime;
+            SiteScan = scanSite;
         }
 
         #endregion Constructors
@@ -88,6 +90,8 @@ namespace SmokeTest.Shared
         public List<TestItem> QueueData { get; set; }
 
         public int MinimumLoadTime { get; set; }
+
+        public bool SiteScan { get; set; }
 
         #endregion Properties
 

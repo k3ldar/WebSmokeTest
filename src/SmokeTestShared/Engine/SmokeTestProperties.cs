@@ -222,6 +222,11 @@ namespace SmokeTest.Shared.Engine
         /// </summary>
         public int MinimumLoadTime { get; set; }
 
+        /// <summary>
+        /// Determines whether a site scan will be completed or not
+        /// </summary>
+        public bool SiteScan { get; set; }
+
         #endregion Properties
 
         #region Internal Methods

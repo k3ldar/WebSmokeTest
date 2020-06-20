@@ -70,7 +70,7 @@ namespace SmokeTest.Middleware
         public bool SaveConfiguration(in string name, in string url, in int crawlDepth, in int maxPages,
             in int millisecondsBetweenRequest, in string userAgent, in string uniqueId, in bool checkImages,
             in bool clearHtmlData, in bool clearImageData,
-            in int minimumLoadTime, 
+            in int minimumLoadTime, in bool scanSite,
             in List<string> additionalUrls, in NVPCodec headers)
         {
             if (String.IsNullOrEmpty(name))
@@ -102,7 +102,7 @@ namespace SmokeTest.Middleware
 
             TestConfiguration configuration = new TestConfiguration(name, url, crawlDepth, maxPages,
                 millisecondsBetweenRequest, userAgent, uniqueId, checkImages, clearHtmlData, clearImageData,
-                minimumLoadTime,
+                minimumLoadTime, scanSite,
                 additionalUrls, headers);
 
             bool Result = SaveConfigurationToFile(configuration);

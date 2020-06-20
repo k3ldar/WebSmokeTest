@@ -262,6 +262,7 @@ namespace SmokeTest.Middleware
                 SiteId = testSchedule.TestId,
                 EncryptionKey = testSchedule.EncryptionKey,
                 MinimumLoadTime = configuration.MinimumLoadTime,
+                SiteScan = configuration.SiteScan,
             };
 
             NVPCodec headers = new NVPCodec();
