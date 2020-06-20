@@ -159,7 +159,7 @@ namespace SmokeTest.Middleware
 
                 foreach (TestRunItem item in _activeTestRuns.Where(at => at.TestId.Equals(id)).ToList())
                 {
-                    Result.Add(new TestItem(item.UniqueId, item.TestId, item.Start, 0));
+                    Result.Add(new TestItem(item.UniqueId, item.TestId, item.Start, 0, _reportHelper.EstimatedRuntime(item.TestId)));
                 }
 
                 return Result.ToArray();

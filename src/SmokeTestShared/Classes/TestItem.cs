@@ -7,15 +7,16 @@
 
         }
 
-        public TestItem(in long testId, in long queueStart, in long queueEnd)
+        public TestItem(in long testId, in long queueStart, in long queueEnd, in double estimatedTime)
         {
             TestId = testId;
             Start = queueStart;
             End = queueEnd;
+            EstimatedTime = estimatedTime;
         }
 
-        public TestItem(in long id, in long testId, in long queueStart, in long queueEnd)
-            : this(testId, queueStart, queueEnd)
+        public TestItem(in long id, in long testId, in long queueStart, in long queueEnd, in double estimatedTime)
+            : this(testId, queueStart, queueEnd, estimatedTime)
         {
             UniqueId = id;
         }
@@ -29,5 +30,7 @@
         public int Position { get; set; }
 
         public long UniqueId { get; set; }
+
+        public double EstimatedTime { get; set; }
     }
 }

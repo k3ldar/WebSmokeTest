@@ -51,5 +51,38 @@ namespace SmokeTest.Scheduler.Models
         public int Queued { get; private set; }
 
         public string Position { get; private set; }
+
+        #region Public Methods
+
+        public string FormatElapsedTime(TimeSpan elapsed)
+        {
+            System.Text.StringBuilder elapsedtime = new System.Text.StringBuilder();
+
+            if (elapsed.Hours > 0)
+                elapsedtime.AppendFormat("{0} hours", elapsed.Hours);
+
+            if (elapsed.Minutes > 0)
+            {
+                if (elapsedtime.Length > 0)
+                    elapsedtime.Append(", ");
+
+                elapsedtime.AppendFormat("{0} minutes", elapsed.Minutes);
+            }
+
+            if (elapsed.Seconds > 0)
+            {
+                if (elapsedtime.Length > 0)
+                    elapsedtime.Append(" and ");
+
+                elapsedtime.AppendFormat("{0} seconds", elapsed.Seconds);
+            }
+
+            if (elapsedtime.Length == 0)
+                elapsedtime.Append("??");
+
+            return elapsedtime.ToString();
+        }
+
+        #endregion Public Methods
     }
 }

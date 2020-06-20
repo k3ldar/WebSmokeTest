@@ -1,4 +1,6 @@
-﻿using SmokeTest.Shared.Engine;
+﻿using System;
+
+using SmokeTest.Shared.Engine;
 
 namespace SmokeTest.Shared
 {
@@ -7,5 +9,7 @@ namespace SmokeTest.Shared
         void AddReport(in Report report);
 
         ReportSummary[] ReportSummary(long testScheduleId, int count);
+
+        double EstimatedRuntime(long testScheduleId);
     }
 }

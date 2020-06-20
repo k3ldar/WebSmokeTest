@@ -54,30 +54,12 @@
                     {
                         futureCounter++;
                         DateTime startTime = new DateTime(item.Start);
-                        TimeSpan elapsed = DateTime.UtcNow - startTime;
-                        System.Text.StringBuilder elapsedtime = new System.Text.StringBuilder();
-
-                        if (elapsed.Hours > 0)
-                            elapsedtime.AppendFormat("{0} hours", elapsed.Hours);
-
-                        if (elapsed.Minutes > 0)
-                        {
-                            if (elapsedtime.Length > 0)
-                                elapsedtime.Append(", ");
-
-                            elapsedtime.AppendFormat("{0} minutes", elapsed.Minutes);
-                        }
-
-                        if (elapsed.Seconds > 0)
-                        {
-                            if (elapsedtime.Length > 0)
-                                elapsedtime.Append(" and ");
-
-                            elapsedtime.AppendFormat("{0} seconds", elapsed.Seconds);
-                        }
-
-                        string tooltip = String.Format("Test Running\r\n\r\nStarted: {0}\r\nElapsed: {1}",
-                            startTime.ToLocalTime().ToShortTimeString(), elapsedtime.ToString());
+                        string elapsed = Model.FormatElapsedTime(DateTime.UtcNow - startTime);
+                        string estimatedRemain = Model.FormatElapsedTime(startTime.AddSeconds(item.EstimatedTime) - DateTime.UtcNow);
+                        string estimatedTotal = Model.FormatElapsedTime(TimeSpan.FromSeconds(item.EstimatedTime));
+                        
+                        string tooltip = String.Format("Test Running\r\n\r\nStarted: {0}\r\nElapsed: {1}\r\nEstimated Total: {2}\r\nEstimated Remaining: {3}",
+                            startTime.ToLocalTime().ToShortTimeString(), elapsed, estimatedTotal, estimatedRemain);
                         <a href="/Reports/TestRunProgress/@item.UniqueId/"><span class="testRunItem" title="@tooltip">R</span></a>
 
                         if (futureCounter > 9)

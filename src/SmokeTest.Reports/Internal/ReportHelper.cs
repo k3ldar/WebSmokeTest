@@ -72,6 +72,14 @@ namespace SmokeTest.Reports.Internal
             return Result.ToArray();
         }
 
+        public double EstimatedRuntime(long testScheduleId)
+        {
+            return _reportSummary.Where(rs => rs.TestId.Equals(testScheduleId))
+                .OrderByDescending(o => o.EndTime)
+                .Take(3)
+                .Average(a => a.TotalTime);
+        }
+
         #endregion IReportHelper Methods
 
         #region Private Methods
