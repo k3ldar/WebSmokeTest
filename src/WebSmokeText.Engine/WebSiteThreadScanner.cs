@@ -75,14 +75,6 @@ namespace SmokeTest.Engine
             }
         }
 
-        public SmokeTestProperties Properties
-        {
-            get
-            {
-                return _properties;
-            }
-        }
-
         public long UniqueId { get; private set; }
 
         #endregion Properties

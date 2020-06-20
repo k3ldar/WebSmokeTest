@@ -129,6 +129,7 @@ namespace SmokeTest.Reports.Controllers
                 report.Forms,
                 report.Images,
                 report.Pages,
+                report.MinimumLoadTime,
                 report.TestResults
                 );
         }

@@ -52,6 +52,10 @@
                             <td>@Html.NameFor(m => m.TotalTime)</td>
                             <td>@Model.TotalTime.ToString("F3") ms</td>
                         </tr>
+                        <tr>
+                            <td>@Html.NameFor(m => m.MinimumLoadTime)</td>
+                            <td>@Model.MinimumLoadTime.ToString() ms</td>
+                        </tr>
                     </tbody>
                 </table>
             </div>
@@ -81,7 +85,7 @@
                         <tbody>
                             @foreach (var testResult in Model.TestResults)
                             {
-                                string className = testResult.ErrorCount == 0 ? "testSuccess" : "testFailure";
+                                string className = testResult.ErrorCount == 0 ? testResult.TimeTaken > Model.MinimumLoadTime ? "testWarning" : "testSuccess" : "testFailure";
                                 <tr class="@className">
                                     <td>@testResult.Name</td>
                                     <td>@testResult.Position</td>
@@ -155,7 +159,8 @@
                         <tbody>
                             @foreach (var item in Model.Pages)
                             {
-                                <tr>
+                                string className = item.LoadTime > Model.MinimumLoadTime ? "testWarning" : String.Empty;
+                                <tr class="@className">
                                     <td>@item.LoadTime.ToString("F3") ms</td>
                                     <td>@item.Url</td>
                                     <td></td>

@@ -335,8 +335,8 @@ namespace SmokeTest.Middleware
                 }
                 else
                 {
-                    if (threadWebsiteScan.Report.Pages.Where(p => p.LoadTime > threadWebsiteScan.Properties.MinimumLoadTime).Any() ||
-                        threadWebsiteScan.Report.TestResults.Where(tr => tr.TimeTaken > threadWebsiteScan.Properties.MinimumLoadTime).Any())
+                    if (threadWebsiteScan.Report.Pages.Where(p => p.LoadTime > threadWebsiteScan.Report.MinimumLoadTime).Any() ||
+                        threadWebsiteScan.Report.TestResults.Where(tr => tr.TimeTaken > threadWebsiteScan.Report.MinimumLoadTime).Any())
                     {
                         result = LastRunResult.Warning;
                     }

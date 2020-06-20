@@ -16,6 +16,7 @@ namespace SmokeTest.Reports.Models
             in Dictionary<string, string> headers, in List<ErrorDataModel> errors,
             in List<Cookie> cookies, in List<FormReport> forms,
             in List<ImageReport> images, in List<PageReport> pages,
+            in int minimumLoadTime,
             in List<TestResult> testResults)
             : base (modelData)
         {
@@ -37,6 +38,7 @@ namespace SmokeTest.Reports.Models
             Images = images ?? throw new ArgumentNullException(nameof(images));
             Pages = pages ?? throw new ArgumentNullException(nameof(pages));
             TestResults = testResults;
+            MinimumLoadTime = minimumLoadTime;
         }
 
         #region Properties
@@ -62,6 +64,8 @@ namespace SmokeTest.Reports.Models
         public decimal TrimmedAverage { get; private set; }
 
         public decimal TotalTime { get; private set; }
+
+        public int MinimumLoadTime { get; private set; }
 
         public List<Cookie> Cookies { get; set; }
 

@@ -389,5 +389,10 @@ body {
 }
 
 .testFailure {
-    background-color: orangered;
+    background-color: red;
+}
+
+
+.testWarning {
+    background-color: orange;
 }

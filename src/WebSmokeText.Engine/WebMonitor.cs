@@ -62,6 +62,7 @@ namespace SmokeTest.Engine
 
             _pageLoadTimings = new Timings();
             _report = new Report();
+            _report.MinimumLoadTime = _properties.MinimumLoadTime;
 
             if (!_properties.IsValid())
                 throw new ArgumentException(nameof(properties));
