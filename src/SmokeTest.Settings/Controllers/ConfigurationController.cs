@@ -84,6 +84,7 @@ namespace SmokeTest.Settings.Controllers
                 _testConfigurationProvider.SaveConfiguration(model.Name, model.Url, model.CrawlDepth,
                     model.MaximumPages, model.MillisecondsBetweenRequests, model.UserAgent,
                     model.UniqueId, model.CheckImages, model.ClearHtmlData, model.ClearImageData,
+                    model.MinimumLoadTime,
                     urlList, headerCodec);
 
                 return RedirectToAction(nameof(Index));
@@ -133,6 +134,7 @@ namespace SmokeTest.Settings.Controllers
                 _testConfigurationProvider.SaveConfiguration(model.Name, model.Url, model.CrawlDepth,
                     model.MaximumPages, model.MillisecondsBetweenRequests, model.UserAgent,
                     model.UniqueId, model.CheckImages, model.ClearHtmlData, model.ClearImageData,
+                    model.MinimumLoadTime,
                     urlList, headerCodec);
 
                 return RedirectToAction(nameof(Index));
@@ -218,6 +220,7 @@ namespace SmokeTest.Settings.Controllers
                 Headers = model == null ? String.Empty : model.Headers,
                 BasicAuthUsername = model == null ? String.Empty : model.BasicAuthUsername,
                 BasicAuthPassword = model == null ? String.Empty : model.BasicAuthPassword,
+                MinimumLoadTime = model == null ? 500 : model.MinimumLoadTime,
             };
         }
 
@@ -268,6 +271,7 @@ namespace SmokeTest.Settings.Controllers
                 Headers = String.Join("\r\n", headers.Encode().Split("&")),
                 BasicAuthUsername = basicAuthName,
                 BasicAuthPassword = basicAuthPassword,
+                MinimumLoadTime = testConfiguration.MinimumLoadTime,
             };
         }
 

@@ -22,7 +22,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SmokeTest.Scheduler", "src\
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SmokeTest.Reports", "src\SmokeTest.Reports\SmokeTest.Reports.csproj", "{CF506C09-9B42-4B2B-B229-A660A80E906D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmokeTest.SystemTests", "src\SmokeTest.SystemTests\SmokeTest.SystemTests.csproj", "{28A73C8D-D293-439B-9DC3-9679B45CA90E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SmokeTest.SystemTests", "src\SmokeTest.SystemTests\SmokeTest.SystemTests.csproj", "{28A73C8D-D293-439B-9DC3-9679B45CA90E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

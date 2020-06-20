@@ -261,6 +261,7 @@ namespace SmokeTest.Middleware
                 Url = configuration.Url,
                 SiteId = testSchedule.TestId,
                 EncryptionKey = testSchedule.EncryptionKey,
+                MinimumLoadTime = configuration.MinimumLoadTime,
             };
 
             NVPCodec headers = new NVPCodec();
@@ -309,7 +310,7 @@ namespace SmokeTest.Middleware
 
                 LastRunResult result = LastRunResult.NotRun;
 
-                if (threadWebsiteScan.Report.Pages.Count == 0 && 
+                if (threadWebsiteScan.Report.Pages.Count == 0 &&
                     threadWebsiteScan.Report.Errors.Count == 1 &&
                     threadWebsiteScan.Report.Errors[0].Error.Message.Contains("timed out"))
                 {
@@ -334,7 +335,15 @@ namespace SmokeTest.Middleware
                 }
                 else
                 {
-                    result = LastRunResult.Success;
+                    if (threadWebsiteScan.Report.Pages.Where(p => p.LoadTime > threadWebsiteScan.Properties.MinimumLoadTime).Any() ||
+                        threadWebsiteScan.Report.TestResults.Where(tr => tr.TimeTaken > threadWebsiteScan.Properties.MinimumLoadTime).Any())
+                    {
+                        result = LastRunResult.Warning;
+                    }
+                    else
+                    {
+                        result = LastRunResult.Success;
+                    }
                 }
 
                 threadWebsiteScan.Report.RunResult = result;

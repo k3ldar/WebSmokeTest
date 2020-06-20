@@ -217,6 +217,11 @@ namespace SmokeTest.Shared.Engine
         /// </summary>
         public string EncryptionKey { get; set; }
 
+        /// <summary>
+        /// Minimum load time for a page, if this time is exceeded then a warning is shown
+        /// </summary>
+        public int MinimumLoadTime { get; set; }
+
         #endregion Properties
 
         #region Internal Methods
