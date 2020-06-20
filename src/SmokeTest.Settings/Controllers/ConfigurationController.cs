@@ -221,7 +221,7 @@ namespace SmokeTest.Settings.Controllers
                 BasicAuthUsername = model == null ? String.Empty : model.BasicAuthUsername,
                 BasicAuthPassword = model == null ? String.Empty : model.BasicAuthPassword,
                 MinimumLoadTime = model == null ? 500 : model.MinimumLoadTime,
-                SiteScan = model == null ? false : model.SiteScan,
+                SiteScan = model == null ? true : model.SiteScan,
             };
         }
 
