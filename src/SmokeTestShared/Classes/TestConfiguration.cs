@@ -19,6 +19,7 @@ namespace SmokeTest.Shared
         public TestConfiguration(in string name, in string url, in int crawlDepth, in int maxPages,
             in int millisecondsBetweenRequest, in string userAgent, in string uniqueId, in bool checkImages,
             in bool clearHtmlData, in bool clearImageData, in int minimumLoadTime, in bool scanSite,
+            in string encryptionKey,
             in List<string> additionalUrls, in NVPCodec headers)
             : this()
         {
@@ -57,6 +58,7 @@ namespace SmokeTest.Shared
             Headers = headers.Encode();
             MinimumLoadTime = minimumLoadTime;
             SiteScan = scanSite;
+            EncryptionKey = encryptionKey;
         }
 
         #endregion Constructors
@@ -92,6 +94,8 @@ namespace SmokeTest.Shared
         public int MinimumLoadTime { get; set; }
 
         public bool SiteScan { get; set; }
+
+        public string EncryptionKey { get; set; }
 
         #endregion Properties
 

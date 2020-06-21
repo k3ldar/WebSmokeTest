@@ -71,6 +71,7 @@ namespace SmokeTest.Middleware
             in int millisecondsBetweenRequest, in string userAgent, in string uniqueId, in bool checkImages,
             in bool clearHtmlData, in bool clearImageData,
             in int minimumLoadTime, in bool scanSite,
+            in string encryptionKey,
             in List<string> additionalUrls, in NVPCodec headers)
         {
             if (String.IsNullOrEmpty(name))
@@ -102,7 +103,7 @@ namespace SmokeTest.Middleware
 
             TestConfiguration configuration = new TestConfiguration(name, url, crawlDepth, maxPages,
                 millisecondsBetweenRequest, userAgent, uniqueId, checkImages, clearHtmlData, clearImageData,
-                minimumLoadTime, scanSite,
+                minimumLoadTime, scanSite, encryptionKey,
                 additionalUrls, headers);
 
             bool Result = SaveConfigurationToFile(configuration);

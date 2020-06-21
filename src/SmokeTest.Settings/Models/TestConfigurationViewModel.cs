@@ -79,6 +79,11 @@ namespace SmokeTest.Settings.Models
 
         public bool SiteScan { get; set; }
 
+        [StringLength(120, MinimumLength = 10)]
+        [DisplayName("Encryption Key")]
+        [Required(ErrorMessage = "Please enter a key that will be used to encrypt data between sites.")]
+        public string EncryptionKey { get; set; }
+
         #endregion Properties
     }
 }

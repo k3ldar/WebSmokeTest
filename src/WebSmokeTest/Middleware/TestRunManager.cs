@@ -260,7 +260,7 @@ namespace SmokeTest.Middleware
                 UserAgent = configuration.UserAgent,
                 Url = configuration.Url,
                 SiteId = testSchedule.TestId,
-                EncryptionKey = testSchedule.EncryptionKey,
+                EncryptionKey = configuration.EncryptionKey,
                 MinimumLoadTime = configuration.MinimumLoadTime,
                 SiteScan = configuration.SiteScan,
             };

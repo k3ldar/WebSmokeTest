@@ -686,9 +686,9 @@ namespace SmokeTest.Engine
 
                 SmokeTestWebRequest(homepage, "/smoketest/siteid/", out string data);
 
-                data = Utilities.Decrypt(data, _properties.EncryptionKey);
+                string[] siteIdList = Utilities.Decrypt(data, _properties.EncryptionKey).Split(';', StringSplitOptions.RemoveEmptyEntries);
 
-                if (!data.Equals(_properties.SiteId))
+                if (!siteIdList.Contains(_properties.SiteId))
                     throw new InvalidOperationException("Incorrect Site Id returned");
 
                 return true;

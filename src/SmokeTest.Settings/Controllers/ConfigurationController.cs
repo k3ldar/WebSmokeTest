@@ -84,7 +84,7 @@ namespace SmokeTest.Settings.Controllers
                 _testConfigurationProvider.SaveConfiguration(model.Name, model.Url, model.CrawlDepth,
                     model.MaximumPages, model.MillisecondsBetweenRequests, model.UserAgent,
                     model.UniqueId, model.CheckImages, model.ClearHtmlData, model.ClearImageData,
-                    model.MinimumLoadTime, model.SiteScan,
+                    model.MinimumLoadTime, model.SiteScan, model.EncryptionKey,
                     urlList, headerCodec);
 
                 return RedirectToAction(nameof(Index));
@@ -134,7 +134,7 @@ namespace SmokeTest.Settings.Controllers
                 _testConfigurationProvider.SaveConfiguration(model.Name, model.Url, model.CrawlDepth,
                     model.MaximumPages, model.MillisecondsBetweenRequests, model.UserAgent,
                     model.UniqueId, model.CheckImages, model.ClearHtmlData, model.ClearImageData,
-                    model.MinimumLoadTime, model.SiteScan,
+                    model.MinimumLoadTime, model.SiteScan, model.EncryptionKey,
                     urlList, headerCodec);
 
                 return RedirectToAction(nameof(Index));
@@ -222,6 +222,7 @@ namespace SmokeTest.Settings.Controllers
                 BasicAuthPassword = model == null ? String.Empty : model.BasicAuthPassword,
                 MinimumLoadTime = model == null ? 500 : model.MinimumLoadTime,
                 SiteScan = model == null ? true : model.SiteScan,
+                EncryptionKey = model == null ? $"wst{Guid.NewGuid()}" : model.EncryptionKey,
             };
         }
 
@@ -274,6 +275,7 @@ namespace SmokeTest.Settings.Controllers
                 BasicAuthPassword = basicAuthPassword,
                 MinimumLoadTime = testConfiguration.MinimumLoadTime,
                 SiteScan = testConfiguration.SiteScan,
+                EncryptionKey = testConfiguration.EncryptionKey,
             };
         }
 
