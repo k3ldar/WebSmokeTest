@@ -1,8 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 
 using SharedPluginFeatures;
+
+using SmokeTest.Shared.Engine;
 
 namespace SmokeTest.Settings.Models
 {
@@ -19,6 +22,15 @@ namespace SmokeTest.Settings.Models
             : base(modelData)
         {
 
+        }
+
+        public TestConfigurationViewModel(BaseModelData modelData, 
+            List<WebSmokeTestItem> discoveredTests,
+            HashSet<string> disabledTests)
+            : this(modelData)
+        {
+            DiscoveredTests = discoveredTests;
+            DisabledTests = disabledTests;
         }
 
         #endregion Constructors
@@ -84,6 +96,25 @@ namespace SmokeTest.Settings.Models
         [Required(ErrorMessage = "Please enter a key that will be used to encrypt data between sites.")]
         public string EncryptionKey { get; set; }
 
+        public List<WebSmokeTestItem> DiscoveredTests { get; private set; }
+
+        public HashSet<string> DisabledTests { get; private set; }
+
         #endregion Properties
+
+        #region Public Methods
+
+        public bool IsTestEnabled(in WebSmokeTestItem test)
+        {
+            if (DisabledTests == null)
+                return false;
+
+            if (DisabledTests.Contains(Report.GenerateTestHash(test)))
+                return false;
+
+            return true;
+        }
+
+        #endregion Public Methods
     }
 }

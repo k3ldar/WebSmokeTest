@@ -396,3 +396,8 @@ body {
 .testWarning {
     background-color: orange;
 }
+
+.testDisabled {
+    background-color: darkgray;
+    color: white;
+}

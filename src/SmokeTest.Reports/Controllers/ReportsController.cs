@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 using Microsoft.AspNetCore.Mvc;
 
@@ -25,14 +26,16 @@ namespace SmokeTest.Reports.Controllers
 
         private readonly string _dataPath;
         private readonly ITestRunManager _testRunManager;
+        private readonly ITestConfigurationProvider _configurationProvider;
 
         #endregion Private Members
 
         #region Constructors
 
-        public ReportsController(ITestRunManager testRunManager)
+        public ReportsController(ITestRunManager testRunManager, ITestConfigurationProvider configurationProvider)
         {
             _testRunManager = testRunManager ?? throw new ArgumentNullException(nameof(testRunManager));
+            _configurationProvider = configurationProvider ?? throw new ArgumentNullException(nameof(configurationProvider));
             _dataPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "SmokeTest");
         }
 
@@ -84,9 +87,14 @@ namespace SmokeTest.Reports.Controllers
 
         #region Private Methods
 
-        private TestSummaryModel ConvertReportToReportModel(in Report report)
+        private TestSummaryModel ConvertReportToReportModel(Report report)
         {
             List<ErrorDataModel> errorData = new List<ErrorDataModel>();
+
+            TestConfiguration testConfiguration = _configurationProvider.Configurations.Where(c => c.UniqueId.Equals(report.ConfigId)).FirstOrDefault();
+
+            if (testConfiguration == null)
+                return null;
 
             foreach (ErrorData item in report.Errors)
             {
@@ -114,6 +122,8 @@ namespace SmokeTest.Reports.Controllers
                 GetModelData(),
                 report.UniqueId,
                 report.TestSchedule,
+                report.ConfigId,
+                IsUserLoggedIn(),
                 report.StartTime,
                 report.EndTime,
                 report.RunResult,
@@ -131,7 +141,8 @@ namespace SmokeTest.Reports.Controllers
                 report.Pages,
                 report.MinimumLoadTime,
                 report.SiteScan,
-                report.TestResults
+                report.TestResults,
+                report.DisabledTests
                 );
         }
 

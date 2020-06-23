@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 
+using SharedPluginFeatures;
+
 namespace SmokeTest.Shared.Engine
 {
     public sealed class SmokeTestProperties
@@ -36,9 +38,30 @@ namespace SmokeTest.Shared.Engine
             ClearHtmlDataAfterAnalysis = true;
         }
 
+        public SmokeTestProperties(TestConfiguration testConfiguration, string testScheduleId)
+            : this()
+        {
+            TestConfiguration = testConfiguration ?? throw new ArgumentNullException();
+            CheckImages = testConfiguration.CheckImages;
+            ClearHtmlDataAfterAnalysis = testConfiguration.ClearHtmlData;
+            ClearImageDataAfterAnalysis = testConfiguration.ClearImageData;
+            CrawlDepth = testConfiguration.CrawlDepth;
+            MaximumPages = testConfiguration.MaximumPages;
+            PauseBetweenRequests = testConfiguration.MillisecondsBetweenRequests;
+            UserAgent = testConfiguration.UserAgent;
+            Url = testConfiguration.Url;
+            TestScheduleId = testScheduleId;
+            EncryptionKey = testConfiguration.EncryptionKey;
+            MinimumLoadTime = testConfiguration.MinimumLoadTime;
+            SiteScan = testConfiguration.SiteScan;
+            DisabledTests = testConfiguration.DisabledTests;
+        }
+
         #endregion Constructors
 
         #region Properties
+
+        public TestConfiguration TestConfiguration { get; set; }
 
         /// <summary>
         /// Depth of checks into the website
@@ -210,7 +233,7 @@ namespace SmokeTest.Shared.Engine
         /// <summary>
         /// Unique Id of the site being checked
         /// </summary>
-        public string SiteId { get; set; }
+        public string TestScheduleId { get; set; }
 
         /// <summary>
         /// Key used to decrypt data when retrieved using test discovery
@@ -226,6 +249,9 @@ namespace SmokeTest.Shared.Engine
         /// Determines whether a site scan will be completed or not
         /// </summary>
         public bool SiteScan { get; set; }
+
+
+        public HashSet<string> DisabledTests { get; set; }
 
         #endregion Properties
 
@@ -247,6 +273,15 @@ namespace SmokeTest.Shared.Engine
             return true;
         }
 
+        public bool IsTestEnabled(in WebSmokeTestItem test)
+        {
+            if (test == null)
+                throw new ArgumentNullException(nameof(test));
+
+            string testName = Report.GenerateTestHash(test);
+
+            return !DisabledTests.Contains(testName);
+        }
 
         public bool ContainsFormReport(FormReport form)
         {
@@ -270,5 +305,10 @@ namespace SmokeTest.Shared.Engine
 
 
         #endregion Internal Methods
+
+        private string TestHashCode(in string s)
+        {
+            return s.GetHashCode().ToString();
+        }
     }
 }

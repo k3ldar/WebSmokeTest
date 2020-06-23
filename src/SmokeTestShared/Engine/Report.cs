@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
-
+using System.Text;
 using Newtonsoft.Json;
 
 using Shared.Classes;
@@ -35,6 +35,7 @@ namespace SmokeTest.Shared.Engine
             TestResults = new List<TestResult>();
             _linksParsed = new List<string>();
             _imagesParsed = new List<string>();
+            DisabledTests = new HashSet<string>();
         }
 
         #endregion Constructors
@@ -90,6 +91,10 @@ namespace SmokeTest.Shared.Engine
         public int MinimumLoadTime { get; set; }
 
         public bool SiteScan { get; set; }
+
+        public string ConfigId { get; set; }
+
+        public HashSet<string> DisabledTests { get; set; }
 
         #endregion Properties
 
@@ -285,6 +290,13 @@ namespace SmokeTest.Shared.Engine
 
         #region Public Static Methods
 
+        public static string GenerateTestHash(in WebSmokeTestItem test)
+        {
+            string result = $"{test.Index} {test.Position} {test.Name} {test.Route} {test.Method} {test.Response} {test.FormId}";
+
+            return Convert.ToBase64String(Encoding.UTF8.GetBytes(result));
+        }
+
         public static Report LoadFromFile(in string file)
         {
             if (String.IsNullOrEmpty(file))
@@ -308,5 +320,6 @@ namespace SmokeTest.Shared.Engine
         }
 
         #endregion Public Static Methods
+
     }
 }

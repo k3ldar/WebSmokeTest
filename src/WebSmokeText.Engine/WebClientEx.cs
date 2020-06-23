@@ -27,7 +27,7 @@ namespace SmokeTest.Engine
 
         public bool AllowAutoRedirect { get; set; }
 
-        public WebHeaderCollection ResponseHeaders { get; set; }
+        public new WebHeaderCollection ResponseHeaders { get; set; }
 
         public WebClientEx()
         {

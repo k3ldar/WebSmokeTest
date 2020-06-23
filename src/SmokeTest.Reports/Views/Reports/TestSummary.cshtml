@@ -84,17 +84,37 @@
                                 <th>Position</th>
                                 <th>Time Taken</th>
                                 <th>Errors</th>
+                                <th style="width:50px;"></th>
                             </tr>
                         </thead>
                         <tbody>
                             @foreach (var testResult in Model.TestResults)
                             {
-                                string className = testResult.ErrorCount == 0 ? testResult.TimeTaken > Model.MinimumLoadTime ? "testWarning" : "testSuccess" : "testFailure";
+                                string className = testResult.Enabled ? testResult.ErrorCount == 0 ? testResult.TimeTaken > Model.MinimumLoadTime ? "testWarning" : "testSuccess" : "testFailure" : "testDisabled";
+                                string editClassName = testResult.DiscoveredTest ? "disabled" : String.Empty;
+                                string enableClassName = testResult.Enabled ? "disabled" : String.Empty;
+                                string disableClassName = testResult.Enabled ? String.Empty : "disabled";
+
                                 <tr class="@className">
                                     <td>@testResult.Name</td>
-                                    <td>@testResult.Position</td>
-                                    <td>@testResult.TimeTaken ms</td>
-                                    <td>@testResult.ErrorCount</td>
+                                    <td>@testResult.Position.ToString()</td>
+                                    <td>@testResult.TimeTaken.ToString() ms</td>
+                                    <td>@testResult.ErrorCount.ToString()</td>
+                                    <td>
+                                        @if (Model.IsUserLoggedIn)
+                                        {
+                                        <div class="dropdown">
+                                            <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                            </button>
+                                            <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                                                <a class="dropdown-item @enableClassName" href="javascript:EnableTest('@Model.ConfigurationId', '@testResult.InternalName');">Enable</a>
+                                                <a class="dropdown-item @disableClassName" href="javascript:DisableTest('@Model.ConfigurationId', '@testResult.InternalName');">Disable</a>
+                                                <div class="dropdown-divider"></div>
+                                                <a class="dropdown-item @editClassName" href="javascript:EditTest(@testResult.Index.ToString());">Edit</a>
+                                            </div>
+                                        </div>
+                                        }
+                                    </td>
                                 </tr>
                             }
                         </tbody>
@@ -320,3 +340,29 @@
     }
 </div>
 
+<script type="text/javascript">
+    function DisableTest(configid, name) {
+        var url = "/Configuration/TestDisable/" + configid + "/" + name + "/";
+        $.ajax({
+            type: 'POST',
+            url: url,
+            cache: false,
+            success: function (response) {
+            },
+            failure: function (response) {
+            }
+        })
+    };
+    function EnableTest(configid, name) {
+        var url = "/Configuration/TestEnable/" + configid + "/" + name + "/";
+        $.ajax({
+            type: 'POST',
+            url: url,
+            cache: false,
+            success: function (response) {
+            },
+            failure: function (response) {
+            }
+        })
+    };
+</script>

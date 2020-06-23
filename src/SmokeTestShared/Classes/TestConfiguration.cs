@@ -1,7 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 
+using Newtonsoft.Json;
+
 using Shared.Classes;
+
+using SharedPluginFeatures;
+using SmokeTest.Shared.Engine;
 
 namespace SmokeTest.Shared
 {
@@ -11,7 +16,9 @@ namespace SmokeTest.Shared
 
         public TestConfiguration()
         {
-            QueueData = new List<TestItem>();
+            DisabledTests = new HashSet<string>();
+            Tests = new List<WebSmokeTestItem>();
+            DiscoveredTests = new List<WebSmokeTestItem>();
             MinimumLoadTime = 500;
             SiteScan = true;
         }
@@ -89,24 +96,46 @@ namespace SmokeTest.Shared
 
         public string UniqueId { get; set; }
 
-        public List<TestItem> QueueData { get; set; }
-
         public int MinimumLoadTime { get; set; }
 
         public bool SiteScan { get; set; }
 
         public string EncryptionKey { get; set; }
 
+        public List<WebSmokeTestItem> Tests { get; set; }
+
+        public List<WebSmokeTestItem> DiscoveredTests { get; set; }
+
+        public HashSet<string> DisabledTests { get; set; }
+
         #endregion Properties
 
         #region Public Methods
 
-        public void AddQueueData(in TestItem queueItem)
+        public void EnableTest(in WebSmokeTestItem test)
         {
-            if (queueItem == null)
-                throw new ArgumentNullException(nameof(queueItem));
+            if (test == null)
+                throw new ArgumentNullException(nameof(test));
 
-            QueueData.Add(queueItem);
+            string testName = Report.GenerateTestHash(test);
+
+            if (DisabledTests.Contains(testName))
+            {
+                DisabledTests.Remove(testName);
+            }
+        }
+
+        public void DisableTest(in WebSmokeTestItem test)
+        {
+            if (test == null)
+                throw new ArgumentNullException(nameof(test));
+
+            string testName = Report.GenerateTestHash(test);
+
+            if (!DisabledTests.Contains(testName))
+            {
+                DisabledTests.Add(testName);
+            }
         }
 
         #endregion Public Methods

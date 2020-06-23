@@ -57,7 +57,7 @@
                         string elapsed = Model.FormatElapsedTime(DateTime.UtcNow - startTime);
                         string estimatedRemain = Model.FormatElapsedTime(startTime.AddSeconds(item.EstimatedTime) - DateTime.UtcNow);
                         string estimatedTotal = Model.FormatElapsedTime(TimeSpan.FromSeconds(item.EstimatedTime));
-                        
+
                         string tooltip = String.Format("Test Running\r\n\r\nStarted: {0}\r\nElapsed: {1}\r\nEstimated Total: {2}\r\nEstimated Remaining: {3}",
                             startTime.ToLocalTime().ToShortTimeString(), elapsed, estimatedTotal, estimatedRemain);
                         <a href="/Reports/TestRunProgress/@item.UniqueId/"><span class="testRunItem" title="@tooltip">R</span></a>
@@ -101,7 +101,14 @@
                     }
                 </div>
 
-                <span class="runButton"><input type="button" class="btn btn-primary" onclick="runTest('@runModel.UniqueId');" value="Run" /></span>
+                @if (Model.IsUserLoggedIn)
+                {
+                    <span class="runButton"><input type="button" class="btn btn-primary" onclick="runTest('@runModel.UniqueId');" value="Run" /></span>
+                }
+                else
+                {
+                    <span class="runButton"><input type="button" class="btn btn-primary disabled" value="Run" /></span>
+                }
             </div>
         </div>
     </div>

@@ -328,7 +328,7 @@ namespace SmokeTest.Scheduler.Controllers
                     reportSummaries));
             }
 
-            return new TestRunViewModels(runModels, position);
+            return new TestRunViewModels(runModels, position, IsUserLoggedIn());
         }
 
         private ScheduleDay GetScheduledDays(in ScheduleModel model)

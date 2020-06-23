@@ -61,9 +61,15 @@ namespace SmokeTest.Engine
             _endPoints = new List<IPEndPoint>();
 
             _pageLoadTimings = new Timings();
-            _report = new Report();
-            _report.MinimumLoadTime = _properties.MinimumLoadTime;
-            _report.SiteScan = _properties.SiteScan;
+            _report = new Report()
+            {
+                ConfigId = properties.TestConfiguration.UniqueId,
+                MinimumLoadTime = _properties.MinimumLoadTime,
+                SiteScan = _properties.SiteScan,
+            };
+
+            foreach (string s in properties.TestConfiguration.DisabledTests)
+                _report.DisabledTests.Add(new string(s));
 
             if (!_properties.IsValid())
                 throw new ArgumentException(nameof(properties));
@@ -538,83 +544,91 @@ namespace SmokeTest.Engine
                         {
                             Name = test.Name,
                             Position = test.Position,
+                            Index = test.Index,
+                            DiscoveredTest = true,
+                            Enabled = _properties.IsTestEnabled(test),
+                            InternalName = Report.GenerateTestHash(test),
                         };
-                        testClient.UserAgent = _properties.UserAgent;
-                        testClient.Timeout = 60000;
-                        testClient.AllowAutoRedirect = false;
 
-                        Uri uriRoute = new Uri(rootSite + test.Route);
-
-                        foreach (KeyValuePair<string, string> headers in _properties.Headers)
+                        if (testResult.Enabled)
                         {
-                            testClient.Headers.Add(headers.Key, headers.Value);
-                        }
+                            testClient.UserAgent = _properties.UserAgent;
+                            testClient.Timeout = 60000;
+                            testClient.AllowAutoRedirect = false;
 
-                        string response = null;
-                        int responseCode = 0;
-                        bool searchSubmitResponseData = false;
-                        Timings testTimings = new Timings();
+                            Uri uriRoute = new Uri(rootSite + test.Route);
 
-                        using (StopWatchTimer stopwatchTimer = StopWatchTimer.Initialise(_pageLoadTimings))
-                        {
-                            using (StopWatchTimer testTimer = StopWatchTimer.Initialise(testTimings))
+                            foreach (KeyValuePair<string, string> headers in _properties.Headers)
                             {
-                                if (String.IsNullOrEmpty(test.FormId) && test.Method.Equals("GET", StringComparison.InvariantCultureIgnoreCase))
-                                {
-                                    response = SubmitGetRequest(test, testClient, rootSite, out responseCode);
-                                    searchSubmitResponseData = false;
-                                }
-                                else if (String.IsNullOrEmpty(test.FormId))
-                                {
-                                    response = SubmitTestData(test, testClient, testResult, rootSite, out responseCode);
-                                    searchSubmitResponseData = true;
-                                }
-                                else
-                                {
-                                    response = SubmitTestForm(test, testClient, testResult, rootSite, out responseCode);
-                                    searchSubmitResponseData = true;
-                                }
+                                testClient.Headers.Add(headers.Key, headers.Value);
+                            }
 
-                                if (!responseCode.Equals(test.Response))
-                                {
-                                    _report.AddError(new ErrorData(new Exception($"Response code {test.Response} expected; {responseCode} received"), uriRoute));
-                                    testResult.ErrorCount++;
-                                }
+                            string response = null;
+                            int responseCode = 0;
+                            bool searchSubmitResponseData = false;
+                            Timings testTimings = new Timings();
 
-                                switch (responseCode)
+                            using (StopWatchTimer stopwatchTimer = StopWatchTimer.Initialise(_pageLoadTimings))
+                            {
+                                using (StopWatchTimer testTimer = StopWatchTimer.Initialise(testTimings))
                                 {
-                                    case 301:
-                                    case 302:
-                                        ValidateRedirectUrl(test, testClient, uriRoute);
-                                        break;
-                                }
-
-                                if (searchSubmitResponseData)
-                                {
-                                    foreach (string check in test.SubmitResponseData)
+                                    if (String.IsNullOrEmpty(test.FormId) && test.Method.Equals("GET", StringComparison.InvariantCultureIgnoreCase))
                                     {
-                                        if (!response.Contains(check))
+                                        response = SubmitGetRequest(test, testClient, rootSite, out responseCode);
+                                        searchSubmitResponseData = false;
+                                    }
+                                    else if (String.IsNullOrEmpty(test.FormId))
+                                    {
+                                        response = SubmitTestData(test, testClient, testResult, rootSite, out responseCode);
+                                        searchSubmitResponseData = true;
+                                    }
+                                    else
+                                    {
+                                        response = SubmitTestForm(test, testClient, testResult, rootSite, out responseCode);
+                                        searchSubmitResponseData = true;
+                                    }
+
+                                    if (!responseCode.Equals(test.Response))
+                                    {
+                                        _report.AddError(new ErrorData(new Exception($"Response code {test.Response} expected; {responseCode} received"), uriRoute));
+                                        testResult.ErrorCount++;
+                                    }
+
+                                    switch (responseCode)
+                                    {
+                                        case 301:
+                                        case 302:
+                                            ValidateRedirectUrl(test, testClient, uriRoute);
+                                            break;
+                                    }
+
+                                    if (searchSubmitResponseData)
+                                    {
+                                        foreach (string check in test.SubmitResponseData)
                                         {
-                                            _report.AddError(new ErrorData(new Exception($"Response {check} not found in {test.Name}"), uriRoute));
-                                            testResult.ErrorCount++;
+                                            if (!response.Contains(check))
+                                            {
+                                                _report.AddError(new ErrorData(new Exception($"Response {check} not found in {test.Name}"), uriRoute));
+                                                testResult.ErrorCount++;
+                                            }
                                         }
                                     }
-                                }
-                                else
-                                {
-                                    foreach (string check in test.ResponseData)
+                                    else
                                     {
-                                        if (!response.Contains(check))
+                                        foreach (string check in test.ResponseData)
                                         {
-                                            _report.AddError(new ErrorData(new Exception($"Response {check} not found in {test.Name}"), uriRoute));
-                                            testResult.ErrorCount++;
+                                            if (!response.Contains(check))
+                                            {
+                                                _report.AddError(new ErrorData(new Exception($"Response {check} not found in {test.Name}"), uriRoute));
+                                                testResult.ErrorCount++;
+                                            }
                                         }
                                     }
                                 }
                             }
-                        }
 
-                        testResult.TimeTaken = testTimings.Slowest;
+                            testResult.TimeTaken = testTimings.Slowest;
+                        }
 
                         _report.TestResults.Add(testResult);
                     }
@@ -646,6 +660,8 @@ namespace SmokeTest.Engine
         /// </summary>
         private void DiscoverOnSiteTests(in Uri homePage, in int attempt)
         {
+            bool addTests = _properties.TestConfiguration.DiscoveredTests.Count == 0;
+
             _testRunLogger.Log($"Discovering Site Tests: Attempt: {attempt + 1}");
 
             int tests = GetSiteTestCount(homePage);
@@ -665,6 +681,9 @@ namespace SmokeTest.Engine
                 {
                     _testRunLogger.Log($"Discovered Test: {discoveredTest.Name}");
                     _report.AddDiscoveredTest(discoveredTest);
+
+                    if (addTests)
+                        _properties.TestConfiguration.DiscoveredTests.Add(discoveredTest);
                 }
 
                 counter++;
@@ -688,8 +707,8 @@ namespace SmokeTest.Engine
 
                 string[] siteIdList = Utilities.Decrypt(data, _properties.EncryptionKey).Split(';', StringSplitOptions.RemoveEmptyEntries);
 
-                if (!siteIdList.Contains(_properties.SiteId))
-                    throw new InvalidOperationException("Incorrect Site Id returned");
+                if (!siteIdList.Contains(_properties.TestScheduleId))
+                    throw new InvalidOperationException("Incorrect Test Schedule Id returned");
 
                 return true;
             }

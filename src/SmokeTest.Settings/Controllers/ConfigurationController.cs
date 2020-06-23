@@ -11,6 +11,7 @@ using SharedPluginFeatures;
 
 using SmokeTest.Settings.Models;
 using SmokeTest.Shared;
+using SmokeTest.Shared.Engine;
 
 namespace SmokeTest.Settings.Controllers
 {
@@ -58,7 +59,7 @@ namespace SmokeTest.Settings.Controllers
 
         public IActionResult New()
         {
-            return base.View(CreateTestConfigurationViewModel((TestConfigurationViewModel)null));
+            return base.View(CreateTestConfigurationViewModel(null, null, null));
         }
 
         [HttpPost]
@@ -90,7 +91,7 @@ namespace SmokeTest.Settings.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            return View(CreateTestConfigurationViewModel(model));
+            return View(CreateTestConfigurationViewModel(model, null, null));
         }
 
         [HttpGet]
@@ -140,7 +141,16 @@ namespace SmokeTest.Settings.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            return View(CreateTestConfigurationViewModel(model));
+            TestConfiguration configuration = _testConfigurationProvider.Configurations
+                .Where(c => c.UniqueId.Equals(model.UniqueId))
+                .FirstOrDefault();
+
+            if (configuration == null)
+            {
+                return NotFound();
+            }
+
+            return View(CreateTestConfigurationViewModel(model, configuration.DiscoveredTests, configuration.DisabledTests));
         }
 
         [HttpGet]
@@ -193,6 +203,84 @@ namespace SmokeTest.Settings.Controllers
             return RedirectToAction(nameof(Index));
         }
 
+        [Route("/Configuration/TestDisable/{testConfigurationId}/{testId}/")]
+        public IActionResult DisableTest(string testConfigurationId, string testId)
+        {
+            TestConfiguration configuration = _testConfigurationProvider.Configurations
+                .Where(c => c.UniqueId.Equals(testConfigurationId))
+                .FirstOrDefault();
+
+            if (configuration == null)
+            {
+                return Json(new { result = false });
+            }
+
+            foreach (WebSmokeTestItem test in configuration.Tests)
+            {
+                string uniqueTestId = Report.GenerateTestHash(test);
+
+                if (testId.Equals(uniqueTestId))
+                {
+                    configuration.DisabledTests.Add(uniqueTestId);
+                    _testConfigurationProvider.SaveConfiguration(configuration);
+                    return Json(new { result = true });
+                }
+            }
+
+            foreach (WebSmokeTestItem test in configuration.DiscoveredTests)
+            {
+                string uniqueTestId = Report.GenerateTestHash(test);
+
+                if (testId.Equals(uniqueTestId))
+                {
+                    configuration.DisabledTests.Add(uniqueTestId);
+                    _testConfigurationProvider.SaveConfiguration(configuration);
+                    return Json(new { result = true });
+                }
+            }
+
+            return Json(new { result = false });
+        }
+
+        [Route("/Configuration/TestEnable/{testConfigurationId}/{testId}/")]
+        public IActionResult EnableTest(string testConfigurationId, string testId)
+        {
+            TestConfiguration configuration = _testConfigurationProvider.Configurations
+                .Where(c => c.UniqueId.Equals(testConfigurationId))
+                .FirstOrDefault();
+
+            if (configuration == null)
+            {
+                return Json(new { result = false });
+            }
+
+            foreach (WebSmokeTestItem test in configuration.Tests)
+            {
+                string uniqueTestId = Report.GenerateTestHash(test);
+
+                if (testId.Equals(uniqueTestId))
+                {
+                    configuration.DisabledTests.Remove(uniqueTestId);
+                    _testConfigurationProvider.SaveConfiguration(configuration);
+                    return Json(new { result = true });
+                }
+            }
+
+            foreach (WebSmokeTestItem test in configuration.DiscoveredTests)
+            {
+                string uniqueTestId = Report.GenerateTestHash(test);
+
+                if (testId.Equals(uniqueTestId))
+                {
+                    configuration.DisabledTests.Remove(uniqueTestId);
+                    _testConfigurationProvider.SaveConfiguration(configuration);
+                    return Json(new { result = true });
+                }
+            }
+
+            return Json(new { result = false });
+        }
+
         #endregion Public Action Methods
 
         #region Private Methods
@@ -202,9 +290,10 @@ namespace SmokeTest.Settings.Controllers
 
         }
 
-        private TestConfigurationViewModel CreateTestConfigurationViewModel(TestConfigurationViewModel model)
+        private TestConfigurationViewModel CreateTestConfigurationViewModel(in TestConfigurationViewModel model,
+            in List<WebSmokeTestItem> discoveredTests, in HashSet<string> disabledTests)
         {
-            return new TestConfigurationViewModel(GetModelData())
+            return new TestConfigurationViewModel(GetModelData(), discoveredTests, disabledTests)
             {
                 Name = model == null ? String.Empty : model.Name,
                 Url = model == null ? String.Empty : model.Url,
@@ -257,7 +346,8 @@ namespace SmokeTest.Settings.Controllers
 
             }
 
-            return new TestConfigurationViewModel(GetModelData())
+            return new TestConfigurationViewModel(GetModelData(),
+                testConfiguration.DiscoveredTests, testConfiguration.DisabledTests)
             {
                 Name = testConfiguration.Name,
                 Url = testConfiguration.Url,

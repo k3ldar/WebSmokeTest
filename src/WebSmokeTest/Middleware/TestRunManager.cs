@@ -93,15 +93,6 @@ namespace SmokeTest.Middleware
                     _activeTestRuns.Add(testRunItem);
 
                     ThreadManager.ThreadStart(websiteScan, $"Smoke Test: {testQueueItem.SmokeTestProperties.Url}", ThreadPriority.Lowest);
-
-                    //TestSchedule configuration = _scheduleHelper.Schedules
-                    //    .Where(tc => tc.UniqueId.Equals(testQueueItem.TestId)).FirstOrDefault();
-
-                    //if (configuration != null)
-                    //{
-                    //    //configuration.AddQueueData(testQueueItem);
-                    //    //_testConfigurationProvider.SaveConfiguration(configuration);
-                    //}
                 }
             }
         }
@@ -249,21 +240,7 @@ namespace SmokeTest.Middleware
                 return;
             }
 
-            SmokeTestProperties smokeTestProperties = new SmokeTestProperties()
-            {
-                CheckImages = configuration.CheckImages,
-                ClearHtmlDataAfterAnalysis = configuration.ClearHtmlData,
-                ClearImageDataAfterAnalysis = configuration.ClearImageData,
-                CrawlDepth = configuration.CrawlDepth,
-                MaximumPages = configuration.MaximumPages,
-                PauseBetweenRequests = configuration.MillisecondsBetweenRequests,
-                UserAgent = configuration.UserAgent,
-                Url = configuration.Url,
-                SiteId = testSchedule.TestId,
-                EncryptionKey = configuration.EncryptionKey,
-                MinimumLoadTime = configuration.MinimumLoadTime,
-                SiteScan = configuration.SiteScan,
-            };
+            SmokeTestProperties smokeTestProperties = new SmokeTestProperties(configuration, testSchedule.TestId);
 
             NVPCodec headers = new NVPCodec();
             headers.Decode(configuration.Headers);
@@ -308,6 +285,8 @@ namespace SmokeTest.Middleware
 
                 if (currentTestRun == null)
                     return;
+
+                _activeTestRuns.Remove(currentTestRun);
 
                 LastRunResult result = LastRunResult.NotRun;
 
@@ -358,7 +337,15 @@ namespace SmokeTest.Middleware
                     Path.Combine(_dataPath, currentTestRun.TestId.ToString("X")),
                     $"{threadWebsiteScan.UniqueId.ToString("X")}.rpt");
 
-                _activeTestRuns.Remove(currentTestRun);
+                TestConfiguration config = _testConfigurationProvider.Configurations
+                    .Where(tc => tc.UniqueId == threadWebsiteScan.Report.ConfigId)
+                    .FirstOrDefault();
+
+                if (config != null)
+                {
+                    config.DiscoveredTests = threadWebsiteScan.Report.DiscoveredTests;
+                    _testConfigurationProvider.SaveConfiguration(config);
+                }
             }
         }
 

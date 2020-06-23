@@ -5,10 +5,11 @@ namespace SmokeTest.Scheduler.Models
 {
     public sealed class TestRunViewModels
     {
-        public TestRunViewModels(in List<TestRunViewModel> runModels, in string position)
+        public TestRunViewModels(in List<TestRunViewModel> runModels, in string position, in bool isUserLoggedIn)
         {
             RunModels = runModels ?? throw new ArgumentNullException(nameof(runModels));
             Position = position ?? String.Empty;
+            IsUserLoggedIn = isUserLoggedIn;
 
             foreach (TestRunViewModel model in runModels)
             {
@@ -51,6 +52,8 @@ namespace SmokeTest.Scheduler.Models
         public int Queued { get; private set; }
 
         public string Position { get; private set; }
+
+        public bool IsUserLoggedIn { get; private set; }
 
         #region Public Methods
 
