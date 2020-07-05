@@ -9,12 +9,14 @@
     <Content Remove="wwwroot\css\settings.css" />
     <Content Remove="wwwroot\img\TestConfiguration.png" />
     <Content Remove="wwwroot\js\settings.js" />
+    <Content Remove="wwwroot\js\testConfig.js" />
   </ItemGroup>
 
   <ItemGroup>
     <EmbeddedResource Include="wwwroot\css\settings.css" />
     <EmbeddedResource Include="wwwroot\img\TestConfiguration.png" />
     <EmbeddedResource Include="wwwroot\js\settings.js" />
+    <EmbeddedResource Include="wwwroot\js\testConfig.js" />
   </ItemGroup>
 
   <ItemGroup>
@@ -36,6 +38,10 @@
     <PackageReference Include="PluginManager" Version="4.0.0" />
     <PackageReference Include="SC.Shared.Library.Core" Version="2.15.0" />
     <PackageReference Include="SharedPluginFeatures" Version="4.0.0" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <Resource Include="wwwroot\js\testConfig.js" />
   </ItemGroup>
 
 </Project>

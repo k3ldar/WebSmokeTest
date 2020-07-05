@@ -25,10 +25,12 @@ namespace SmokeTest.Settings.Models
         }
 
         public TestConfigurationViewModel(BaseModelData modelData, 
+            List<WebSmokeTestItem> tests,
             List<WebSmokeTestItem> discoveredTests,
             HashSet<string> disabledTests)
             : this(modelData)
         {
+            Tests = tests;
             DiscoveredTests = discoveredTests;
             DisabledTests = disabledTests;
         }
@@ -95,6 +97,8 @@ namespace SmokeTest.Settings.Models
         [DisplayName("Encryption Key")]
         [Required(ErrorMessage = "Please enter a key that will be used to encrypt data between sites.")]
         public string EncryptionKey { get; set; }
+
+        public List<WebSmokeTestItem> Tests { get; private set; }
 
         public List<WebSmokeTestItem> DiscoveredTests { get; private set; }
 

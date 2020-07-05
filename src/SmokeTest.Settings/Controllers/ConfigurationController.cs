@@ -16,7 +16,7 @@ using SmokeTest.Shared.Engine;
 namespace SmokeTest.Settings.Controllers
 {
     [LoggedIn]
-    public class ConfigurationController : BaseController
+    public partial class ConfigurationController : BaseController
     {
         public const string Name = "Configuration";
         public const string DefaultUseragent = "Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1; .NET CLR 2.0.50727) SmokeTest/v1.0";
@@ -25,15 +25,20 @@ namespace SmokeTest.Settings.Controllers
 
         private readonly ITestConfigurationProvider _testConfigurationProvider;
         private readonly IIdManager _idManager;
+        private readonly IReportHelper _reportHelper;
+        private readonly IScheduleHelper _scheduleHelper;
 
         #endregion Private Members
 
         #region Constructors
 
-        public ConfigurationController(ITestConfigurationProvider testConfigurationProvider, IIdManager idManager)
+        public ConfigurationController(ITestConfigurationProvider testConfigurationProvider, 
+            IIdManager idManager, IReportHelper reportHelper, IScheduleHelper scheduleHelper)
         {
             _testConfigurationProvider = testConfigurationProvider ?? throw new ArgumentNullException(nameof(testConfigurationProvider));
             _idManager = idManager ?? throw new ArgumentNullException(nameof(idManager));
+            _reportHelper = reportHelper ?? throw new ArgumentNullException(nameof(reportHelper));
+            _scheduleHelper = scheduleHelper ?? throw new ArgumentNullException(nameof(scheduleHelper));
         }
 
         #endregion Constructors
@@ -59,7 +64,7 @@ namespace SmokeTest.Settings.Controllers
 
         public IActionResult New()
         {
-            return base.View(CreateTestConfigurationViewModel(null, null, null));
+            return base.View(CreateTestConfigurationViewModel(null, null, null, null));
         }
 
         [HttpPost]
@@ -91,7 +96,7 @@ namespace SmokeTest.Settings.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            return View(CreateTestConfigurationViewModel(model, null, null));
+            return View(CreateTestConfigurationViewModel(model, null, null, null));
         }
 
         [HttpGet]
@@ -150,7 +155,7 @@ namespace SmokeTest.Settings.Controllers
                 return NotFound();
             }
 
-            return View(CreateTestConfigurationViewModel(model, configuration.DiscoveredTests, configuration.DisabledTests));
+            return View(CreateTestConfigurationViewModel(model, configuration.Tests, configuration.DiscoveredTests, configuration.DisabledTests));
         }
 
         [HttpGet]
@@ -202,7 +207,7 @@ namespace SmokeTest.Settings.Controllers
 
             return RedirectToAction(nameof(Index));
         }
-
+         
         [Route("/Configuration/TestDisable/{testConfigurationId}/{testId}/")]
         public IActionResult DisableTest(string testConfigurationId, string testId)
         {
@@ -291,9 +296,10 @@ namespace SmokeTest.Settings.Controllers
         }
 
         private TestConfigurationViewModel CreateTestConfigurationViewModel(in TestConfigurationViewModel model,
+            in List<WebSmokeTestItem> tests, 
             in List<WebSmokeTestItem> discoveredTests, in HashSet<string> disabledTests)
         {
-            return new TestConfigurationViewModel(GetModelData(), discoveredTests, disabledTests)
+            return new TestConfigurationViewModel(GetModelData(), tests, discoveredTests, disabledTests)
             {
                 Name = model == null ? String.Empty : model.Name,
                 Url = model == null ? String.Empty : model.Url,
@@ -347,7 +353,9 @@ namespace SmokeTest.Settings.Controllers
             }
 
             return new TestConfigurationViewModel(GetModelData(),
-                testConfiguration.DiscoveredTests, testConfiguration.DisabledTests)
+                testConfiguration.Tests,
+                testConfiguration.DiscoveredTests, 
+                testConfiguration.DisabledTests)
             {
                 Name = testConfiguration.Name,
                 Url = testConfiguration.Url,

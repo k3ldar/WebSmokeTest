@@ -103,16 +103,16 @@
                                     <td>
                                         @if (Model.IsUserLoggedIn)
                                         {
-                                        <div class="dropdown">
-                                            <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                            </button>
-                                            <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                                                <a class="dropdown-item @enableClassName" href="javascript:EnableTest('@Model.ConfigurationId', '@testResult.InternalName');">Enable</a>
-                                                <a class="dropdown-item @disableClassName" href="javascript:DisableTest('@Model.ConfigurationId', '@testResult.InternalName');">Disable</a>
-                                                <div class="dropdown-divider"></div>
-                                                <a class="dropdown-item @editClassName" href="javascript:EditTest(@testResult.Index.ToString());">Edit</a>
+                                            <div class="dropdown">
+                                                <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                </button>
+                                                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                                                    <a class="dropdown-item @enableClassName" href="javascript:EnableTest('@Model.ConfigurationId', '@testResult.InternalName');">Enable</a>
+                                                    <a class="dropdown-item @disableClassName" href="javascript:DisableTest('@Model.ConfigurationId', '@testResult.InternalName');">Disable</a>
+                                                    <div class="dropdown-divider"></div>
+                                                    <a class="dropdown-item @editClassName" href="javascript:EditTest(@testResult.Index.ToString());">Edit</a>
+                                                </div>
                                             </div>
-                                        </div>
                                         }
                                     </td>
                                 </tr>
@@ -348,8 +348,6 @@
             url: url,
             cache: false,
             success: function (response) {
-            },
-            failure: function (response) {
             }
         })
     };
@@ -360,8 +358,6 @@
             url: url,
             cache: false,
             success: function (response) {
-            },
-            failure: function (response) {
             }
         })
     };

@@ -20,6 +20,7 @@ namespace SmokeTest.Reports.Internal
         private readonly ISaveData _saveData;
         private readonly string _dataPath;
         private readonly List<ReportSummary> _reportSummary;
+        private readonly List<Report> _reports;
 
         #endregion Private Members
 
@@ -32,6 +33,7 @@ namespace SmokeTest.Reports.Internal
             _saveData = saveData ?? throw new ArgumentNullException(nameof(saveData));
 
             _reportSummary = new List<ReportSummary>();
+            _reports = new List<Report>();
             _dataPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "SmokeTest");
 
             InitialLoadTestData();
@@ -47,6 +49,14 @@ namespace SmokeTest.Reports.Internal
                 throw new ArgumentNullException(nameof(report));
 
             LoadReportSummary(report);
+        }
+
+        public Report MostRecentReport(long testScheduleId)
+        {
+            return _reports.Where(r => r.TestSchedule == testScheduleId)
+                .OrderByDescending(o => o.StartTime)
+                .Take(1)
+                .FirstOrDefault();
         }
 
         public ReportSummary[] ReportSummary(long testScheduleId, int count)
@@ -91,6 +101,8 @@ namespace SmokeTest.Reports.Internal
             foreach (string file in reportfiles)
             {
                 Report report = Report.LoadFromFile(file);
+                _reports.Add(report);
+
                 LoadReportSummary(report);
             }
         }

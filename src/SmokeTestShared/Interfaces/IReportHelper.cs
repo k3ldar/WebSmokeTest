@@ -11,5 +11,7 @@ namespace SmokeTest.Shared
         ReportSummary[] ReportSummary(long testScheduleId, int count);
 
         double EstimatedRuntime(long testScheduleId);
+
+        Report MostRecentReport(long testScheduleId);
     }
 }
