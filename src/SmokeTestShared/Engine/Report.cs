@@ -31,11 +31,12 @@ namespace SmokeTest.Shared.Engine
             Errors = new List<ErrorData>();
             Cookies = new List<Cookie>();
             Forms = new List<FormReport>();
-            DiscoveredTests = new List<WebSmokeTestItem>();
+            Tests = new List<WebSmokeTestItem>();
             TestResults = new List<TestResult>();
             _linksParsed = new List<string>();
             _imagesParsed = new List<string>();
             DisabledTests = new HashSet<string>();
+            FormsAnalysed = new List<FormAnalysis>();
         }
 
         #endregion Constructors
@@ -62,9 +63,11 @@ namespace SmokeTest.Shared.Engine
 
         public List<FormReport> Forms { get; set; }
 
+        public List<FormAnalysis> FormsAnalysed { get; set; }
+
         public Dictionary<string, string> Headers { get; set; }
 
-        public List<WebSmokeTestItem> DiscoveredTests { get; set; }
+        public List<WebSmokeTestItem> Tests { get; set; }
 
         public List<TestResult> TestResults { get; set; }
 
@@ -143,6 +146,26 @@ namespace SmokeTest.Shared.Engine
             {
                 existing.AdditionalLinks.Add(form.AdditionalLinks[0]);
             }
+        }
+
+        public bool ContainsFormReport(FormReport form)
+        {
+            if (form == null)
+            {
+                throw new ArgumentNullException(nameof(form));
+            }
+
+            return Forms.Where(f => f.Action.Equals(form.Action, StringComparison.InvariantCultureIgnoreCase)).Any();
+        }
+
+        public FormReport GetFormReport(FormReport form)
+        {
+            if (form == null)
+            {
+                throw new ArgumentNullException(nameof(form));
+            }
+
+            return Forms.Where(f => f.Action.Equals(form.Action, StringComparison.InvariantCultureIgnoreCase)).FirstOrDefault();
         }
 
         public void PageAdd(in PageReport page, in ThreadManager parent, in SmokeTestProperties properties)
@@ -316,7 +339,7 @@ namespace SmokeTest.Shared.Engine
             if (discoveredTest == null)
                 throw new ArgumentNullException(nameof(discoveredTest));
 
-            DiscoveredTests.Add(discoveredTest);
+            Tests.Add(discoveredTest);
         }
 
         #endregion Public Static Methods

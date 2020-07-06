@@ -283,27 +283,6 @@ namespace SmokeTest.Shared.Engine
             return !DisabledTests.Contains(testName);
         }
 
-        public bool ContainsFormReport(FormReport form)
-        {
-            if (form == null)
-            {
-                throw new ArgumentNullException(nameof(form));
-            }
-
-            return false;
-        }
-
-        public FormReport GetFormReport(FormReport form)
-        {
-            if (form == null)
-            {
-                throw new ArgumentNullException(nameof(form));
-            }
-
-            return null;
-        }
-
-
         #endregion Internal Methods
 
         private string TestHashCode(in string s)

@@ -23,7 +23,7 @@
     </div>
 }
 
-@using (Html.BeginForm(nameof(SmokeTest.Scheduler.Controllers.ScheduleController.New), SmokeTest.Scheduler.Controllers.ScheduleController.Name, FormMethod.Post))
+@using (Html.BeginForm(nameof(SmokeTest.Scheduler.Controllers.ScheduleController.New), SmokeTest.Scheduler.Controllers.ScheduleController.Name, FormMethod.Post, new { id = "frmNewSchedule" }))
 {
     <div class="hb">
         <div class="row">

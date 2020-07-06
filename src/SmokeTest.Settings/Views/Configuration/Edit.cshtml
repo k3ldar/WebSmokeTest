@@ -22,7 +22,7 @@
         </div>
     </div>
 }
-@using (Html.BeginForm(nameof(SmokeTest.Settings.Controllers.ConfigurationController.Edit), SmokeTest.Settings.Controllers.ConfigurationController.Name, FormMethod.Post))
+@using (Html.BeginForm(nameof(SmokeTest.Settings.Controllers.ConfigurationController.Edit), SmokeTest.Settings.Controllers.ConfigurationController.Name, FormMethod.Post, new { id = "frmEditConfiguration" }))
 {
     <div class="hb">
         <div class="row ac-row">
@@ -272,7 +272,7 @@
                                             <a id="enable_@internalName" class="dropdown-item @enableClassName" href="javascript:EnableTest('@Model.UniqueId', '@internalName');">Enable</a>
                                             <a id="disable_@internalName" class="dropdown-item @disableClassName" href="javascript:DisableTest('@Model.UniqueId', '@internalName');">Disable</a>
                                             <div class="dropdown-divider"></div>
-                                            <a class="dropdown-item" href="/Configuration/EditTest/@Model.UniqueId/@internalName/">Edit</a>
+                                            <a class="dropdown-item" href="/Configuration/TestEdit/@Model.UniqueId/@internalName/">Edit</a>
                                         </div>
                                     </div>
                                 </td>

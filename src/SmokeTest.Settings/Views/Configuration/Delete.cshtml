@@ -23,7 +23,7 @@
     </div>
 }
 
-@using (Html.BeginForm(nameof(SmokeTest.Settings.Controllers.ConfigurationController.Delete), SmokeTest.Settings.Controllers.ConfigurationController.Name, FormMethod.Post))
+@using (Html.BeginForm(nameof(SmokeTest.Settings.Controllers.ConfigurationController.Delete), SmokeTest.Settings.Controllers.ConfigurationController.Name, FormMethod.Post, new { id = "frmDeleteConfiguration" }))
 {
     @Html.HiddenFor(m => m.UniqueId)
     <div class="hb">

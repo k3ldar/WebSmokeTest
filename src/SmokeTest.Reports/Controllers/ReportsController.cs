@@ -136,7 +136,7 @@ namespace SmokeTest.Reports.Controllers
                 report.Headers,
                 errorData,
                 report.Cookies,
-                report.Forms,
+                report.FormsAnalysed,
                 report.Images,
                 report.Pages,
                 report.MinimumLoadTime,

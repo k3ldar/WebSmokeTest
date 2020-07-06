@@ -23,7 +23,7 @@
     </div>
 }
 
-@using (Html.BeginForm(nameof(SmokeTest.Scheduler.Controllers.ScheduleController.Edit), SmokeTest.Scheduler.Controllers.ScheduleController.Name, FormMethod.Post))
+@using (Html.BeginForm(nameof(SmokeTest.Scheduler.Controllers.ScheduleController.Edit), SmokeTest.Scheduler.Controllers.ScheduleController.Name, FormMethod.Post, new { id = "frmEditSchedule" }))
 {
     @Html.HiddenFor(m => m.UniqueId)
     <div class="hb">

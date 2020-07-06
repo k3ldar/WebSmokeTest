@@ -53,6 +53,11 @@ namespace SmokeTest.Engine
             return SubmitData("POST", address, "application/xml", xmlData, out responseCode);
         }
 
+        public string PostOtherData(Uri address, string xmlData, out int responseCode)
+        {
+            return SubmitData("POST", address, "text/plain", xmlData, out responseCode);
+        }
+
         public string SubmitData(string method, Uri address, string contentType, string body, out int responseCode)
         { 
             responseCode = 0;

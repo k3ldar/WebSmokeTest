@@ -343,7 +343,7 @@ namespace SmokeTest.Middleware
 
                 if (config != null)
                 {
-                    config.DiscoveredTests = threadWebsiteScan.Report.DiscoveredTests;
+                    config.DiscoveredTests = threadWebsiteScan.Report.Tests;
                     _testConfigurationProvider.SaveConfiguration(config);
                 }
             }

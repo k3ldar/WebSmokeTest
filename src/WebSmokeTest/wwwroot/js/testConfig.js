@@ -26,6 +26,7 @@ defaultPostType: '',
 other: '',
 formValueUrl: '',
 postType: '',
+isNew: '',
 };
 var root = {
 init: function (controls, settings) {
@@ -86,7 +87,9 @@ document.getElementById(_controls.postType).style.display = 'none';
 document.getElementById(_controls.route).style.display = 'flex"';
 }
 var fi = document.getElementById(_controls.formIdList);
+if (fi != null && fi != undefined) {
 root.UpdateFormId(fi);
+}
 var pt = document.getElementById(_controls.postTypeId);
 root.UpdatePostType(pt);
 },
@@ -102,10 +105,10 @@ document.getElementById(_controls.formId).style.display = 'none';
 }
 if (_settings.postType === "Form") {
 if (selected == _settings.other) {
-document.getElementById(_controls.routeId).readOnly = false;
+//document.getElementById(_controls.routeId).readOnly = false;
 }
 else {
-document.getElementById(_controls.routeId).readOnly = true;
+if (_settings.isNew === "True") {
 $.ajax({
 type: 'POST',
 url: _settings.formValueUrl + selected + '/',
@@ -118,6 +121,7 @@ document.getElementById(_controls.formInputDataId).value = response.inputData;
 })
 }
 }
+}
 },
 UpdatePostType: function (dropdown) {
 var selected = dropdown.value;
@@ -127,7 +131,9 @@ document.getElementById(_controls.form).style.display = 'flex';
 document.getElementById(_controls.bodyData).style.display = 'none';
 document.getElementById(_controls.formInput).style.display = 'flex';
 var fi = document.getElementById(_controls.formIdList);
+if (fi != null && fi != undefined) {
 root.UpdateFormId(fi);
+}
 }
 else if (selected === "Xml") {
 document.getElementById(_controls.formInput).style.display = 'none';

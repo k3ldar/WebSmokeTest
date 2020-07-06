@@ -96,6 +96,7 @@ namespace SmokeTest.Shared.Engine
                 GC.Collect(2, GCCollectionMode.Forced);
 
                 page.AnalysisComplete = true;
+                _report.FormsAnalysed.AddRange(page.Analysis.Body.Forms);
             }
 
             return false;

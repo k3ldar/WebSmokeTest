@@ -40,7 +40,7 @@
 </div>
 <div class="hb">
 
-    @using (Html.BeginForm(nameof(SmokeTest.Scheduler.Controllers.ScheduleController.ViewQueueItem), SmokeTest.Scheduler.Controllers.ScheduleController.Name, FormMethod.Post))
+    @using (Html.BeginForm(nameof(SmokeTest.Scheduler.Controllers.ScheduleController.ViewQueueItem), SmokeTest.Scheduler.Controllers.ScheduleController.Name, FormMethod.Post, new { id = "frmViewQueue" }))
     {
         @Html.HiddenFor(m => m.QueueId)
         <div class="row">

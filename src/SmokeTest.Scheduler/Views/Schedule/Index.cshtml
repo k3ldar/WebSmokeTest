@@ -51,7 +51,7 @@
 <div class="hb">
     <div class="row">
         <div class="col">
-            @using (Html.BeginForm(nameof(SmokeTest.Scheduler.Controllers.ScheduleController.New), SmokeTest.Scheduler.Controllers.ScheduleController.Name, FormMethod.Get))
+            @using (Html.BeginForm(nameof(SmokeTest.Scheduler.Controllers.ScheduleController.New), SmokeTest.Scheduler.Controllers.ScheduleController.Name, FormMethod.Get, new { id = "frmCreateSchedule" }))
             {
                 <button type="submit" class="btn btn-primary">Create</button>
             }

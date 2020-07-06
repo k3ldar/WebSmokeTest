@@ -1,6 +1,5 @@
 ﻿
 using System;
-using System.Text;
 
 using Microsoft.AspNetCore.Mvc;
 
@@ -20,18 +19,15 @@ namespace SmokeTest.SystemTests.Controllers
         }
 
         [HttpGet]
-        [SmokeTest(400, "frmSimpleInput", inputData: "Username=fred&Password=bloggs", searchData: "<h1>Simple Input Test Form</h1>")]
         public IActionResult SimpleInput()
         {
             return View(new SimpleTestModel(GetModelData()));
         }
 
         [HttpPost]
+        [SmokeTest(400, PostType.Form, "frmSimpleInput", inputData: "Username=fred&Password=bloggs", searchData: "<h1>Simple Input Test Form</h1>")]
         public IActionResult SimpleInput(SimpleTestModel model)
         {
-            byte[] body = new byte[HttpContext.Request.ContentLength.Value];
-            HttpContext.Request.Body.ReadAsync(body, 0, body.Length);
-            string s = Encoding.UTF8.GetString(body);
             Shared.Classes.UserSession user = base.GetUserSession();
             if (model.Username == null)
                 throw new ArgumentNullException(nameof(model.Username));

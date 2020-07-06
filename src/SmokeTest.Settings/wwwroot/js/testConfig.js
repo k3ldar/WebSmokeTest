@@ -26,6 +26,7 @@
         other: '',
         formValueUrl: '',
         postType: '',
+        isNew: '',
     };
     var root = {
         init: function (controls, settings) {
@@ -94,7 +95,11 @@
             }
 
             var fi = document.getElementById(_controls.formIdList);
-            root.UpdateFormId(fi);
+
+            if (fi != null && fi != undefined) {
+                root.UpdateFormId(fi);
+            }
+
             var pt = document.getElementById(_controls.postTypeId);
             root.UpdatePostType(pt);
         },
@@ -114,20 +119,21 @@
 
             if (_settings.postType === "Form") {
                 if (selected == _settings.other) {
-                    document.getElementById(_controls.routeId).readOnly = false;
+                    //document.getElementById(_controls.routeId).readOnly = false;
                 }
                 else {
-                    document.getElementById(_controls.routeId).readOnly = true;
-                    $.ajax({
-                        type: 'POST',
-                        url: _settings.formValueUrl + selected + '/',
-                        cache: false,
-                        success: function (response) {
-                            document.getElementById(_controls.parametersId).value = response.parameters;
-                            document.getElementById(_controls.routeId).value = response.route;
-                            document.getElementById(_controls.formInputDataId).value = response.inputData;
-                        },
-                    })
+                    if (_settings.isNew === "True") {
+                        $.ajax({
+                            type: 'POST',
+                            url: _settings.formValueUrl + selected + '/',
+                            cache: false,
+                            success: function (response) {
+                                document.getElementById(_controls.parametersId).value = response.parameters;
+                                document.getElementById(_controls.routeId).value = response.route;
+                                document.getElementById(_controls.formInputDataId).value = response.inputData;
+                            },
+                        })
+                    }
                 }
             }
         },
@@ -142,7 +148,10 @@
                 document.getElementById(_controls.formInput).style.display = 'flex';
 
                 var fi = document.getElementById(_controls.formIdList);
-                root.UpdateFormId(fi);
+
+                if (fi != null && fi != undefined) {
+                    root.UpdateFormId(fi);
+                }
             }
             else if (selected === "Xml") {
                 document.getElementById(_controls.formInput).style.display = 'none';

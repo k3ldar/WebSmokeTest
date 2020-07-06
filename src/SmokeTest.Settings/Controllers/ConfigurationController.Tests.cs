@@ -59,7 +59,7 @@ namespace SmokeTest.Settings.Controllers
         }
 
         [Route("/Configuration/TestEdit/{testConfigurationId}/{testId}/")]
-        public IActionResult TestEdit(string testConfigurationId, string testId)
+        public IActionResult TestAlter(string testConfigurationId, string testId)
         {
             TestConfiguration configuration = _testConfigurationProvider.Configurations
                 .Where(c => c.UniqueId.Equals(testConfigurationId))
@@ -76,9 +76,7 @@ namespace SmokeTest.Settings.Controllers
 
                 if (testId.Equals(uniqueTestId))
                 {
-                    configuration.DisabledTests.Add(uniqueTestId);
-                    _testConfigurationProvider.SaveConfiguration(configuration);
-                    return Json(new { result = true });
+                    return View("EditTest", EditTestEditModel(configuration, test));
                 }
             }
 
@@ -103,30 +101,36 @@ namespace SmokeTest.Settings.Controllers
 
                     if (latestReport != null)
                     {
-                        FormReport selectedForm = latestReport.Forms.Where(f => f.Id.Equals(formId)).FirstOrDefault();
+                        FormAnalysis selectedForm = latestReport.FormsAnalysed.Where(f => f.Id.Equals(formId)).FirstOrDefault();
 
                         if (selectedForm != null)
                         {
-                            string route = String.Empty;
+                            string route = selectedForm.Action;
 
-                            foreach (string segment in selectedForm.Url.Segments)
-                                route += segment;
+                            //string[] parms = { };
 
-                            string[] parms = { };
-                            
-                            if (!String.IsNullOrEmpty(selectedForm.Url.Query))
-                                selectedForm.Url.Query.Substring(1).Split('&');
+                            //if (!String.IsNullOrEmpty(formAction.Query))
+                            //    formAction.Query.Substring(1).Split('&');
 
                             string parameters = String.Empty;
 
-                            foreach (string p in parms)
-                                parameters += $"p\r\n";
+                            //foreach (string p in parms)
+                            //    parameters += $"p\r\n";
 
 
                             string inputData = String.Empty;
 
-                            //foreach (var field in selectedForm.)
+                            foreach (FormInput field in selectedForm.Inputs)
+                                if (!String.IsNullOrEmpty(field.Name))
+                                    inputData += $"{field.Name}=\r\n";
 
+                            foreach (FormTextArea textArea in selectedForm.TextAreas)
+                                if (!String.IsNullOrEmpty(textArea.Name)) 
+                                    inputData += $"{textArea.Name}=\r\n";
+
+                            foreach (FormOption option in selectedForm.Options)
+                                if (!String.IsNullOrEmpty(option.Name))
+                                    inputData += $"{option.Name}=\r\n";
 
                             return Json(new { inputData, parameters, route });
                         }
@@ -162,21 +166,13 @@ namespace SmokeTest.Settings.Controllers
                 {
                     switch (model.PostType)
                     {
-                        //case "FORM":
-                        //    ValidateFormModel(model);
-                        //    break;
+                        case "Form":
+                            model.PostData = model.FormInputData;
 
-                        case "JSON":
-                            ValidateJsonModel(model);
+                            if (model.SelectedForm != "Other")
+                                model.FormId = model.SelectedForm;
+
                             break;
-
-                        //case "XML":
-                        //    ValidateXmlModel(model);
-                        //    break;
-
-                        //case "Other":
-                        //    ValidateOtherModel(model);
-                            //break;
                     }
                 }
             }
@@ -211,6 +207,7 @@ namespace SmokeTest.Settings.Controllers
                     {
                         FormId = GetNonNullString(model.FormId),
                         InputData = GetNonNullString(model.PostData),
+                        PostType = (PostType)Enum.Parse(typeof(PostType), model.PostType),
                         Method = model.Method,
                         Name = model.Name,
                         Parameters = GetNonNullString(model.Parameters),
@@ -223,6 +220,31 @@ namespace SmokeTest.Settings.Controllers
                     };
 
                     configuration.Tests.Add(newtest);
+                }
+                else
+                {
+                    foreach (WebSmokeTestItem test in configuration.Tests)
+                    {
+                        string uniqueTestId = Report.GenerateTestHash(test);
+
+                        if (model.TestId.Equals(uniqueTestId))
+                        {
+                            test.FormId = GetNonNullString(model.SelectedForm);
+                            test.InputData = GetNonNullString(model.PostData);
+                            test.PostType = (PostType)Enum.Parse(typeof(PostType), model.PostType);
+                            test.Method = model.Method;
+                            test.Name = model.Name;
+                            test.Parameters = GetNonNullString(model.Parameters);
+                            test.Position = model.Position;
+                            test.Response = model.Response;
+                            test.ResponseData = GetNonNullString(model.ResponseData).Split('\n', StringSplitOptions.RemoveEmptyEntries).ToList();
+                            test.ResponseUrl = GetNonNullString(model.ResponseUrl);
+                            test.Route = GetNonNullString(model.Route);
+                            test.SubmitResponseData = GetNonNullString(model.SubmitResponseData).Split('\n', StringSplitOptions.RemoveEmptyEntries).ToList();
+
+                            break;
+                        }
+                    }
                 }
 
 
@@ -250,9 +272,42 @@ namespace SmokeTest.Settings.Controllers
                 ModelState.AddModelError(nameof(model.Route), "Please enter a valid, relative route");
         }
 
-        private void ValidateJsonModel(TestEditModel model)
+        private TestEditModel EditTestEditModel(TestConfiguration configuration, WebSmokeTestItem smokeTest)
         {
-            //model.po
+            TestEditModel Result = CreateTestEditModel(configuration);
+
+            Result.IsNew = false;
+
+            Result.FormId = GetNonNullString(smokeTest.FormId);
+            Result.PostData = GetNonNullString(smokeTest.InputData);
+            Result.Method = smokeTest.Method;
+            Result.Name = smokeTest.Name;
+            Result.PostType = smokeTest.PostType.ToString();
+            Result.Parameters = GetNonNullString(smokeTest.Parameters);
+            Result.Position = smokeTest.Position;
+            Result.Response = smokeTest.Response;
+            Result.ResponseUrl = GetNonNullString(smokeTest.ResponseUrl);
+            Result.Route = GetNonNullString(smokeTest.Route);
+            Result.TestId = Report.GenerateTestHash(smokeTest);
+
+            if (Result.PostType == PostType.Form.ToString())
+            {
+                Result.SelectedForm = Result.FormId;
+            }
+
+            if (Result.Method == "POST" && Result.PostType == PostType.Form.ToString())
+            {
+                Result.FormInputData = Result.PostData;
+                Result.PostData = String.Empty;
+            }
+
+            if (smokeTest.SubmitResponseData != null)
+                Result.SubmitResponseData = String.Join('\n', smokeTest.SubmitResponseData);
+
+            if (smokeTest.ResponseData != null)
+                Result.ResponseData = String.Join('\n', smokeTest.ResponseData);
+
+            return Result;
         }
 
         private TestEditModel CreateTestEditModel(TestConfiguration configuration)
@@ -378,18 +433,16 @@ namespace SmokeTest.Settings.Controllers
         {
             get
             {
-                return new List<NameValueModel>()
-                {
-                    new NameValueModel("Form"),
-                    new NameValueModel("Xml"),
-                    new NameValueModel("Json"),
-                    new NameValueModel("Other"),
-                };
+                List<NameValueModel> Result = new List<NameValueModel>();
+
+                foreach (string postType in Enum.GetNames(typeof(PostType)))
+                    Result.Add(new NameValueModel(postType));
+
+                return Result;
             }
         }
 
         #endregion Static Properties
-
 
         #region Private Methods
 

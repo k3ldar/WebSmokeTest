@@ -39,7 +39,7 @@
 <div class="hb">
     <div class="row">
         <div class="col">
-            @using (Html.BeginForm(nameof(SmokeTest.Settings.Controllers.ConfigurationController.New), SmokeTest.Settings.Controllers.ConfigurationController.Name, FormMethod.Get))
+            @using (Html.BeginForm(nameof(SmokeTest.Settings.Controllers.ConfigurationController.New), SmokeTest.Settings.Controllers.ConfigurationController.Name, FormMethod.Get, new { id = "frmCreateTest" }))
             {
                 <button type="submit" class="btn btn-primary">Create</button>
             }

@@ -22,7 +22,7 @@
         </div>
     </div>
 }
-@using (Html.BeginForm(nameof(SmokeTest.Settings.Controllers.ConfigurationController.New), SmokeTest.Settings.Controllers.ConfigurationController.Name, FormMethod.Post))
+@using (Html.BeginForm(nameof(SmokeTest.Settings.Controllers.ConfigurationController.New), SmokeTest.Settings.Controllers.ConfigurationController.Name, FormMethod.Post, new { id = "frmNewTestConfiguration" }))
 {
 <div class="hb">
     <div class="row">

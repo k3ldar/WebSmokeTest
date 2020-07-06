@@ -24,10 +24,11 @@
     </div>
 }
 
-@using (Html.BeginForm(nameof(SmokeTest.Settings.Controllers.ConfigurationController.TestEdit), SmokeTest.Settings.Controllers.ConfigurationController.Name, FormMethod.Post))
+@using (Html.BeginForm(nameof(SmokeTest.Settings.Controllers.ConfigurationController.TestEdit), SmokeTest.Settings.Controllers.ConfigurationController.Name, FormMethod.Post, new { id = "frmEditTest" }))
 {
     @Html.HiddenFor(m => m.IsNew)
     @Html.HiddenFor(m => m.TestConfigurationId)
+    @Html.HiddenFor(m => m.TestId)
 
     <div class="hb">
         <div class="row ac-row">
@@ -92,7 +93,7 @@
             <div class="col-sm-12 col-md-9">
                 @if (Model.FormIdList.Count > 1)
                 {
-                    @Html.DropDownListFor(m => m.FormIdList, new SelectList(Model.FormIdList, "Value", "Name"), new { @class = "form-control", style = "display: inline-block;max-width: 300px;", onchange = "testConfig.UpdateFormId(this);" })
+                    @Html.DropDownListFor(m => m.SelectedForm, new SelectList(Model.FormIdList, "Value", "Name"), new { @class = "form-control", style = "display: inline-block;max-width: 300px;", onchange = "testConfig.UpdateFormId(this);" })
                 }
 
                 @Html.TextBoxFor(m => m.FormId, new { @class = "form-control", style = "max-width:200px" })
@@ -140,7 +141,7 @@
                 @Html.NameFor(m => m.FormInputData)
             </div>
             <div class="col-sm-12 col-md-9">
-                @Html.TextBoxFor(m => m.FormInputData, new { @class = "form-control", style = "width:100%;height:500px;" })
+                @Html.TextAreaFor(m => m.FormInputData, new { @class = "form-control", style = "width:100%;height:500px;" })
                 @Html.ValidationMessageFor(m => m.FormInputData)
             </div>
         </div>
@@ -149,7 +150,7 @@
                 @Html.NameFor(m => m.PostData)
             </div>
             <div class="col-sm-12 col-md-9">
-                @Html.TextBoxFor(m => m.PostData, new { @class = "form-control", style = "width:100%;height:500px;" })
+                @Html.TextAreaFor(m => m.PostData, new { @class = "form-control", style = "width:100%;height:500px;" })
                 @Html.ValidationMessageFor(m => m.PostData)
             </div>
         </div>
@@ -165,9 +166,9 @@
 }
 <script>
     var controls = {
-        responseId: '@Html.IdFor(m=>m.Response)',
+        responseId: '@Html.IdFor(m => m.Response)',
         methodId: '@Html.IdFor(m => m.Method)',
-        formIdList: '@Html.IdFor(m => m.FormIdList)',
+        formIdList: '@Html.IdFor(m => m.SelectedForm)',
         postTypeId: '@Html.IdFor(m => m.PostType)',
         responseUrl: 'divResponseUrl',
         submitResponse: 'divSubmitResponse',
@@ -190,6 +191,7 @@
         defaultPostType: '@Model.PostType',
         other: 'Other',
         formValueUrl: '/Configuration/GetFormValues/@Model.TestConfigurationId/',
+        isNew: '@Model.IsNew',
     };
 
     testConfig.init(controls, settings);

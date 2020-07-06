@@ -17,7 +17,7 @@ namespace SmokeTest.Reports.Models
             in uint totalRequests, in decimal slowest, in decimal fastest,
             in decimal average, in decimal trimmedAverage, in decimal totalTime,
             in Dictionary<string, string> headers, in List<ErrorDataModel> errors,
-            in List<Cookie> cookies, in List<FormReport> forms,
+            in List<Cookie> cookies, in List<FormAnalysis> forms,
             in List<ImageReport> images, in List<PageReport> pages,
             in int minimumLoadTime, in bool siteScan,
             in List<TestResult> testResults, in HashSet<string> disabledTests)
@@ -87,7 +87,7 @@ namespace SmokeTest.Reports.Models
 
         public List<TestResult> TestResults { get; private set; }
 
-        public List<FormReport> Forms { get; set; }
+        public List<FormAnalysis> Forms { get; set; }
 
         public Dictionary<string, string> Headers;
 

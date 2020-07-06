@@ -64,6 +64,8 @@ namespace SmokeTest.Settings.Models
         [DisplayName("Form Input Data")]
         public string FormInputData { get; set; }
 
+        public string SelectedForm { get; set; }
+
         [DisplayName("Post Data")]
         public string PostData { get; set; }
 
@@ -82,6 +84,8 @@ namespace SmokeTest.Settings.Models
         public string PostType { get; set; }
 
         public List<NameValueModel> FormIdList { get; set; }
+
+        public string TestId { get; set; }
 
         #endregion Properties
     }
