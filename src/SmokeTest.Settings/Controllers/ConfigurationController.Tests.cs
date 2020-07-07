@@ -121,15 +121,15 @@ namespace SmokeTest.Settings.Controllers
                             string inputData = String.Empty;
 
                             foreach (FormInput field in selectedForm.Inputs)
-                                if (!String.IsNullOrEmpty(field.Name))
+                                if (InputAllowed(inputData, field.Name))
                                     inputData += $"{field.Name}=\r\n";
 
                             foreach (FormTextArea textArea in selectedForm.TextAreas)
-                                if (!String.IsNullOrEmpty(textArea.Name)) 
+                                if (InputAllowed(inputData, textArea.Name))
                                     inputData += $"{textArea.Name}=\r\n";
 
                             foreach (FormOption option in selectedForm.Options)
-                                if (!String.IsNullOrEmpty(option.Name))
+                                if (InputAllowed(inputData, option.Name))
                                     inputData += $"{option.Name}=\r\n";
 
                             return Json(new { inputData, parameters, route });
@@ -144,6 +144,13 @@ namespace SmokeTest.Settings.Controllers
         #endregion Public Action Methods
 
         #region Private Methods
+
+        private bool InputAllowed(in string current, in string value)
+        {
+            return !String.IsNullOrEmpty(value) &&
+               !value.Equals("__RequestVerificationToken") &&
+               !current.Contains(value);
+        }
 
         private TestEditModel ValidateTestModel(TestEditModel model, in TestConfiguration configuration)
         {

@@ -235,66 +235,59 @@
 }
 
 
-    <div class="row h-spacer">
-        <div class="col-sm-12 col-md-3">
-            <h3>Custom Tests</h3>
-        </div>
+<div class="row h-spacer">
+    <div class="col-sm-12 col-md-3">
+        <h3>Custom Tests</h3>
     </div>
+</div>
 
-    <div class="row">
-        <div class="col-sm-12">
-            <div class="col testGrid">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Name</th>
-                            <th>Position</th>
-                            <th style="width:50px;"></th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var testResult in Model.Tests)
-                        {
-                            bool isEnabled = Model.IsTestEnabled(testResult);
-                            string internalName = SmokeTest.Shared.Engine.Report.GenerateTestHash(testResult);
-                            string className = isEnabled ? String.Empty : "testDisabled";
-                            string enableClassName = isEnabled ? "disabled" : String.Empty;
-                            string disableClassName = isEnabled ? String.Empty : "disabled";
+<div class="row">
+    <div class="col-sm-12">
+        <div class="col testGrid">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Position</th>
+                        <th style="width:50px;"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var testResult in Model.Tests)
+                    {
+                        bool isEnabled = Model.IsTestEnabled(testResult);
+                        string internalName = SmokeTest.Shared.Engine.Report.GenerateTestHash(testResult);
+                        string className = isEnabled ? String.Empty : "testDisabled";
+                        string enableClassName = isEnabled ? "disabled" : String.Empty;
+                        string disableClassName = isEnabled ? String.Empty : "disabled";
 
-                            <tr class="@className" id="test_@internalName">
-                                <td>@testResult.Name</td>
-                                <td>@testResult.Position.ToString()</td>
-                                <td>
-                                    <div class="dropdown">
-                                        <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                        </button>
-                                        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                                            <a id="enable_@internalName" class="dropdown-item @enableClassName" href="javascript:EnableTest('@Model.UniqueId', '@internalName');">Enable</a>
-                                            <a id="disable_@internalName" class="dropdown-item @disableClassName" href="javascript:DisableTest('@Model.UniqueId', '@internalName');">Disable</a>
-                                            <div class="dropdown-divider"></div>
-                                            <a class="dropdown-item" href="/Configuration/TestEdit/@Model.UniqueId/@internalName/">Edit</a>
-                                        </div>
-                                    </div>
-                                </td>
-                            </tr>
-                        }
-                        <tr>
+                        <tr class="@className" id="test_@internalName">
+                            <td>@testResult.Name</td>
+                            <td>@testResult.Position.ToString()</td>
                             <td>
-                                <div class="hb">
-                                    <div class="row">
-                                        <div class="col">
-                                            <button type="submit" class="btn btn-primary" onclick="javascript: createNewTest('@Model.UniqueId');">New Test</button>
-                                        </div>
+                                <div class="dropdown">
+                                    <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    </button>
+                                    <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                                        <a id="enable_@internalName" class="dropdown-item @enableClassName" href="javascript:EnableTest('@Model.UniqueId', '@internalName');">Enable</a>
+                                        <a id="disable_@internalName" class="dropdown-item @disableClassName" href="javascript:DisableTest('@Model.UniqueId', '@internalName');">Disable</a>
+                                        <div class="dropdown-divider"></div>
+                                        <a class="dropdown-item" href="/Configuration/TestEdit/@Model.UniqueId/@internalName/">Edit</a>
                                     </div>
                                 </div>
-
                             </td>
                         </tr>
-                    </tbody>
-                </table>
-            </div>
+                    }
+                </tbody>
+            </table>
         </div>
     </div>
+</div>
+<div class="row h-spacer">
+    <div class="col-sm-12 col-md-3">
+        <button type="submit" class="btn btn-primary" onclick="javascript: createNewTest('@Model.UniqueId');">New Test</button>
+    </div>
+</div>
 
 <script type="text/javascript">
     function updateSiteScan(ctl) {
