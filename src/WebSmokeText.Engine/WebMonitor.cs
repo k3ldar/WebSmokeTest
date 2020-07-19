@@ -40,6 +40,7 @@ namespace SmokeTest.Engine
         private bool _lastTcpConnectionResult = false;
         private const int MillisecondsBetweenTcpChecks = 2000;
         private int MaximumOpenEndpoints { get; set; }
+        private NVPCodec _siteNameValueSettings;
 
         #endregion Private Members
 
@@ -137,11 +138,11 @@ namespace SmokeTest.Engine
         {
             _report.Clear();
             _testRunLogger.Log("Starting Test Run");
+            Uri homePage = new Uri(_properties.Url);
             try
             {
                 _report.StartTime = DateTime.UtcNow;
 
-                Uri homePage = new Uri(_properties.Url);
 
                 if (ValidateTestsCanBeRunAgainstUrl(homePage))
                 {
@@ -153,6 +154,8 @@ namespace SmokeTest.Engine
                     }
 
                     _report.Tests.AddRange(_properties.TestConfiguration.Tests);
+
+                    StartSiteTest(homePage);
 
                     DiscoverOnSiteTests(homePage, 0);
 
@@ -192,6 +195,7 @@ namespace SmokeTest.Engine
             {
                 _report.ClearParsedLinks();
                 _report.EndTime = DateTime.UtcNow;
+                EndSiteTest(homePage);
             }
 
             //foreach (Cookie cookie in _client.CookieContainer.GetCookies(new Uri(_properties.Url)))
@@ -904,6 +908,21 @@ namespace SmokeTest.Engine
                 return Result;
 
             return -1;
+        }
+
+        private void StartSiteTest(in Uri homepage)
+        {
+            SmokeTestWebRequest(homepage, "/smoketest/start/", out string data);
+
+            data = Utilities.Decrypt(data, _properties.EncryptionKey);
+
+            _siteNameValueSettings = new NVPCodec();
+            _siteNameValueSettings.Decode(data);
+        }
+
+        private void EndSiteTest(in Uri homepage)
+        {
+            SmokeTestWebRequest(homepage, "/smoketest/end/", out _);
         }
 
         private WebSmokeTestItem GetSiteTestItem(in Uri homepage, in int index)

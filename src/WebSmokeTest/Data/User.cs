@@ -16,6 +16,8 @@ namespace SmokeTest.Data
 
         public bool ForceChangePassword { get; set; }
 
+        public bool AccountLocked { get; set; }
+
         public List<string> Claims { get; set; }
     }
 }

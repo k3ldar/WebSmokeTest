@@ -69,7 +69,7 @@ namespace SmokeTest.Internal
 
         public void BeforeConfigureServices(in IServiceCollection services)
         {
-
+            services.AddSingleton<ISmokeTestProvider, SmokeTestProvider>();
         }
 
         public void Configure(in IApplicationBuilder app)

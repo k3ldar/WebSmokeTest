@@ -332,7 +332,8 @@ namespace SmokeTest.Middleware
         {
             List<SearchUser> Result = new List<SearchUser>();
 
-            Result.Add(new SearchUser(0, "admin", "admin"));
+            foreach (User user in _users)
+                Result.Add(new SearchUser(0, user.Email, user.Email));
 
             return Result;
         }
