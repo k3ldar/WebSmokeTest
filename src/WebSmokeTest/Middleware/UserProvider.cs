@@ -38,17 +38,19 @@ namespace SmokeTest.Middleware
         private readonly string _dataPath;
         private readonly ISaveData _saveData;
         private readonly ILoadData _loadData;
+        private readonly IIdManager _idManager;
 
         #endregion Private Members
 
         #region Constructors
 
         public UserProvider(IPluginClassesService pluginClassesService,
-            ISaveData saveData, ILoadData loadData)
+            ISaveData saveData, ILoadData loadData, IIdManager idManager)
         {
             _pluginClassesService = pluginClassesService ?? throw new ArgumentNullException(nameof(pluginClassesService));
             _saveData = saveData ?? throw new ArgumentNullException(nameof(saveData));
             _loadData = loadData ?? throw new ArgumentNullException(nameof(loadData));
+            _idManager = idManager ?? throw new ArgumentNullException(nameof(idManager));
 
             _dataPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "SmokeTest", "Data");
 
@@ -216,6 +218,49 @@ namespace SmokeTest.Middleware
             in string telephone, in string businessName, in string addressLine1, in string addressLine2,
             in string addressLine3, in string city, in string county, in string postcode, in string countryCode, out long userId)
         {
+            userId = -1;
+            string emailAddress = email;
+
+            if (_users.Where(u => u.Email.Equals(emailAddress, StringComparison.InvariantCultureIgnoreCase)).Any())
+                return false;
+
+            User user = new User
+            {
+                AccountLocked = false,
+                Email = email,
+                FirstName = firstName,
+                Surname = surname,
+                Password = password,
+                UserId = _idManager.GenerateId(),
+                ForceChangePassword = false
+            };
+
+            _users.Add(user);
+            userId = user.UserId;
+            return true;
+        }
+
+        public bool DeleteAccount(in Int64 userId)
+        {
+            for (int i = 0; i < _users.Count; i++)
+            {
+                if (_users[i].UserId == userId)
+                {
+                    _users.RemoveAt(i);
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        public bool AccountLock(in Int64 userId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool AccountUnlock(in Int64 userId)
+        {
             throw new NotImplementedException();
         }
 
@@ -333,7 +378,7 @@ namespace SmokeTest.Middleware
             List<SearchUser> Result = new List<SearchUser>();
 
             foreach (User user in _users)
-                Result.Add(new SearchUser(0, user.Email, user.Email));
+                Result.Add(new SearchUser(user.UserId, user.Email, user.Email));
 
             return Result;
         }

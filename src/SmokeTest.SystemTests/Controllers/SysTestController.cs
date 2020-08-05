@@ -26,6 +26,7 @@ namespace SmokeTest.SystemTests.Controllers
 
         [HttpPost]
         [SmokeTest(400, PostType.Form, "frmSimpleInput", inputData: "Username=fred&Password=bloggs", searchData: "<h1>Simple Input Test Form</h1>")]
+        [SmokeTest(200, PostType.Form, "frmSimpleInput", inputData: "Username={Username}&Password={UserPassword}", searchData: "<h1>Simple Input Test Form</h1>")]
         public IActionResult SimpleInput(SimpleTestModel model)
         {
             Shared.Classes.UserSession user = base.GetUserSession();

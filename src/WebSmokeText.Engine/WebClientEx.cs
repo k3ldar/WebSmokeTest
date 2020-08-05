@@ -2,7 +2,6 @@
 using System.IO;
 using System.Net;
 using System.Text;
-using System.Web;
 
 using Shared.Classes;
 
@@ -10,6 +9,8 @@ namespace SmokeTest.Engine
 {
     internal sealed class WebClientEx : WebClient
     {
+        private readonly NVPCodec _codec;
+
         internal CookieContainer CookieContainer { get; set; }
 
         internal CookieCollection Cookies(Uri uri)
@@ -28,6 +29,12 @@ namespace SmokeTest.Engine
         public bool AllowAutoRedirect { get; set; }
 
         public new WebHeaderCollection ResponseHeaders { get; set; }
+
+        public WebClientEx(NVPCodec codec)
+            : this()
+        {
+            _codec = codec ?? throw new ArgumentNullException();
+        }
 
         public WebClientEx()
         {
@@ -59,14 +66,14 @@ namespace SmokeTest.Engine
         }
 
         public string SubmitData(string method, Uri address, string contentType, string body, out int responseCode)
-        { 
+        {
             responseCode = 0;
 
             if (address == null)
                 throw new ArgumentNullException(nameof(address));
 
             string Result = String.Empty;
-            body = body.Trim();
+            body = ReplaceCodecValues(body).Trim();
             byte[] data = Encoding.ASCII.GetBytes(body);
 
             HttpWebRequest objRequest = (HttpWebRequest)WebRequest.Create(address);
@@ -193,5 +200,26 @@ namespace SmokeTest.Engine
 
             return request;
         }
+
+        #region Private Methods
+
+        private string ReplaceCodecValues(in string value)
+        {
+            if (_codec == null)
+                return value;
+
+            string result = value;
+
+            foreach (string key in _codec)
+            {
+                string replaceKey = $"%7b{key}%7d";
+
+                result = result.Replace(replaceKey, _codec[key]);
+            }
+
+            return result;
+        }
+
+        #endregion Private Methods
     }
 }

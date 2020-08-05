@@ -656,7 +656,7 @@ namespace SmokeTest.Engine
             {
                 try
                 {
-                    using (WebClientEx testClient = new WebClientEx())
+                    using (WebClientEx testClient = new WebClientEx(_siteNameValueSettings))
                     {
                         TestResult testResult = new TestResult()
                         {

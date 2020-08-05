@@ -254,7 +254,7 @@ namespace SmokeTest.Shared.Classes
         //    DateTime startTime = LastRun.Value;
         //    startTime = new DateTime(startTime.Year, startTime.Month + Frequency, startTime.Day, StartTime.Hour, StartTime.Minute, StartTime.Second);
 
-        //    return startTime - DateTime.Now;
+        //    return startTime - DateTime.UtcNow;
         //}
 
         #endregion Private Methods

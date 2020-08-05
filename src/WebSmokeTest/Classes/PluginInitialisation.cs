@@ -37,13 +37,15 @@ namespace SmokeTest.Internal
         {
             services.AddSingleton<ITestRunManager, TestRunManager>();
 
+            IIdManager idManager = new IdManager();
             SaveData saveData = new SaveData(_logger);
             LoadData loadData = new LoadData(_logger);
             ServiceProvider serviceProvider = services.BuildServiceProvider();
             UserProvider userProvider = new UserProvider(
                 serviceProvider.GetRequiredService<IPluginClassesService>(),
                 saveData,
-                loadData);
+                loadData,
+                idManager);
 
             services.TryAddSingleton<ISaveData>(saveData);
             services.TryAddSingleton<ILoadData>(loadData);
@@ -59,7 +61,7 @@ namespace SmokeTest.Internal
             services.TryAddSingleton<ISeoProvider, SeoProvider>();
             services.TryAddSingleton<ITestConfigurationProvider, ConfigurationProvider>();
             services.TryAddSingleton<IScheduleHelper, ScheduleHelper>();
-            services.TryAddSingleton<IIdManager, IdManager>();
+            services.TryAddSingleton<IIdManager>(idManager);
         }
 
         public void BeforeConfigure(in IApplicationBuilder app)
