@@ -45,7 +45,7 @@
     <ProjectReference Include="..\SmokeTest.Middleware\SmokeTest.Middleware.csproj" />
     <ProjectReference Include="..\SmokeTest.Reports\SmokeTest.Reports.csproj" />
     <ProjectReference Include="..\SmokeTest.Scheduler\SmokeTest.Scheduler.csproj" />
-    <ProjectReference Include="..\SmokeTest.Settings\SmokeTest.Settings.csproj" />
+    <ProjectReference Include="..\SmokeTest.Configuration\SmokeTest.Configuration.csproj" />
     <ProjectReference Include="..\SmokeTest.SystemTests\SmokeTest.SystemTests.csproj" />
     <ProjectReference Include="..\SmokeTestShared\SmokeTest.Shared.csproj" />
     <ProjectReference Include="..\WebSmokeText.Engine\SmokeTest.Engine.csproj" />

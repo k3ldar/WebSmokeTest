@@ -12,11 +12,11 @@ using PluginManager.Abstractions;
 using SharedPluginFeatures;
 
 using SmokeTest.Engine;
-using SmokeTest.Middleware;
+using SmokeTest.Internal;
 using SmokeTest.Shared;
 using SmokeTest.Shared.Interfaces;
 
-namespace SmokeTest.Internal
+namespace SmokeTest.Middleware
 {
     public class PluginInitialisation : IPlugin, IInitialiseEvents
     {

@@ -1,7 +1,7 @@
 ﻿using System;
 using SharedPluginFeatures;
 
-namespace SmokeTest.Settings.Models
+namespace SmokeTest.Configuration.Models
 {
     public sealed class DeleteConfigurationModel : BaseModel
     {

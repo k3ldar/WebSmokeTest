@@ -1,4 +1,4 @@
-﻿@model SmokeTest.Settings.Models.DeleteConfigurationModel
+﻿@model SmokeTest.Configuration.Models.DeleteConfigurationModel
 @{
     ViewData["Title"] = "Delete Configuration";
 }
@@ -23,7 +23,7 @@
     </div>
 }
 
-@using (Html.BeginForm(nameof(SmokeTest.Settings.Controllers.ConfigurationController.Delete), SmokeTest.Settings.Controllers.ConfigurationController.Name, FormMethod.Post, new { id = "frmDeleteConfiguration" }))
+@using (Html.BeginForm(nameof(SmokeTest.Configuration.Controllers.ConfigurationController.Delete), SmokeTest.Configuration.Controllers.ConfigurationController.Name, FormMethod.Post, new { id = "frmDeleteConfiguration" }))
 {
     @Html.HiddenFor(m => m.UniqueId)
     <div class="hb">

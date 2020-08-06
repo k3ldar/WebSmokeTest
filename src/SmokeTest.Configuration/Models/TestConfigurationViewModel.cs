@@ -7,7 +7,7 @@ using SharedPluginFeatures;
 
 using SmokeTest.Shared.Engine;
 
-namespace SmokeTest.Settings.Models
+namespace SmokeTest.Configuration.Models
 {
     public class TestConfigurationViewModel : BaseModel
     {

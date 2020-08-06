@@ -2,7 +2,7 @@
 
 using SharedPluginFeatures;
 
-namespace SmokeTest.Settings.Classes
+namespace SmokeTest.Configuration.Classes
 {
     public class ClaimsService : IClaimsService
     {

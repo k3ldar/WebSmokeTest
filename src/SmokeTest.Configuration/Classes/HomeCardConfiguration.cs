@@ -1,6 +1,6 @@
 ﻿using SmokeTest.Shared;
 
-namespace SmokeTest.Settings.Classes
+namespace SmokeTest.Configuration.Classes
 {
     public sealed class HomeCardConfiguration : HomeCard
     {

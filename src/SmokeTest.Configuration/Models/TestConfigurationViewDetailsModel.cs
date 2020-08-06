@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace SmokeTest.Settings.Models
+namespace SmokeTest.Configuration.Models
 {
     public class TestConfigurationViewDetailsModel
     {

@@ -5,15 +5,17 @@ using System.Linq;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
+using Newtonsoft.Json;
+
 using Shared.Classes;
 
 using SharedPluginFeatures;
 
-using SmokeTest.Settings.Models;
+using SmokeTest.Configuration.Models;
 using SmokeTest.Shared;
 using SmokeTest.Shared.Engine;
 
-namespace SmokeTest.Settings.Controllers
+namespace SmokeTest.Configuration.Controllers
 {
     [LoggedIn]
     public partial class ConfigurationController : BaseController
@@ -32,7 +34,7 @@ namespace SmokeTest.Settings.Controllers
 
         #region Constructors
 
-        public ConfigurationController(ITestConfigurationProvider testConfigurationProvider, 
+        public ConfigurationController(ITestConfigurationProvider testConfigurationProvider,
             IIdManager idManager, IReportHelper reportHelper, IScheduleHelper scheduleHelper)
         {
             _testConfigurationProvider = testConfigurationProvider ?? throw new ArgumentNullException(nameof(testConfigurationProvider));
@@ -207,7 +209,7 @@ namespace SmokeTest.Settings.Controllers
 
             return RedirectToAction(nameof(Index));
         }
-         
+
         [Route("/Configuration/TestDisable/{testConfigurationId}/{testId}/")]
         public IActionResult DisableTest(string testConfigurationId, string testId)
         {
@@ -286,6 +288,64 @@ namespace SmokeTest.Settings.Controllers
             return Json(new { result = false });
         }
 
+        [Route("/Configuration/TestExport/{testConfigurationId}/{testId}/")]
+        public IActionResult TestExport(string testConfigurationId, string testId)
+        {
+            TestConfiguration configuration = _testConfigurationProvider.Configurations
+                .Where(c => c.UniqueId.Equals(testConfigurationId))
+                .FirstOrDefault();
+
+            if (configuration == null)
+            {
+                return Json(new { result = false });
+            }
+
+            foreach (WebSmokeTestItem test in configuration.Tests)
+            {
+                string uniqueTestId = Report.GenerateTestHash(test);
+
+                if (uniqueTestId.Equals(testId))
+                {
+                    byte[] fileBytes = System.Text.Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(test));
+                    return File(fileBytes, "text/json", $"{testId}.test");
+                }
+            }
+
+            return Json(new { result = false });
+        }
+
+        [Route("/Configuration/TestExportDiscovered/{testConfigurationId}/{testId}/")]
+        public IActionResult TestExportDiscovered(string testConfigurationId, string testId)
+        {
+            TestConfiguration configuration = _testConfigurationProvider.Configurations
+                .Where(c => c.UniqueId.Equals(testConfigurationId))
+                .FirstOrDefault();
+
+            if (configuration == null)
+            {
+                return Json(new { result = false });
+            }
+
+            foreach (WebSmokeTestItem test in configuration.DiscoveredTests)
+            {
+                string uniqueTestId = Report.GenerateTestHash(test);
+
+                if (uniqueTestId.Equals(testId))
+                {
+                    byte[] fileBytes = System.Text.Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(test));
+                    return File(fileBytes, "text/json", $"{testId}.test");
+                }
+            }
+
+            return Json(new { result = false });
+        }
+
+        [Route("/Configuration/Import/{testConfigurationId}")]
+        public IActionResult Import(string testConfigurationId)
+        {
+
+        }
+
         #endregion Public Action Methods
 
         #region Private Methods
@@ -296,7 +356,7 @@ namespace SmokeTest.Settings.Controllers
         }
 
         private TestConfigurationViewModel CreateTestConfigurationViewModel(in TestConfigurationViewModel model,
-            in List<WebSmokeTestItem> tests, 
+            in List<WebSmokeTestItem> tests,
             in List<WebSmokeTestItem> discoveredTests, in HashSet<string> disabledTests)
         {
             return new TestConfigurationViewModel(GetModelData(), tests, discoveredTests, disabledTests)
@@ -354,7 +414,7 @@ namespace SmokeTest.Settings.Controllers
 
             return new TestConfigurationViewModel(GetModelData(),
                 testConfiguration.Tests,
-                testConfiguration.DiscoveredTests, 
+                testConfiguration.DiscoveredTests,
                 testConfiguration.DisabledTests)
             {
                 Name = testConfiguration.Name,

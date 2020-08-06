@@ -6,13 +6,13 @@ using Microsoft.AspNetCore.Mvc;
 
 using SharedPluginFeatures;
 
-using SmokeTest.Settings.Models;
+using SmokeTest.Configuration.Models;
 using SmokeTest.Shared;
 using SmokeTest.Shared.Classes;
 using SmokeTest.Shared.Engine;
 
 
-namespace SmokeTest.Settings.Controllers
+namespace SmokeTest.Configuration.Controllers
 {
     public partial class ConfigurationController
     {

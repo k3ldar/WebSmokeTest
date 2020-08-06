@@ -1,4 +1,4 @@
-﻿@model SmokeTest.Settings.Models.TestConfigurationViewModel
+﻿@model SmokeTest.Configuration.Models.TestConfigurationViewModel
 @{
     ViewData["Title"] = "Edit Test Configuration";
 }
@@ -22,7 +22,7 @@
         </div>
     </div>
 }
-@using (Html.BeginForm(nameof(SmokeTest.Settings.Controllers.ConfigurationController.Edit), SmokeTest.Settings.Controllers.ConfigurationController.Name, FormMethod.Post, new { id = "frmEditConfiguration" }))
+@using (Html.BeginForm(nameof(SmokeTest.Configuration.Controllers.ConfigurationController.Edit), SmokeTest.Configuration.Controllers.ConfigurationController.Name, FormMethod.Post, new { id = "frmEditConfiguration" }))
 {
     <div class="hb">
         <div class="row ac-row">
@@ -222,6 +222,8 @@
                                         <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
                                             <a id="enable_@internalName" class="dropdown-item @enableClassName" href="javascript:EnableTest('@Model.UniqueId', '@internalName');">Enable</a>
                                             <a id="disable_@internalName" class="dropdown-item @disableClassName" href="javascript:DisableTest('@Model.UniqueId', '@internalName');">Disable</a>
+                                            <div class="dropdown-divider"></div>
+                                            <a class="dropdown-item" href="/Configuration/TestExportDiscovered/@Model.UniqueId/@internalName/">Export</a>
                                         </div>
                                     </div>
                                 </td>
@@ -273,6 +275,8 @@
                                         <a id="disable_@internalName" class="dropdown-item @disableClassName" href="javascript:DisableTest('@Model.UniqueId', '@internalName');">Disable</a>
                                         <div class="dropdown-divider"></div>
                                         <a class="dropdown-item" href="/Configuration/TestEdit/@Model.UniqueId/@internalName/">Edit</a>
+                                        <div class="dropdown-divider"></div>
+                                        <a class="dropdown-item" href="/Configuration/TestExport/@Model.UniqueId/@internalName/">Export</a>
                                     </div>
                                 </div>
                             </td>
@@ -286,6 +290,9 @@
 <div class="row h-spacer">
     <div class="col-sm-12 col-md-3">
         <button type="submit" class="btn btn-primary" onclick="javascript: createNewTest('@Model.UniqueId');">New Test</button>
+    </div>
+    <div class="col-sm-12 col-md-3">
+        <button type="submit" class="btn btn-primary" onclick="javascript: importTests('@Model.UniqueId');">Import Tests</button>
     </div>
 </div>
 
@@ -314,6 +321,10 @@
 
     function createNewTest(testId) {
         window.location.replace('/Configuration/TestNew/' + testId + '/');
+    }
+
+    function importTests(testId) {
+        window.location.replace('/Configuration/Import/' + testId + '/');
     }
 
     function DisableTest(configid, name) {

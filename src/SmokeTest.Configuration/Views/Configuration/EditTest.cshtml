@@ -1,4 +1,4 @@
-﻿@model SmokeTest.Settings.Models.TestEditModel
+﻿@model SmokeTest.Configuration.Models.TestEditModel
 @{
     ViewData["Title"] = "Edit Test Configuration";
 }
@@ -24,7 +24,7 @@
     </div>
 }
 
-@using (Html.BeginForm(nameof(SmokeTest.Settings.Controllers.ConfigurationController.TestEdit), SmokeTest.Settings.Controllers.ConfigurationController.Name, FormMethod.Post, new { id = "frmEditTest" }))
+@using (Html.BeginForm(nameof(SmokeTest.Configuration.Controllers.ConfigurationController.TestEdit), SmokeTest.Configuration.Controllers.ConfigurationController.Name, FormMethod.Post, new { id = "frmEditTest" }))
 {
     @Html.HiddenFor(m => m.IsNew)
     @Html.HiddenFor(m => m.TestConfigurationId)
@@ -54,7 +54,7 @@
                 @Html.NameFor(m => m.Response)
             </div>
             <div class="col-sm-12 col-md-9">
-                @Html.DropDownListFor(m => m.ResponseSelect, new SelectList(SmokeTest.Settings.Controllers.ConfigurationController.HttpResponseTypes, "Value", "Name"), new { @class = "form-control", style = "display: inline-block;max-width: 300px;", onchange = "testConfig.UpdateResponseType(this);" })
+                @Html.DropDownListFor(m => m.ResponseSelect, new SelectList(SmokeTest.Configuration.Controllers.ConfigurationController.HttpResponseTypes, "Value", "Name"), new { @class = "form-control", style = "display: inline-block;max-width: 300px;", onchange = "testConfig.UpdateResponseType(this);" })
                 @Html.TextBoxFor(m => m.Response, new { @class = "form-control", style = "margin-left:8px;display: inline-block;width:100px;" })
                 @Html.ValidationMessageFor(m => m.Response)
             </div>
@@ -73,7 +73,7 @@
                 @Html.NameFor(m => m.Method)
             </div>
             <div class="col-sm-12 col-md-9">
-                @Html.DropDownListFor(m => m.Method, new SelectList(SmokeTest.Settings.Controllers.ConfigurationController.HttpMethodTypes, "Value", "Name"), new { @class = "form-control", style = "max-width:100px;", onchange = "testConfig.UpdateMethodType(this);" })
+                @Html.DropDownListFor(m => m.Method, new SelectList(SmokeTest.Configuration.Controllers.ConfigurationController.HttpMethodTypes, "Value", "Name"), new { @class = "form-control", style = "max-width:100px;", onchange = "testConfig.UpdateMethodType(this);" })
                 @Html.ValidationMessageFor(m => m.Method)
             </div>
         </div>
@@ -82,7 +82,7 @@
                 @Html.NameFor(m => m.PostType)
             </div>
             <div class="col-sm-12 col-md-9">
-                @Html.DropDownListFor(m => m.PostType, new SelectList(SmokeTest.Settings.Controllers.ConfigurationController.HttpPostTypes, "Value", "Name"), new { @class = "form-control", style = "max-width:100px;", onchange = "testConfig.UpdatePostType(this);" })
+                @Html.DropDownListFor(m => m.PostType, new SelectList(SmokeTest.Configuration.Controllers.ConfigurationController.HttpPostTypes, "Value", "Name"), new { @class = "form-control", style = "max-width:100px;", onchange = "testConfig.UpdatePostType(this);" })
                 @Html.ValidationMessageFor(m => m.PostType)
             </div>
         </div>

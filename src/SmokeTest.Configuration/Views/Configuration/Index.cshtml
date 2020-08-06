@@ -1,4 +1,4 @@
-﻿@model SmokeTest.Settings.Models.ViewConfigurationViewModel
+﻿@model SmokeTest.Configuration.Models.ViewConfigurationViewModel
 @{
     ViewData["Title"] = "View Test Configurations";
 }
@@ -23,7 +23,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach (SmokeTest.Settings.Models.TestConfigurationViewDetailsModel test in Model.Configurations)
+                    @foreach (SmokeTest.Configuration.Models.TestConfigurationViewDetailsModel test in Model.Configurations)
                     {
                         <tr>
                             <td>@test.Name</td>
@@ -39,7 +39,7 @@
 <div class="hb">
     <div class="row">
         <div class="col">
-            @using (Html.BeginForm(nameof(SmokeTest.Settings.Controllers.ConfigurationController.New), SmokeTest.Settings.Controllers.ConfigurationController.Name, FormMethod.Get, new { id = "frmCreateTest" }))
+            @using (Html.BeginForm(nameof(SmokeTest.Configuration.Controllers.ConfigurationController.New), SmokeTest.Configuration.Controllers.ConfigurationController.Name, FormMethod.Get, new { id = "frmCreateTest" }))
             {
                 <button type="submit" class="btn btn-primary">Create</button>
             }

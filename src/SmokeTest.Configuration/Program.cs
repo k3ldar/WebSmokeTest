@@ -1,4 +1,4 @@
-namespace SmokeTest.Settings
+namespace SmokeTest.Configuration
 {
     public static class Program
     {

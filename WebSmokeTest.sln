@@ -16,7 +16,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SmokeTest.Shared", "src\SmokeTestShared\SmokeTest.Shared.csproj", "{B5B30249-75B8-40FF-944A-DE1F9D3AEE79}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SmokeTest.Settings", "src\SmokeTest.Settings\SmokeTest.Settings.csproj", "{BB7360F6-4E3D-473D-A261-70B43A9C2D89}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SmokeTest.Configuration", "src\SmokeTest.Configuration\SmokeTest.Configuration.csproj", "{BB7360F6-4E3D-473D-A261-70B43A9C2D89}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SmokeTest.Scheduler", "src\SmokeTest.Scheduler\SmokeTest.Scheduler.csproj", "{529B5B94-8522-4C49-8C4A-950371303ECE}"
 EndProject

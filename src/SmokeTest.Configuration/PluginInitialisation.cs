@@ -7,7 +7,7 @@ using SharedPluginFeatures;
 
 using SmokeTest.Shared;
 
-namespace SmokeTest.Settings
+namespace SmokeTest.Configuration
 {
     public class PluginInitialisation : IPlugin, IInitialiseEvents
     {
