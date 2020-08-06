@@ -5,7 +5,7 @@ using PluginManager.Abstractions;
 
 namespace SmokeTest.Internal
 {
-    internal class Logger : ILogger
+    public class Logger : ILogger
     {
         #region ILogger Methods
 

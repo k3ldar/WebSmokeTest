@@ -10,7 +10,7 @@ using SmokeTest.Engine;
 
 namespace SmokeTest.Internal
 {
-    internal class SmokeTestBackgroundScheduler : BackgroundService
+    public class SmokeTestBackgroundScheduler : BackgroundService
     {
         #region Private Members
 

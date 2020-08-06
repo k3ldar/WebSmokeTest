@@ -5,7 +5,7 @@ using SmokeTest.Shared;
 
 namespace SmokeTest.Internal
 {
-    internal sealed class IdManager : IIdManager
+    public sealed class IdManager : IIdManager
     {
         #region Private Members
 
