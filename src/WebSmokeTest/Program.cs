@@ -66,11 +66,12 @@ namespace SmokeTest
             PluginManagerService.UsePlugin(typeof(LoginPlugin.PluginInitialisation));
             PluginManagerService.UsePlugin(typeof(SearchPlugin.PluginInitialisation));
             PluginManagerService.UsePlugin(typeof(SystemAdmin.Plugin.PluginInitialisation));
-            PluginManagerService.UsePlugin(typeof(Settings.PluginInitialisation));
+            PluginManagerService.UsePlugin(typeof(Configuration.PluginInitialisation));
             PluginManagerService.UsePlugin(typeof(Scheduler.PluginInitialisation));
             PluginManagerService.UsePlugin(typeof(Reports.PluginInitialisation));
             PluginManagerService.UsePlugin(typeof(WebSmokeTest.Plugin.PluginInitialisation));
-            PluginManagerService.UsePlugin(typeof(SmokeTest.SystemTests.PluginInitialisation));
+            PluginManagerService.UsePlugin(typeof(SystemTests.PluginInitialisation));
+            PluginManagerService.UsePlugin(typeof(Middleware.PluginInitialisation));
 
             try
             {

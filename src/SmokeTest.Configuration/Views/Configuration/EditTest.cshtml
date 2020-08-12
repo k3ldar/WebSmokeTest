@@ -1,0 +1,198 @@
+﻿@model SmokeTest.Configuration.Models.TestEditModel
+@{
+    ViewData["Title"] = "Edit Test Configuration";
+}
+<script src="~/js/testConfig.js"></script>
+<div class="hb">
+    <div class="row">
+        <div class="col">
+            <h1>@ViewData["Title"]</h1>
+        </div>
+    </div>
+</div>
+
+@if (ViewData.ModelState[""] != null && ViewData.ModelState[""].Errors.Count() > 0)
+{
+    <div class="alert alert-error">
+        <a class="close" data-dismiss="alert">×</a>
+        <h5 class="alert-heading">Please correct the following errors to continue</h5>
+        <div class="row">
+            <div class="col-sm-12">
+                @Html.ValidationSummary(true)
+            </div>
+        </div>
+    </div>
+}
+
+@using (Html.BeginForm(nameof(SmokeTest.Configuration.Controllers.ConfigurationController.TestEdit), SmokeTest.Configuration.Controllers.ConfigurationController.Name, FormMethod.Post, new { id = "frmEditTest" }))
+{
+    @Html.HiddenFor(m => m.IsNew)
+    @Html.HiddenFor(m => m.TestConfigurationId)
+    @Html.HiddenFor(m => m.TestId)
+
+    <div class="hb">
+        <div class="row ac-row">
+            <div class="col-sm-12 col-md-3">
+                @Html.NameFor(m => m.Name)
+            </div>
+            <div class="col-sm-12 col-md-9">
+                @Html.TextBoxFor(m => m.Name, new { @class = "form-control" })
+                @Html.ValidationMessageFor(m => m.Name)
+            </div>
+        </div>
+        <div class="row ac-row">
+            <div class="col-sm-12 col-md-3">
+                @Html.NameFor(m => m.Position)
+            </div>
+            <div class="col-sm-12 col-md-9">
+                @Html.TextBoxFor(m => m.Position, new { @class = "form-control", style = "width:100px;" })
+                @Html.ValidationMessageFor(m => m.Position)
+            </div>
+        </div>
+        <div class="row ac-row">
+            <div class="col-sm-12 col-md-3">
+                @Html.NameFor(m => m.Response)
+            </div>
+            <div class="col-sm-12 col-md-9">
+                @Html.DropDownListFor(m => m.ResponseSelect, new SelectList(SmokeTest.Configuration.Controllers.ConfigurationController.HttpResponseTypes, "Value", "Name"), new { @class = "form-control", style = "display: inline-block;max-width: 300px;", onchange = "testConfig.UpdateResponseType(this);" })
+                @Html.TextBoxFor(m => m.Response, new { @class = "form-control", style = "margin-left:8px;display: inline-block;width:100px;" })
+                @Html.ValidationMessageFor(m => m.Response)
+            </div>
+        </div>
+        <div class="row ac-row" id="divResponseUrl">
+            <div class="col-sm-12 col-md-3">
+                @Html.NameFor(m => m.ResponseUrl)
+            </div>
+            <div class="col-sm-12 col-md-9">
+                @Html.TextBoxFor(m => m.ResponseUrl, new { @class = "form-control" })
+                @Html.ValidationMessageFor(m => m.ResponseUrl)
+            </div>
+        </div>
+        <div class="row ac-row">
+            <div class="col-sm-12 col-md-3">
+                @Html.NameFor(m => m.Method)
+            </div>
+            <div class="col-sm-12 col-md-9">
+                @Html.DropDownListFor(m => m.Method, new SelectList(SmokeTest.Configuration.Controllers.ConfigurationController.HttpMethodTypes, "Value", "Name"), new { @class = "form-control", style = "max-width:100px;", onchange = "testConfig.UpdateMethodType(this);" })
+                @Html.ValidationMessageFor(m => m.Method)
+            </div>
+        </div>
+        <div class="row ac-row" id="divPostType">
+            <div class="col-sm-12 col-md-3">
+                @Html.NameFor(m => m.PostType)
+            </div>
+            <div class="col-sm-12 col-md-9">
+                @Html.DropDownListFor(m => m.PostType, new SelectList(SmokeTest.Configuration.Controllers.ConfigurationController.HttpPostTypes, "Value", "Name"), new { @class = "form-control", style = "max-width:100px;", onchange = "testConfig.UpdatePostType(this);" })
+                @Html.ValidationMessageFor(m => m.PostType)
+            </div>
+        </div>
+        <div class="row ac-row" id="divForm">
+            <div class="col-sm-12 col-md-3">
+                @Html.NameFor(m => m.FormId)
+            </div>
+            <div class="col-sm-12 col-md-9">
+                @if (Model.FormIdList.Count > 1)
+                {
+                    @Html.DropDownListFor(m => m.SelectedForm, new SelectList(Model.FormIdList, "Value", "Name"), new { @class = "form-control", style = "display: inline-block;max-width: 300px;", onchange = "testConfig.UpdateFormId(this);" })
+                }
+
+                @Html.TextBoxFor(m => m.FormId, new { @class = "form-control", style = "max-width:200px" })
+                @Html.ValidationMessageFor(m => m.FormId)
+            </div>
+        </div>
+        <div class="row  ac-row" id="divRoute">
+            <div class="col-sm-12 col-md-3">
+                @Html.NameFor(m => m.Route)
+            </div>
+            <div class="col-sm-12 col-md-9">
+                @Html.TextBoxFor(m => m.Route, new { @class = "form-control" })
+                @Html.ValidationMessageFor(m => m.Route)
+            </div>
+        </div>
+        <div class="row  ac-row">
+            <div class="col-sm-12 col-md-3">
+                @Html.NameFor(m => m.ResponseData)
+            </div>
+            <div class="col-sm-12 col-md-9">
+                @Html.TextAreaFor(m => m.ResponseData, new { @class = "form-control" })
+                @Html.ValidationMessageFor(m => m.ResponseData)
+            </div>
+        </div>
+        <div class="row  ac-row" id="divSubmitResponse">
+            <div class="col-sm-12 col-md-3">
+                @Html.NameFor(m => m.SubmitResponseData)
+            </div>
+            <div class="col-sm-12 col-md-9">
+                @Html.TextAreaFor(m => m.SubmitResponseData, new { @class = "form-control" })
+                @Html.ValidationMessageFor(m => m.SubmitResponseData)
+            </div>
+        </div>
+        <div class="row ac-row" id="divParameters">
+            <div class="col-sm-12 col-md-3">
+                @Html.NameFor(m => m.Parameters)
+            </div>
+            <div class="col-sm-12 col-md-9">
+                @Html.TextAreaFor(m => m.Parameters, new { @class = "form-control", style = "width:100%;height:200px;" })
+                @Html.ValidationMessageFor(m => m.Parameters)
+            </div>
+        </div>
+        <div class="row ac-row" id="divFormInputData">
+            <div class="col-sm-12 col-md-3">
+                @Html.NameFor(m => m.FormInputData)
+            </div>
+            <div class="col-sm-12 col-md-9">
+                @Html.TextAreaFor(m => m.FormInputData, new { @class = "form-control", style = "width:100%;height:500px;" })
+                @Html.ValidationMessageFor(m => m.FormInputData)
+            </div>
+        </div>
+        <div class="row ac-row" id="divBodyData">
+            <div class="col-sm-12 col-md-3" id="divPostData">
+                @Html.NameFor(m => m.PostData)
+            </div>
+            <div class="col-sm-12 col-md-9">
+                @Html.TextAreaFor(m => m.PostData, new { @class = "form-control", style = "width:100%;height:500px;" })
+                @Html.ValidationMessageFor(m => m.PostData)
+            </div>
+        </div>
+        <div class="row ac-row">
+            <div class="col-sm-12 col-md-3">
+                <button type="submit" class="btn btn-primary">Save</button>
+            </div>
+            <div class="col-sm-12 col-md-9">
+
+            </div>
+        </div>
+    </div>
+}
+<script>
+    var controls = {
+        responseId: '@Html.IdFor(m => m.Response)',
+        methodId: '@Html.IdFor(m => m.Method)',
+        formIdList: '@Html.IdFor(m => m.SelectedForm)',
+        postTypeId: '@Html.IdFor(m => m.PostType)',
+        responseUrl: 'divResponseUrl',
+        submitResponse: 'divSubmitResponse',
+        form: 'divForm',
+        formInput: 'divFormInputData',
+        formId: '@Html.IdFor(m => m.FormId)',
+        postType: 'divPostType',
+        bodyData: 'divBodyData',
+        postData: 'divPostData',
+        route: 'divRoute',
+        routeId: '@Html.IdFor(m => m.Route)',
+        parametersId: '@Html.IdFor(m => m.Parameters)',
+        formInputDataId: '@Html.IdFor(m => m.FormInputData)',
+    };
+    var settings = {
+        defaultResponseId: '@Model.Response',
+        defaultMethod: '@Model.Method',
+        defaultResponsSelect: '@Model.ResponseSelect',
+        defaultFormId: '@Model.FormId',
+        defaultPostType: '@Model.PostType',
+        other: 'Other',
+        formValueUrl: '/Configuration/GetFormValues/@Model.TestConfigurationId/',
+        isNew: '@Model.IsNew',
+    };
+
+    testConfig.init(controls, settings);
+</script>

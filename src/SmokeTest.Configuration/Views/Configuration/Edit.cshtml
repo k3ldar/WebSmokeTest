@@ -1,0 +1,366 @@
+﻿@model SmokeTest.Configuration.Models.TestConfigurationViewModel
+@{
+    ViewData["Title"] = "Edit Test Configuration";
+}
+
+<div class="hb">
+    <div class="row">
+        <div class="col">
+            <h1>@ViewData["Title"]</h1>
+        </div>
+    </div>
+</div>
+@if (ViewData.ModelState[""] != null && ViewData.ModelState[""].Errors.Count() > 0)
+{
+    <div class="alert alert-error">
+        <a class="close" data-dismiss="alert">×</a>
+        <h5 class="alert-heading">Please correct the following errors to continue</h5>
+        <div class="row">
+            <div class="col-sm-12">
+                @Html.ValidationSummary(true)
+            </div>
+        </div>
+    </div>
+}
+@using (Html.BeginForm(nameof(SmokeTest.Configuration.Controllers.ConfigurationController.Edit), SmokeTest.Configuration.Controllers.ConfigurationController.Name, FormMethod.Post, new { id = "frmEditConfiguration" }))
+{
+    <div class="hb">
+        <div class="row ac-row">
+            <div class="col-sm-12 col-md-3">
+                @Html.NameFor(m => m.Name)
+            </div>
+            <div class="col-sm-12 col-md-9">
+                @Html.TextBoxFor(m => m.Name, new { @class = "form-control" })
+                @Html.ValidationMessageFor(m => m.Name)
+            </div>
+        </div>
+        <div class="row ac-row">
+            <div class="col-sm-12 col-md-3">
+                @Html.NameFor(m => m.Url)
+            </div>
+            <div class="col-sm-12 col-md-9">
+                @Html.TextBoxFor(m => m.Url, new { @class = "form-control" })
+                @Html.ValidationMessageFor(m => m.Url)
+            </div>
+        </div>
+        <div class="row ac-row">
+            <div class="col-sm-12 col-md-3">
+                @Html.NameFor(m => m.EncryptionKey)
+            </div>
+            <div class="col-sm-12 col-md-9">
+                @Html.TextBoxFor(m => m.EncryptionKey, new { @class = "form-control" })
+                @Html.ValidationMessageFor(m => m.EncryptionKey)
+            </div>
+        </div>
+        <div class="row ac-row">
+            <div class="col-sm-12 col-md-3">
+                @Html.NameFor(m => m.MinimumLoadTime)
+            </div>
+            <div class="col-sm-12 col-md-9">
+                Display warning if page load exceeds @Html.TextBoxFor(m => m.MinimumLoadTime, new { @class = "form-control", style = "width:100px;margin: 0 5px 0 5px;display: inline-block;" }) ms
+                @Html.ValidationMessageFor(m => m.MinimumLoadTime)
+            </div>
+        </div>
+        <div class="row  ac-row">
+            <div class="col-sm-12 col-md-3">
+                @Html.NameFor(m => m.SiteScan)
+            </div>
+            <div class="col-sm-12 col-md-9">
+                @Html.CheckBoxFor(m => m.SiteScan, new { @class = "form-control", style = "width:18px;height:18px;", onchange = "updateSiteScan(this);" })
+            </div>
+        </div>
+        <div class="row  ac-row" id="divCrawl">
+            <div class="col-sm-12 col-md-3">
+                @Html.NameFor(m => m.CrawlDepth)
+            </div>
+            <div class="col-sm-12 col-md-9">
+                @Html.TextBoxFor(m => m.CrawlDepth, new { @class = "form-control", style = "width:100px;" })
+                @Html.ValidationMessageFor(m => m.CrawlDepth)
+            </div>
+        </div>
+        <div class="row ac-row" id="divMaxPages">
+            <div class="col-sm-12 col-md-3">
+                @Html.NameFor(m => m.MaximumPages)
+            </div>
+            <div class="col-sm-12 col-md-9">
+                @Html.TextBoxFor(m => m.MaximumPages, new { @class = "form-control", style = "width:100px;" })
+                @Html.ValidationMessageFor(m => m.MaximumPages)
+            </div>
+        </div>
+        <div class="row ac-row">
+            <div class="col-sm-12 col-md-3">
+                @Html.NameFor(m => m.MillisecondsBetweenRequests)
+            </div>
+            <div class="col-sm-12 col-md-9">
+                @Html.TextBoxFor(m => m.MillisecondsBetweenRequests, new { @class = "form-control", style = "width:100px;" })
+                @Html.ValidationMessageFor(m => m.MillisecondsBetweenRequests)
+            </div>
+        </div>
+        <div class="row ac-row">
+            <div class="col-sm-12 col-md-3">
+                @Html.NameFor(m => m.UserAgent)
+            </div>
+            <div class="col-sm-12 col-md-9">
+                @Html.TextBoxFor(m => m.UserAgent, new { @class = "form-control" })
+                @Html.ValidationMessageFor(m => m.UserAgent)
+            </div>
+        </div>
+        <div class="row ac-row">
+            <div class="col-sm-12 col-md-3">
+                @Html.NameFor(m => m.UniqueId)
+            </div>
+            <div class="col-sm-12 col-md-9">
+                @Html.TextBoxFor(m => m.UniqueId, new { @readonly = "readonly", @class = "form-control", style = "width:200px;" })
+            </div>
+        </div>
+        <div class="row ac-row">
+            <div class="col-sm-12 col-md-3">
+                @Html.NameFor(m => m.CheckImages)
+            </div>
+            <div class="col-sm-12 col-md-9">
+                @Html.CheckBoxFor(m => m.CheckImages, new { @class = "form-control", style = "width:18px;height:18px;" })
+            </div>
+        </div>
+        <div class="row ac-row">
+            <div class="col-sm-12 col-md-3">
+                @Html.NameFor(m => m.ClearHtmlData)
+            </div>
+            <div class="col-sm-12 col-md-9">
+                @Html.CheckBoxFor(m => m.ClearHtmlData, new { @class = "form-control", style = "width:18px;height:18px;" })
+            </div>
+        </div>
+        <div class="row ac-row">
+            <div class="col-sm-12 col-md-3">
+                @Html.NameFor(m => m.ClearImageData)
+            </div>
+            <div class="col-sm-12 col-md-9">
+                @Html.CheckBoxFor(m => m.ClearImageData, new { @class = "form-control", style = "width:18px;height:18px;" })
+            </div>
+        </div>
+        <div class="row  ac-row">
+            <div class="col-sm-12 col-md-3">
+                @Html.NameFor(m => m.BasicAuthUsername)
+            </div>
+            <div class="col-sm-12 col-md-9">
+                @Html.TextBoxFor(m => m.BasicAuthUsername, new { @class = "form-control", style = "width:180px;" })
+                @Html.ValidationMessageFor(m => m.BasicAuthUsername)
+            </div>
+        </div>
+        <div class="row  ac-row">
+            <div class="col-sm-12 col-md-3">
+                @Html.NameFor(m => m.BasicAuthPassword)
+            </div>
+            <div class="col-sm-12 col-md-9">
+                @Html.TextBoxFor(m => m.BasicAuthPassword, new { @class = "form-control", style = "width:180px;" })
+                @Html.ValidationMessageFor(m => m.BasicAuthPassword)
+            </div>
+        </div>
+        <div class="row ac-row">
+            <div class="col-sm-12 col-md-3">
+                @Html.NameFor(m => m.AdditionalUrls)
+            </div>
+            <div class="col-sm-12 col-md-9">
+                @Html.TextAreaFor(m => m.AdditionalUrls, new { @class = "form-control", style = "height:100px;" })
+                @Html.ValidationMessageFor(m => m.AdditionalUrls)
+            </div>
+        </div>
+        <div class="row ac-row">
+            <div class="col-sm-12 col-md-3">
+                @Html.NameFor(m => m.Headers)
+            </div>
+            <div class="col-sm-12 col-md-9">
+                @Html.TextAreaFor(m => m.Headers, new { @class = "form-control", style = "height:100px;" })
+                @Html.ValidationMessageFor(m => m.Headers)
+            </div>
+        </div>
+        <div class="row ac-row">
+            <div class="col-sm-12 col-md-3">
+                <button type="submit" class="btn btn-primary">Save</button>
+            </div>
+            <div class="col-sm-12 col-md-9">
+
+            </div>
+        </div>
+    </div>
+}
+
+@if (Model.DiscoveredTests.Count > 0)
+{
+    <div class="row h-spacer">
+        <div class="col-sm-12 col-md-3">
+            <h3>Discovered Tests</h3>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="col testGrid">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Position</th>
+                            <th style="width:50px;"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var testResult in Model.DiscoveredTests)
+                        {
+                            bool isEnabled = Model.IsTestEnabled(testResult);
+                            string internalName = SmokeTest.Shared.Engine.Report.GenerateTestHash(testResult);
+                            string className = isEnabled ? String.Empty : "testDisabled";
+                            string enableClassName = isEnabled ? "disabled" : String.Empty;
+                            string disableClassName = isEnabled ? String.Empty : "disabled";
+
+                            <tr class="@className" id="test_@internalName">
+                                <td>@testResult.Name</td>
+                                <td>@testResult.Position.ToString()</td>
+                                <td>
+                                    <div class="dropdown">
+                                        <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        </button>
+                                        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                                            <a id="enable_@internalName" class="dropdown-item @enableClassName" href="javascript:EnableTest('@Model.UniqueId', '@internalName');">Enable</a>
+                                            <a id="disable_@internalName" class="dropdown-item @disableClassName" href="javascript:DisableTest('@Model.UniqueId', '@internalName');">Disable</a>
+                                            <div class="dropdown-divider"></div>
+                                            <a class="dropdown-item" href="/Configuration/TestExportDiscovered/@Model.UniqueId/@internalName/">Export</a>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+}
+
+
+<div class="row h-spacer">
+    <div class="col-sm-12 col-md-3">
+        <h3>Custom Tests</h3>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-sm-12">
+        <div class="col testGrid">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Position</th>
+                        <th style="width:50px;"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var testResult in Model.Tests)
+                    {
+                        bool isEnabled = Model.IsTestEnabled(testResult);
+                        string internalName = SmokeTest.Shared.Engine.Report.GenerateTestHash(testResult);
+                        string className = isEnabled ? String.Empty : "testDisabled";
+                        string enableClassName = isEnabled ? "disabled" : String.Empty;
+                        string disableClassName = isEnabled ? String.Empty : "disabled";
+
+                        <tr class="@className" id="test_@internalName">
+                            <td>@testResult.Name</td>
+                            <td>@testResult.Position.ToString()</td>
+                            <td>
+                                <div class="dropdown">
+                                    <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    </button>
+                                    <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                                        <a id="enable_@internalName" class="dropdown-item @enableClassName" href="javascript:EnableTest('@Model.UniqueId', '@internalName');">Enable</a>
+                                        <a id="disable_@internalName" class="dropdown-item @disableClassName" href="javascript:DisableTest('@Model.UniqueId', '@internalName');">Disable</a>
+                                        <div class="dropdown-divider"></div>
+                                        <a class="dropdown-item" href="/Configuration/TestEdit/@Model.UniqueId/@internalName/">Edit</a>
+                                        <div class="dropdown-divider"></div>
+                                        <a class="dropdown-item" href="/Configuration/TestExport/@Model.UniqueId/@internalName/">Export</a>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<div class="row h-spacer">
+    <div class="col-sm-12 col-md-3">
+        <button type="submit" class="btn btn-primary" onclick="javascript: createNewTest('@Model.UniqueId');">New Test</button>
+    </div>
+    <div class="col-sm-12 col-md-3">
+        <button type="submit" class="btn btn-primary" onclick="javascript: importTests('@Model.UniqueId');">Import Tests</button>
+    </div>
+</div>
+
+<script type="text/javascript">
+    function updateSiteScan(ctl) {
+        var selected = ctl.checked;
+
+        if (selected === undefined || selected === '') {
+            selected = true;
+        }
+
+        if (selected) {
+            $('#divMaxPages').show();
+            $('#divCrawl').show();
+        }
+        else {
+            $('#divMaxPages').hide();
+            $('#divCrawl').hide();
+        }
+    }
+
+    $(document).ready(function () {
+        var siteScan = $('#@Html.IdFor(m => m.SiteScan)');
+        updateSiteScan(siteScan[0]);
+    });
+
+    function createNewTest(testId) {
+        window.location.replace('/Configuration/TestNew/' + testId + '/');
+    }
+
+    function importTests(testId) {
+        window.location.replace('/Configuration/Import/' + testId + '/');
+    }
+
+    function DisableTest(configid, name) {
+        var url = "/Configuration/TestDisable/" + configid + "/" + name + "/";
+        $.ajax({
+            type: 'POST',
+            url: url,
+            cache: false,
+            success: function (response) {
+                var element = document.getElementById("disable_" + name);
+                element.classList.add("disabled");
+                element = document.getElementById("enable_" + name);
+                element.classList.remove("disabled");
+                element = document.getElementById("test_" + name);
+                element.classList.add("testDisabled");
+            },
+            failure: function (response) {
+            }
+        })
+    };
+    function EnableTest(configid, name) {
+        var url = "/Configuration/TestEnable/" + configid + "/" + name + "/";
+        $.ajax({
+            type: 'POST',
+            url: url,
+            cache: false,
+            success: function (response) {
+                var element = document.getElementById("disable_" + name);
+                element.classList.remove("disabled");
+                element = document.getElementById("enable_" + name);
+                element.classList.add("disabled");
+                element = document.getElementById("test_" + name);
+                element.classList.remove("testDisabled");
+            },
+            failure: function (response) {
+            }
+        })
+    };
+</script>

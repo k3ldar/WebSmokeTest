@@ -1,0 +1,67 @@
+﻿@model SmokeTest.Configuration.Models.ImportTestModel
+@{
+    ViewData["Title"] = "Import Tests";
+}
+
+<div class="hb">
+    <div class="row">
+        <div class="col">
+            <h1>@ViewData["Title"]</h1>
+        </div>
+    </div>
+</div>
+<div class="hb">
+    <div class="row">
+        <div class="col">
+            <p>Import tests into project @Model.TestName</p>
+        </div>
+    </div>
+</div>
+@if (!ViewData.ModelState.IsValid || ViewData.ModelState.ErrorCount > 0)
+{
+    <div class="alert alert-error">
+        <p class="alert-heading">Please correct the following errors to continue</p>
+        <div class="row">
+            <div class="col-sm-12">
+                @Html.ValidationSummary(false)
+            </div>
+        </div>
+    </div>
+}
+
+@if (Model.ImportResults != null && Model.ImportResults.Count() > 0)
+{
+    <div class="hb">
+        @foreach (var item in Model.ImportResults)
+        {
+            <div class="row">
+                <div class="col-sm-12">
+                    <p><span style="margin-right:15px;">@item.Key</span>@item.Value</p>
+                </div>
+            </div>
+        }
+    </div>
+}
+
+@using (Html.BeginForm(nameof(SmokeTest.Configuration.Controllers.ConfigurationController.Import), SmokeTest.Configuration.Controllers.ConfigurationController.Name, FormMethod.Post, new { id = "frmDeleteConfiguration", enctype = "multipart/form-data" }))
+{
+    @Html.HiddenFor(m => m.UniqueId)
+    <div class="hb">
+        <div class="row">
+            <div class="input-group">
+                <div class="custom-file">
+                    <input type="file" class="custom-file-input" name="@Html.IdFor(m => m.Files)" id="@Html.IdFor(m => m.Files)" aria-describedby="inputGroupFileAddon04" multiple>
+                    <label class="custom-file-label" for="@Html.IdFor(m => m.Files)">Choose file</label>
+                </div>
+            </div>
+        </div>
+        <div class="row ac-row">
+            <div class="col-sm-12 col-md-3">
+                <button class="btn btn-outline-secondary" type="submit" id="importTests">Import</button>
+            </div>
+            <div class="col-sm-12 col-md-9">
+
+            </div>
+        </div>
+    </div>
+}
