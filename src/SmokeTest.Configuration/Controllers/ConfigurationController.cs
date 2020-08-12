@@ -1,8 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Text;
 
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 using Newtonsoft.Json;
@@ -134,7 +137,7 @@ namespace SmokeTest.Configuration.Controllers
 
                 if (!String.IsNullOrWhiteSpace(model.BasicAuthUsername) && !String.IsNullOrWhiteSpace(model.BasicAuthPassword))
                 {
-                    string encoded = Convert.ToBase64String(System.Text.Encoding.GetEncoding("ISO-8859-1")
+                    string encoded = Convert.ToBase64String(Encoding.GetEncoding("ISO-8859-1")
                         .GetBytes($"{model.BasicAuthUsername}:{model.BasicAuthPassword}"));
                     headerCodec.Add("Authorization", "Basic " + encoded);
                 }
@@ -306,8 +309,8 @@ namespace SmokeTest.Configuration.Controllers
 
                 if (uniqueTestId.Equals(testId))
                 {
-                    byte[] fileBytes = System.Text.Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(test));
-                    return File(fileBytes, "text/json", $"{testId}.test");
+                    byte[] fileBytes = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(test));
+                    return File(fileBytes, "text/json", $"{uniqueTestId}.test");
                 }
             }
 
@@ -332,18 +335,96 @@ namespace SmokeTest.Configuration.Controllers
 
                 if (uniqueTestId.Equals(testId))
                 {
-                    byte[] fileBytes = System.Text.Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(test));
-                    return File(fileBytes, "text/json", $"{testId}.test");
+                    byte[] fileBytes = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(test));
+                    return File(fileBytes, "text/json", $"{uniqueTestId}.test");
                 }
             }
 
             return Json(new { result = false });
         }
 
+        [HttpGet]
         [Route("/Configuration/Import/{testConfigurationId}")]
         public IActionResult Import(string testConfigurationId)
         {
+            TestConfiguration configuration = _testConfigurationProvider.Configurations
+                .Where(c => c.UniqueId.Equals(testConfigurationId))
+                .FirstOrDefault();
 
+            if (configuration == null)
+            {
+                return Json(new { result = false });
+            }
+
+            ImportTestModel model = new ImportTestModel(GetModelData(),
+                configuration.UniqueId, configuration.UniqueId, configuration.Name);
+
+            return View(model);
+        }
+
+        [HttpPost]
+        [Route("/Configuration/Import/{testConfigurationId}")]
+        public IActionResult Import(ImportTestModel importTestModel)
+        {
+            TestConfiguration configuration = _testConfigurationProvider.Configurations
+                .Where(c => c.UniqueId.Equals(importTestModel.UniqueId))
+                .FirstOrDefault();
+
+            if (configuration == null)
+            {
+                return RedirectToAction(nameof(Index));
+            }
+
+            if (importTestModel.Files == null || importTestModel.Files.Count == 0)
+                ModelState.AddModelError(nameof(ImportTestModel.Files), "Please select files to upload");
+
+            ImportTestModel model = null;
+
+            if (ModelState.IsValid)
+            {
+                Dictionary<string, string> importResults = new Dictionary<string, string>();
+
+                foreach (IFormFile postedFile in importTestModel.Files)
+                {
+                    string fileName = Path.GetFileName(postedFile.FileName);
+
+                    using (MemoryStream stream = new MemoryStream())
+                    {
+                        postedFile.CopyTo(stream);
+                        stream.Position = 0;
+                        byte[] contents = new byte[stream.Length];
+                        stream.ReadAsync(contents);
+
+                        try
+                        {
+                            WebSmokeTestItem newTest = JsonConvert.DeserializeObject<WebSmokeTestItem>
+                                (Encoding.UTF8.GetString(contents));
+
+                            if (String.IsNullOrEmpty(newTest.Name))
+                                throw new Exception("Invalid smoke test");
+
+                            configuration.Tests.Add(newTest);
+                            newTest.Index = configuration.Tests.Count;
+                            importResults.Add(fileName, "Succesfully imported");
+                        }
+                        catch (Exception err)
+                        {
+                            importResults.Add(fileName, $"Error: {err.Message}");
+                        }
+                    }
+                }
+
+                _testConfigurationProvider.SaveConfiguration(configuration);
+
+                model = new ImportTestModel(GetModelData(), configuration.UniqueId,
+                    configuration.UniqueId, configuration.Name, importResults);
+            }
+
+            if (model == null)
+                model = new ImportTestModel(GetModelData(), configuration.UniqueId,
+                    configuration.UniqueId, configuration.Name);
+
+            return View(model);
         }
 
         #endregion Public Action Methods

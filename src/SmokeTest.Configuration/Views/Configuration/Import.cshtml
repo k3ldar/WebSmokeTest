@@ -10,35 +10,54 @@
         </div>
     </div>
 </div>
-@if (ViewData.ModelState[""] != null && ViewData.ModelState[""].Errors.Count() > 0)
+<div class="hb">
+    <div class="row">
+        <div class="col">
+            <p>Import tests into project @Model.TestName</p>
+        </div>
+    </div>
+</div>
+@if (!ViewData.ModelState.IsValid || ViewData.ModelState.ErrorCount > 0)
 {
     <div class="alert alert-error">
-        <a class="close" data-dismiss="alert">×</a>
-        <h5 class="alert-heading">Please correct the following errors to continue</h5>
+        <p class="alert-heading">Please correct the following errors to continue</p>
         <div class="row">
             <div class="col-sm-12">
-                @Html.ValidationSummary(true)
+                @Html.ValidationSummary(false)
             </div>
         </div>
     </div>
 }
 
-@using (Html.BeginForm(nameof(SmokeTest.Configuration.Controllers.ConfigurationController.Delete), SmokeTest.Configuration.Controllers.ConfigurationController.Name, FormMethod.Post, new { id = "frmDeleteConfiguration" }))
+@if (Model.ImportResults != null && Model.ImportResults.Count() > 0)
+{
+    <div class="hb">
+        @foreach (var item in Model.ImportResults)
+        {
+            <div class="row">
+                <div class="col-sm-12">
+                    <p><span style="margin-right:15px;">@item.Key</span>@item.Value</p>
+                </div>
+            </div>
+        }
+    </div>
+}
+
+@using (Html.BeginForm(nameof(SmokeTest.Configuration.Controllers.ConfigurationController.Import), SmokeTest.Configuration.Controllers.ConfigurationController.Name, FormMethod.Post, new { id = "frmDeleteConfiguration", enctype = "multipart/form-data" }))
 {
     @Html.HiddenFor(m => m.UniqueId)
     <div class="hb">
         <div class="row">
-            <div class="col-sm-12 col-md-3">
-                Type DELETE to confirm deletion of the configuration
-            </div>
-            <div class="col-sm-12 col-md-9">
-                @Html.TextBoxFor(m => m.Confirm, new { @class = "form-control", style = "width:150px;" })
-                @Html.ValidationMessageFor(m => m.Confirm)
+            <div class="input-group">
+                <div class="custom-file">
+                    <input type="file" class="custom-file-input" name="@Html.IdFor(m => m.Files)" id="@Html.IdFor(m => m.Files)" aria-describedby="inputGroupFileAddon04" multiple>
+                    <label class="custom-file-label" for="@Html.IdFor(m => m.Files)">Choose file</label>
+                </div>
             </div>
         </div>
         <div class="row ac-row">
             <div class="col-sm-12 col-md-3">
-                <button type="submit" class="btn btn-primary">Delete</button>
+                <button class="btn btn-outline-secondary" type="submit" id="importTests">Import</button>
             </div>
             <div class="col-sm-12 col-md-9">
 
