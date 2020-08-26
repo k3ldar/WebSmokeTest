@@ -1,0 +1,43 @@
+﻿@model SmokeTest.Models.AddLicenseModel
+@{
+    ViewData["Title"] = "Import Tests";
+}
+
+<div class="hb">
+    <div class="row">
+        <div class="col">
+            <h1>@ViewData["Title"]</h1>
+        </div>
+    </div>
+</div>
+@if (!ViewData.ModelState.IsValid || ViewData.ModelState.ErrorCount > 0)
+{
+    <div class="alert alert-error">
+        <p class="alert-heading">Please correct the following errors to continue</p>
+        <div class="row">
+            <div class="col-sm-12">
+                @Html.ValidationSummary(false)
+            </div>
+        </div>
+    </div>
+}
+
+
+@using (Html.BeginForm(nameof(SmokeTest.Controllers.LicenseController.AddLicense), SmokeTest.Controllers.LicenseController.Name, FormMethod.Post, new { id = "frmAddLicense", enctype = "multipart/form-data" }))
+{
+    <div class="hb">
+        <div class="row">
+            <div class="input-group">
+                <div class="custom-file">
+                    <input type="file" class="custom-file-input" name="@Html.IdFor(m => m.LicenseFile)" id="@Html.IdFor(m => m.LicenseFile)" aria-describedby="inputGroupFileAddon04" multiple>
+                    <label class="custom-file-label" for="@Html.IdFor(m => m.LicenseFile)">Choose file</label>
+                </div>
+            </div>
+        </div>
+        <div class="row ac-row">
+            <div class="col-sm-12 col-md-3">
+                <button class="btn btn-outline-secondary" type="submit" id="importTests">Add License</button>
+            </div>
+        </div>
+    </div>
+}

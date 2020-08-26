@@ -11,6 +11,7 @@ using PluginManager;
 
 using Shared.Classes;
 
+using SmokeTest.Classes;
 using SmokeTest.Internal;
 
 namespace SmokeTest
@@ -49,6 +50,7 @@ namespace SmokeTest
                 }
             };
 
+            PluginManagerService.UsePlugin(typeof(PluginInitialisation));
             PluginManagerService.UsePlugin(typeof(ErrorManager.Plugin.PluginInitialisation));
             PluginManagerService.UsePlugin(typeof(RestrictIp.Plugin.PluginInitialisation));
             PluginManagerService.UsePlugin(typeof(UserSessionMiddleware.Plugin.PluginInitialisation));
@@ -57,7 +59,10 @@ namespace SmokeTest
             PluginManagerService.UsePlugin(typeof(Localization.Plugin.PluginInitialisation));
             PluginManagerService.UsePlugin(typeof(Breadcrumb.Plugin.PluginInitialisation));
 
-            PluginManagerConfiguration configuration = new PluginManagerConfiguration(logger);
+            PluginManagerConfiguration configuration = new PluginManagerConfiguration(logger)
+            {
+                ServiceConfigurator = new ServiceConfigurator()
+            };
 
             PluginManagerService.Initialise(configuration);
 

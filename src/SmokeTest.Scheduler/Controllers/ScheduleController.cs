@@ -29,17 +29,20 @@ namespace SmokeTest.Scheduler.Controllers
         private readonly IReportHelper _reportHelper;
         private static ITestConfigurationProvider _testConfigurationProvider;
         private readonly IIdManager _idManager;
+        private readonly ILicenseFactory _licenseFactory;
 
         #endregion Private Members
 
         #region Constructors
 
-        public ScheduleController(IScheduleHelper scheduleHelper,
+        public ScheduleController(ILicenseFactory licenseFactory,
+            IScheduleHelper scheduleHelper,
             ITestConfigurationProvider testConfigurationProvider,
             ITestRunManager testRunManager,
             IReportHelper reportHelper,
             IIdManager idManager)
         {
+            _licenseFactory = licenseFactory ?? throw new ArgumentNullException(nameof(licenseFactory));
             _scheduleHelper = scheduleHelper ?? throw new ArgumentNullException(nameof(scheduleHelper));
             _testRunManager = testRunManager ?? throw new ArgumentNullException(nameof(testRunManager));
             _reportHelper = reportHelper ?? throw new ArgumentNullException(nameof(reportHelper));
@@ -73,6 +76,10 @@ namespace SmokeTest.Scheduler.Controllers
         [Authorize(Policy = STConsts.PolicyManageSchedules)]
         public IActionResult New()
         {
+
+            if (_scheduleHelper.Schedules.Count >= _licenseFactory.GetActiveLicense().MaximumTestSchedules)
+                ModelState.AddModelError(String.Empty, "Maximum allowed scheduled has been reached");
+
             return View(CreateScheduleModel(null));
         }
 
@@ -83,33 +90,39 @@ namespace SmokeTest.Scheduler.Controllers
             if (!ValidateScheduleModel(model))
                 return View(CreateScheduleModel(model));
 
-            ScheduleType scheduleType = (ScheduleType)Enum.Parse(typeof(ScheduleType), model.ScheduleType);
-            bool created = false;
+            if (_scheduleHelper.Schedules.Count >= _licenseFactory.GetActiveLicense().MaximumTestSchedules)
+                ModelState.AddModelError(String.Empty, "Maximum allowed scheduled has been reached");
 
-            switch (scheduleType)
+            if (ModelState.IsValid)
             {
-                case ScheduleType.Once:
-                    created = _scheduleHelper.Create(model.Name, model.TestId, model.StartTime);
-                    break;
+                ScheduleType scheduleType = (ScheduleType)Enum.Parse(typeof(ScheduleType), model.ScheduleType);
+                bool created = false;
 
-                case ScheduleType.Minutes:
-                case ScheduleType.Hours:
-                case ScheduleType.Daily:
-                    created = _scheduleHelper.Create(model.Name, model.TestId, model.StartTime,
-                        model.Expires, model.Frequency, scheduleType);
-                    break;
+                switch (scheduleType)
+                {
+                    case ScheduleType.Once:
+                        created = _scheduleHelper.Create(model.Name, model.TestId, model.StartTime);
+                        break;
 
-                case ScheduleType.Weekly:
-                    created = _scheduleHelper.Create(model.Name, model.TestId, model.StartTime,
-                        model.Expires, model.Frequency, GetScheduledDays(model));
-                    break;
+                    case ScheduleType.Minutes:
+                    case ScheduleType.Hours:
+                    case ScheduleType.Daily:
+                        created = _scheduleHelper.Create(model.Name, model.TestId, model.StartTime,
+                            model.Expires, model.Frequency, scheduleType);
+                        break;
 
-                default:
-                    throw new InvalidOperationException();
+                    case ScheduleType.Weekly:
+                        created = _scheduleHelper.Create(model.Name, model.TestId, model.StartTime,
+                            model.Expires, model.Frequency, GetScheduledDays(model));
+                        break;
+
+                    default:
+                        throw new InvalidOperationException();
+                }
+
+                if (!created)
+                    ModelState.AddModelError(String.Empty, "Failed to save schedule");
             }
-
-            if (!created)
-                ModelState.AddModelError(String.Empty, "Failed to save schedule");
 
             if (ModelState.IsValid)
                 return RedirectToAction(nameof(Index));

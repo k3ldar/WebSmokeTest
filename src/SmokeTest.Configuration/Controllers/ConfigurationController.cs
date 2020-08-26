@@ -32,18 +32,25 @@ namespace SmokeTest.Configuration.Controllers
         private readonly IIdManager _idManager;
         private readonly IReportHelper _reportHelper;
         private readonly IScheduleHelper _scheduleHelper;
+        private readonly ILicense _license;
 
         #endregion Private Members
 
         #region Constructors
 
         public ConfigurationController(ITestConfigurationProvider testConfigurationProvider,
-            IIdManager idManager, IReportHelper reportHelper, IScheduleHelper scheduleHelper)
+            IIdManager idManager, IReportHelper reportHelper, IScheduleHelper scheduleHelper,
+            ILicenseFactory licenseFactory)
         {
             _testConfigurationProvider = testConfigurationProvider ?? throw new ArgumentNullException(nameof(testConfigurationProvider));
             _idManager = idManager ?? throw new ArgumentNullException(nameof(idManager));
             _reportHelper = reportHelper ?? throw new ArgumentNullException(nameof(reportHelper));
             _scheduleHelper = scheduleHelper ?? throw new ArgumentNullException(nameof(scheduleHelper));
+
+            if (licenseFactory == null)
+                throw new ArgumentNullException(nameof(licenseFactory));
+
+            _license = licenseFactory.GetActiveLicense();
         }
 
         #endregion Constructors
@@ -69,6 +76,9 @@ namespace SmokeTest.Configuration.Controllers
 
         public IActionResult New()
         {
+            if (_testConfigurationProvider.Configurations.Count >= _license.MaximumConfigurations)
+                ModelState.AddModelError(String.Empty, "Maximum number of configurations reached.");
+
             return base.View(CreateTestConfigurationViewModel(null, null, null, null));
         }
 
@@ -77,6 +87,9 @@ namespace SmokeTest.Configuration.Controllers
         public IActionResult New(TestConfigurationViewModel model)
         {
             ValidateTestConfigurationViewModel(model, out string[] headers, out List<Uri> additionalUrls);
+
+            if (_testConfigurationProvider.Configurations.Count >= _license.MaximumConfigurations)
+                ModelState.AddModelError(String.Empty, "Maximum number of configurations reached.");
 
             if (ModelState.IsValid)
             {

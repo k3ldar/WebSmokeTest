@@ -2,6 +2,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using SharedPluginFeatures;
 
+using SmokeTest.Classes;
 using SmokeTest.Engine;
 using SmokeTest.Shared.Engine;
 
@@ -21,7 +22,7 @@ namespace SmokeTest.UnitTests
                 MaximumPages = 1
             };
 
-            using (WebMonitor webMonitor = new WebMonitor(properties))
+            using (WebMonitor webMonitor = new WebMonitor(new LicenseFactory(), properties))
             {
                 webMonitor.Run();
 
@@ -43,7 +44,7 @@ namespace SmokeTest.UnitTests
                 MaximumPages = 1,
             };
 
-            using (WebMonitor webMonitor = new WebMonitor(properties))
+            using (WebMonitor webMonitor = new WebMonitor(new LicenseFactory(), properties))
             {
                 webMonitor.Run();
 
@@ -65,7 +66,7 @@ namespace SmokeTest.UnitTests
                 UserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.130 Safari/537.36",
             };
 
-            using (WebMonitor webMonitor = new WebMonitor(properties))
+            using (WebMonitor webMonitor = new WebMonitor(new LicenseFactory(), properties))
             {
                 webMonitor.Run();
 

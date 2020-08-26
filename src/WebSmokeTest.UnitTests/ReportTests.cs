@@ -1,12 +1,15 @@
 ﻿using System;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Diagnostics;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using Shared.Classes;
+
 using SharedPluginFeatures;
 
+using SmokeTest.Classes;
 using SmokeTest.Engine;
 using SmokeTest.Shared.Engine;
 
@@ -24,7 +27,8 @@ namespace SmokeTest.UnitTests
 
             System.Net.ServicePointManager.DefaultConnectionLimit = 100;
             System.Net.ServicePointManager.ReusePort = true;
-            System.Net.ServicePointManager.ServerCertificateValidationCallback = (message, cert, chain, sslPolicyErrors) => {
+            System.Net.ServicePointManager.ServerCertificateValidationCallback = (message, cert, chain, sslPolicyErrors) =>
+            {
                 return true;
             };
             System.Net.ServicePointManager.MaxServicePoints = 5;
@@ -46,7 +50,7 @@ namespace SmokeTest.UnitTests
                 SessionCookieName = "demo_website_session",
             };
 
-            using (WebMonitor webMonitor = new WebMonitor(properties))
+            using (WebMonitor webMonitor = new WebMonitor(new LicenseFactory(), properties))
             {
                 webMonitor.Run();
 
@@ -72,7 +76,7 @@ namespace SmokeTest.UnitTests
                 SessionCookieName = "demo_website_session",
             };
 
-            using (WebMonitor webMonitor = new WebMonitor(properties))
+            using (WebMonitor webMonitor = new WebMonitor(new LicenseFactory(), properties))
             {
                 webMonitor.Run();
 
@@ -118,7 +122,8 @@ namespace SmokeTest.UnitTests
                 SessionCookieName = "demo_website_session",
             };
 
-            using (WebMonitor webMonitor = new WebMonitor(properties))
+
+            using (WebMonitor webMonitor = new WebMonitor(new LicenseFactory(), properties))
             {
                 webMonitor.Run();
 
@@ -164,7 +169,7 @@ namespace SmokeTest.UnitTests
                 SessionCookieName = "demo_website_session",
             };
 
-            using (WebMonitor webMonitor = new WebMonitor(properties))
+            using (WebMonitor webMonitor = new WebMonitor(new LicenseFactory(), properties))
             {
                 webMonitor.Run();
 
@@ -210,7 +215,7 @@ namespace SmokeTest.UnitTests
                 SessionCookieName = "demo_website_session",
             };
 
-            using (WebMonitor webMonitor = new WebMonitor(properties))
+            using (WebMonitor webMonitor = new WebMonitor(new LicenseFactory(), properties))
             {
                 webMonitor.Run();
 

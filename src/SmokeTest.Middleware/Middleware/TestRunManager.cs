@@ -34,19 +34,20 @@ namespace SmokeTest.Middleware
         private readonly IScheduleHelper _scheduleHelper;
         private readonly ITestConfigurationProvider _testConfigurationProvider;
         private readonly IReportHelper _reportHelper;
-        private readonly int _maxTestRuns;
         private readonly ISaveData _saveData;
         private readonly string _dataPath;
         private readonly IIdManager _idManager;
+        private readonly ILicenseFactory _licenseFactory;
 
         #endregion Private Members
 
         #region Constructors
 
-        public TestRunManager(ILogger logger, ISettingsProvider settingsProvider, ISaveData saveData,
+        public TestRunManager(ILicenseFactory licenseFactory, ILogger logger, ISettingsProvider settingsProvider, ISaveData saveData,
             IScheduleHelper scheduleHelper, ITestConfigurationProvider configurationProvider,
             IReportHelper reportHelper, IIdManager idManager)
         {
+            _licenseFactory = licenseFactory ?? throw new ArgumentNullException(nameof(licenseFactory));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _saveData = saveData ?? throw new ArgumentNullException(nameof(saveData));
             _scheduleHelper = scheduleHelper ?? throw new ArgumentNullException(nameof(scheduleHelper));
@@ -57,11 +58,8 @@ namespace SmokeTest.Middleware
             if (settingsProvider == null)
                 throw new ArgumentNullException(nameof(settingsProvider));
 
-
             TestRunManagerSettings settings = settingsProvider.GetSettings<TestRunManagerSettings>(nameof(TestRunManager));
-            _maxTestRuns = Utilities.CheckMinMax(settings.MaximumTestRuns, 2, 10);
             _dataPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "SmokeTest", "Reports");
-
         }
 
         #endregion Constructors
@@ -74,7 +72,7 @@ namespace SmokeTest.Middleware
             {
                 PrepareAutomaticTestsForRunning();
 
-                if (_activeTestRuns.Count < _maxTestRuns && _scheduledTests.Count > 0)
+                if (_activeTestRuns.Count < _licenseFactory.GetActiveLicense().MaximumRunningTests && _scheduledTests.Count > 0)
                 {
                     TestQueueItem testQueueItem = _scheduledTests[0];
                     _scheduledTests.RemoveAt(0);
@@ -85,7 +83,7 @@ namespace SmokeTest.Middleware
                     testQueueItem.End = DateTime.UtcNow.Ticks;
                     long uniqueId = _idManager.GenerateId();
                     ITestRunLogger testRunLogger = new TestRunLogger(uniqueId);
-                    ThreadWebsiteScan websiteScan = new ThreadWebsiteScan(testQueueItem.SmokeTestProperties,
+                    ThreadWebsiteScan websiteScan = new ThreadWebsiteScan(_licenseFactory, testQueueItem.SmokeTestProperties,
                         uniqueId, testRunLogger);
                     websiteScan.ThreadFinishing += WebsiteScan_ThreadFinishing;
                     TestRunItem testRunItem = new TestRunItem(websiteScan, testQueueItem.Test);
@@ -264,7 +262,9 @@ namespace SmokeTest.Middleware
 
         private void PrepareAutomaticTestsForRunning()
         {
-            List<TestSchedule> dueSchedules = _scheduleHelper.Schedules.Where(s => s.Enabled && DateTime.UtcNow >= s.NextRun).ToList();
+            List<TestSchedule> dueSchedules = _scheduleHelper.Schedules
+                .Take(_licenseFactory.GetActiveLicense().MaximumTestSchedules)
+                .Where(s => s.Enabled && DateTime.UtcNow >= s.NextRun).ToList();
 
             foreach (TestSchedule testSchedule in dueSchedules)
             {

@@ -1,43 +1,17 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using System;
+using System.IO;
+
+using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 
 using PluginManager.Abstractions;
 
 using SharedPluginFeatures;
 
-using SmokeTest.Reports.Internal;
 using SmokeTest.Shared;
 
-namespace SmokeTest.Reports
+namespace SmokeTest
 {
-    public class testconfigurator : ILicenseFactory
-    {
-        public ILicense GetActiveLicense()
-        {
-            throw new System.NotImplementedException();
-        }
-
-        public bool LicenseIsValid(in ILicense license)
-        {
-            throw new System.NotImplementedException();
-        }
-
-        public ILicense LoadLicense(in string license)
-        {
-            throw new System.NotImplementedException();
-        }
-
-        public string SaveLicense(in ILicense license)
-        {
-            throw new System.NotImplementedException();
-        }
-
-        public void SetActiveLicense(in ILicense license)
-        {
-            throw new System.NotImplementedException();
-        }
-    }
-
     public class PluginInitialisation : IPlugin, IInitialiseEvents
     {
         #region IInitialiseEvents Methods
@@ -49,7 +23,12 @@ namespace SmokeTest.Reports
 
         public void AfterConfigureServices(in IServiceCollection services)
         {
-            services.AddSingleton<ILicenseFactory, testconfigurator>();
+            services.AddAuthorization(options =>
+            {
+                options.AddPolicy(
+                    STConsts.PolicyManageLicense,
+                    policyBuilder => policyBuilder.RequireClaim(STConsts.ClaimManageLicense));
+            });
         }
 
         public void BeforeConfigure(in IApplicationBuilder app)
@@ -73,7 +52,6 @@ namespace SmokeTest.Reports
 
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddSingleton<IReportHelper, ReportHelper>();
         }
 
         public void Finalise()

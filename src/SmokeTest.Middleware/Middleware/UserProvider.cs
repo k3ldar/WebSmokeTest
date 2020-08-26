@@ -429,7 +429,8 @@ namespace SmokeTest.Middleware
                     "EditConfiguration",
                     "ViewSchedules",
                     "ManageConfiguration",
-                    "ManageSchedules"
+                    "ManageSchedules",
+                    "ClaimManageLicense"
                 },
             };
 

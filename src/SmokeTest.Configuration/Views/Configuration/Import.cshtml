@@ -43,7 +43,7 @@
     </div>
 }
 
-@using (Html.BeginForm(nameof(SmokeTest.Configuration.Controllers.ConfigurationController.Import), SmokeTest.Configuration.Controllers.ConfigurationController.Name, FormMethod.Post, new { id = "frmDeleteConfiguration", enctype = "multipart/form-data" }))
+@using (Html.BeginForm(nameof(SmokeTest.Configuration.Controllers.ConfigurationController.Import), SmokeTest.Configuration.Controllers.ConfigurationController.Name, FormMethod.Post, new { id = "frmImportTest", enctype = "multipart/form-data" }))
 {
     @Html.HiddenFor(m => m.UniqueId)
     <div class="hb">

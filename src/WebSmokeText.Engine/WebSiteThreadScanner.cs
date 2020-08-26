@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Security.Cryptography.Xml;
 
 using Shared.Classes;
 
@@ -13,12 +14,16 @@ namespace SmokeTest.Engine
         private WebMonitor _crawler;
         private readonly SmokeTestProperties _properties;
         private readonly ITestRunLogger _testRunLogger;
+        private readonly ILicenseFactory _licenseFactory;
         private Report _report;
 
-        public ThreadWebsiteScan(in SmokeTestProperties properties, in long uniqueId, ITestRunLogger testRunLogger)
+        public ThreadWebsiteScan(in ILicenseFactory licenseFactory, in SmokeTestProperties properties, 
+            in long uniqueId, ITestRunLogger testRunLogger)
             : base(null, new TimeSpan(0, 0, 1), null, 500, 0)
         {
             HangTimeout = 0;
+
+            _licenseFactory = licenseFactory ?? throw new ArgumentNullException(nameof(licenseFactory));
             _properties = properties ?? throw new ArgumentNullException(nameof(properties));
             _testRunLogger = testRunLogger ?? throw new ArgumentNullException(nameof(testRunLogger));
             UniqueId = uniqueId;
@@ -35,7 +40,7 @@ namespace SmokeTest.Engine
 
         protected override bool Run(object parameters)
         {
-            _crawler = new WebMonitor(_properties, this, _testRunLogger);
+            _crawler = new WebMonitor(_licenseFactory, _properties, this, _testRunLogger);
             try
             {
                 _crawler.Run();

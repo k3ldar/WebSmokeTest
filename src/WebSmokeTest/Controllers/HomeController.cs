@@ -22,13 +22,18 @@ namespace SmokeTest.Controllers
 
         private readonly ISmokeTestHelper _smokeTestHelper;
         private readonly ISettingsProvider _settingsProvider;
+        private readonly ILicense _license;
 
         #endregion Private Members
 
         #region Constructors
 
-        public HomeController(ISmokeTestHelper smokeTestHelper, ISettingsProvider settingsProvider)
+        public HomeController(ILicenseFactory licenseFactory, ISmokeTestHelper smokeTestHelper, ISettingsProvider settingsProvider)
         {
+            if (licenseFactory == null)
+                throw new ArgumentNullException(nameof(licenseFactory));
+
+            _license = licenseFactory.GetActiveLicense();
             _smokeTestHelper = smokeTestHelper ?? throw new ArgumentNullException(nameof(smokeTestHelper));
             _settingsProvider = settingsProvider ?? throw new ArgumentNullException(nameof(settingsProvider));
         }

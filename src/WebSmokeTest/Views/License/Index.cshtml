@@ -1,0 +1,60 @@
+﻿@model SmokeTest.Models.LicenseViewModel
+@{
+    ViewData["Title"] = "License Management";
+}
+
+<div class="hb">
+    <div class="row">
+        <div class="col">
+            <h1>@ViewData["Title"]</h1>
+        </div>
+    </div>
+</div>
+
+@if (String.IsNullOrEmpty(Model.RegisteredUser))
+{
+    <div class="hb">
+        <div class="row">
+            <div class="col">
+                <p>Your product is not licensed</p>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col">
+                @using (Html.BeginForm(nameof(SmokeTest.Controllers.LicenseController.AddLicense), SmokeTest.Controllers.LicenseController.Name, FormMethod.Get))
+                {
+                    <input type="submit" value="Add License" />
+                }
+            </div>
+        </div>
+    </div>
+}
+else
+{
+<div class="hb">
+    <div class="row">
+        <div class="col col-sm-4">
+            @Html.LabelFor(m => m.RegisteredUser)
+        </div>
+        <div class="col col-sm-8">
+            @Html.Label(Model.RegisteredUser)
+        </div>
+    </div>
+    <div class="row">
+        <div class="col col-sm-4">
+            @Html.LabelFor(m => m.Expires)
+        </div>
+        <div class="col col-sm-8">
+            @Html.Label(Model.Expires.ToString(System.Threading.Thread.CurrentThread.CurrentUICulture))
+        </div>
+    </div>
+    <div class="row">
+        <div class="col">
+            @using (Html.BeginForm(nameof(SmokeTest.Controllers.LicenseController.AddLicense), SmokeTest.Controllers.LicenseController.Name, FormMethod.Get))
+            {
+                <input type="submit" value="Upload License" />
+            }
+        </div>
+    </div>
+</div>
+}

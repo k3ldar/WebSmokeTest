@@ -30,9 +30,11 @@ namespace SmokeTest.Engine
         private readonly MailAddressCollection _recipients;
         private WebClientEx _client;
         private bool _cancelScan = false;
+        private bool _pageLimitWarningProvided = false;
         private readonly Timings _pageLoadTimings;
         private readonly ITestRunLogger _testRunLogger;
         private readonly List<IPEndPoint> _endPoints;
+        private readonly ILicense _license;
 
         private readonly Report _report;
         private readonly ThreadManager _parentThread;
@@ -46,15 +48,23 @@ namespace SmokeTest.Engine
 
         #region Constructors / Destructors
 
-        public WebMonitor(in SmokeTestProperties properties)
-            : this(properties, null, new TestRunLogger(DateTime.UtcNow.Ticks))
+        public WebMonitor(ILicenseFactory licenseFactory, in SmokeTestProperties properties)
+            : this(licenseFactory, properties, null, new TestRunLogger(DateTime.UtcNow.Ticks))
         {
 
         }
 
-        public WebMonitor(in SmokeTestProperties properties, in ThreadManager parentThread, ITestRunLogger testRunLogger)
+        public WebMonitor(ILicenseFactory licenseFactory, in SmokeTestProperties properties, in ThreadManager parentThread, ITestRunLogger testRunLogger)
         {
+            if (licenseFactory == null)
+                throw new ArgumentNullException(nameof(_license));
+
+            _license = licenseFactory.GetActiveLicense();
             MaximumOpenEndpoints = 100;
+
+            if (MaximumOpenEndpoints > _license.MaximumOpenEndpoints)
+                MaximumOpenEndpoints = _license.MaximumOpenEndpoints;
+
             _properties = properties ?? throw new ArgumentNullException(nameof(properties));
             _testRunLogger = testRunLogger ?? throw new ArgumentNullException(nameof(testRunLogger));
             _parentThread = parentThread;
@@ -142,7 +152,7 @@ namespace SmokeTest.Engine
             try
             {
                 _report.StartTime = DateTime.UtcNow;
-
+                _properties.MaximumPages = Math.Min(_properties.MaximumPages, _license.MaximumPageScans);
 
                 if (ValidateTestsCanBeRunAgainstUrl(homePage))
                 {
@@ -157,7 +167,10 @@ namespace SmokeTest.Engine
 
                     StartSiteTest(homePage);
 
-                    DiscoverOnSiteTests(homePage, 0);
+                    if (_license.OptionAvailable("DiscoverTests"))
+                    {
+                        DiscoverOnSiteTests(homePage, 0);
+                    }
 
                     RunAllTests(homePage);
 
@@ -165,7 +178,12 @@ namespace SmokeTest.Engine
                     {
                         if (_report.Pages.Count >= _properties.MaximumPages)
                         {
-                            _testRunLogger.Log($"Maximum pages exceeded {_properties.MaximumPages}");
+                            if (!_pageLimitWarningProvided)
+                            {
+                                _testRunLogger.Log($"Maximum page count exceeded: {_properties.MaximumPages}");
+                                _pageLimitWarningProvided = true;
+                            }
+
                             break;
                         }
 
@@ -569,7 +587,6 @@ namespace SmokeTest.Engine
         private string SubmitGetRequest(in WebSmokeTestItem test, in WebClientEx testClient,
             in string rootUrl, out int responseCode)
         {
-            responseCode = -1;
             string route = rootUrl + test.Route;
             NVPCodec inputCodec = new NVPCodec();
             inputCodec.Decode(test.Parameters ?? String.Empty);
@@ -651,9 +668,16 @@ namespace SmokeTest.Engine
         {
             List<WebSmokeTestItem> discoveredTests = _report.Tests.OrderBy(dt => dt.Position).ToList();
             string rootSite = $"{homePage.Scheme}://{homePage.Authority}/";
+            int totalTestsRuns = 0;
 
             foreach (WebSmokeTestItem test in discoveredTests)
             {
+                if (totalTestsRuns > _license.MaximumTestsToRun)
+                {
+                    _testRunLogger.Log($"Maximum number of tests to run has been reached: {_license.MaximumTestsToRun}");
+                    break;
+                }
+
                 try
                 {
                     using (WebClientEx testClient = new WebClientEx(_siteNameValueSettings))
@@ -790,6 +814,8 @@ namespace SmokeTest.Engine
                 {
                     LogError(exception, homePage, homePage, homePage);
                 }
+
+                totalTestsRuns++;
 
                 ValidatePortUseage();
             }
@@ -983,7 +1009,12 @@ namespace SmokeTest.Engine
         {
             if (_report.Pages.Count >= _properties.MaximumPages)
             {
-                _testRunLogger.Log($"Maximum page count exceeded: {_properties.MaximumPages}");
+                if (!_pageLimitWarningProvided)
+                {
+                    _testRunLogger.Log($"Maximum page count exceeded: {_properties.MaximumPages}");
+                    _pageLimitWarningProvided = true;
+                }
+
                 return true;
             }
 
@@ -1059,7 +1090,7 @@ namespace SmokeTest.Engine
                 }
             }
 
-            if (String.IsNullOrEmpty(webData))
+            if (String.IsNullOrEmpty(webData) || InvalidResponseType(_client.ResponseHeaders["Content-Type"]))
                 return true;
 
             List<string> links = ParseHtml(url.ToString(), webData);
@@ -1128,6 +1159,17 @@ namespace SmokeTest.Engine
             {
                 links.Clear();
             }
+
+            return true;
+        }
+
+        private bool InvalidResponseType(string contentType)
+        {
+            if (contentType.StartsWith("text/html", StringComparison.InvariantCultureIgnoreCase))
+                return false;
+
+            if (contentType.StartsWith("text/json", StringComparison.InvariantCultureIgnoreCase))
+                return true;
 
             return true;
         }
