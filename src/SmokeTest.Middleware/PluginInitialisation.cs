@@ -16,6 +16,9 @@ using SmokeTest.Internal;
 using SmokeTest.Shared;
 using SmokeTest.Shared.Interfaces;
 
+using ILoadData = SmokeTest.Shared.Interfaces.ILoadData;
+using ISaveData = SmokeTest.Shared.ISaveData;
+
 namespace SmokeTest.Middleware
 {
     public class PluginInitialisation : IPlugin, IInitialiseEvents

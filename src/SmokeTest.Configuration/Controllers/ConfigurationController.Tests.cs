@@ -220,10 +220,10 @@ namespace SmokeTest.Configuration.Controllers
                         Parameters = GetNonNullString(model.Parameters),
                         Position = model.Position,
                         Response = model.Response,
-                        ResponseData = GetNonNullString(model.ResponseData).Split('\n', StringSplitOptions.RemoveEmptyEntries).ToList(),
+                        //ResponseData = GetNonNullString(model.ResponseData).Split('\n', StringSplitOptions.RemoveEmptyEntries).ToList(),
                         ResponseUrl = GetNonNullString(model.ResponseUrl),
                         Route = GetNonNullString(model.Route),
-                        SubmitResponseData = GetNonNullString(model.SubmitResponseData).Split('\n', StringSplitOptions.RemoveEmptyEntries).ToList(),
+                        //SubmitResponseData = GetNonNullString(model.SubmitResponseData).Split('\n', StringSplitOptions.RemoveEmptyEntries).ToList(),
                     };
 
                     configuration.Tests.Add(newtest);
@@ -244,10 +244,10 @@ namespace SmokeTest.Configuration.Controllers
                             test.Parameters = GetNonNullString(model.Parameters);
                             test.Position = model.Position;
                             test.Response = model.Response;
-                            test.ResponseData = GetNonNullString(model.ResponseData).Split('\n', StringSplitOptions.RemoveEmptyEntries).ToList();
+                            //test.ResponseData = GetNonNullString(model.ResponseData).Split('\n', StringSplitOptions.RemoveEmptyEntries).ToList();
                             test.ResponseUrl = GetNonNullString(model.ResponseUrl);
                             test.Route = GetNonNullString(model.Route);
-                            test.SubmitResponseData = GetNonNullString(model.SubmitResponseData).Split('\n', StringSplitOptions.RemoveEmptyEntries).ToList();
+                            //test.SubmitResponseData = GetNonNullString(model.SubmitResponseData).Split('\n', StringSplitOptions.RemoveEmptyEntries).ToList();
 
                             break;
                         }

@@ -23,6 +23,9 @@ using SmokeTest.Shared.Interfaces;
 using static Shared.Utilities;
 using static SharedPluginFeatures.Constants;
 
+using ILoadData = SmokeTest.Shared.Interfaces.ILoadData;
+using ISaveData = SmokeTest.Shared.ISaveData;
+
 namespace SmokeTest.Middleware
 {
     public class UserProvider : ILoginProvider, IClaimsProvider, IAccountProvider, IUserSearch

@@ -86,7 +86,7 @@ namespace SmokeTest.Configuration.Controllers
         [Authorize(Policy = STConsts.PolicyManageConfigurations)]
         public IActionResult New(TestConfigurationViewModel model)
         {
-            ValidateTestConfigurationViewModel(model, out string[] headers, out List<Uri> additionalUrls);
+            ValidateTestConfigurationViewModel(model, true, out string[] headers, out List<Uri> additionalUrls);
 
             if (_testConfigurationProvider.Configurations.Count >= _license.MaximumConfigurations)
                 ModelState.AddModelError(String.Empty, "Maximum number of configurations reached.");
@@ -139,7 +139,7 @@ namespace SmokeTest.Configuration.Controllers
         [Authorize(Policy = STConsts.PolicyManageConfigurations)]
         public IActionResult Edit(TestConfigurationViewModel model)
         {
-            ValidateTestConfigurationViewModel(model, out string[] headers, out List<Uri> additionalUrls);
+            ValidateTestConfigurationViewModel(model, false, out string[] headers, out List<Uri> additionalUrls);
 
             if (ModelState.IsValid)
             {
@@ -531,7 +531,7 @@ namespace SmokeTest.Configuration.Controllers
             };
         }
 
-        private void ValidateTestConfigurationViewModel(TestConfigurationViewModel model, out string[] headers, out List<Uri> additionalUrls)
+        private void ValidateTestConfigurationViewModel(TestConfigurationViewModel model, bool isNew, out string[] headers, out List<Uri> additionalUrls)
         {
             if (String.IsNullOrWhiteSpace(model.Url))
                 ModelState.AddModelError(nameof(model.Url), "Url can not be empty");
@@ -539,7 +539,7 @@ namespace SmokeTest.Configuration.Controllers
             if (!ModelState.IsValid && !Uri.TryCreate(model.Url, UriKind.Absolute, out Uri _))
                 ModelState.AddModelError(nameof(model.Url), "Url must be a valid web site address");
 
-            if (_testConfigurationProvider.ConfigurationExists(model.Name, model.UniqueId))
+            if (isNew && _testConfigurationProvider.ConfigurationExists(model.Name, model.UniqueId))
                 ModelState.AddModelError(String.Empty, $"A test configuration with the name {model.Name} already exists.");
 
             if (model.MaximumPages < 1)

@@ -183,12 +183,22 @@
                         <tbody>
                             @foreach (var item in Model.Pages)
                             {
-                                string className = item.LoadTime > Model.MinimumLoadTime ? "testWarning" : String.Empty;
-                                <tr class="@className">
-                                    <td>@item.LoadTime.ToString("F3") ms</td>
-                                    <td>@item.Url</td>
-                                    <td></td>
-                                </tr>
+                                if (item.LoadTime > Model.MinimumLoadTime)
+                                {
+                                    <tr style="background-color: orange;">
+                                        <td>@item.LoadTime.ToString("F3") ms</td>
+                                        <td>@item.Url</td>
+                                        <td></td>
+                                    </tr>
+                                }
+                                else
+                                {
+                                    <tr>
+                                        <td>@item.LoadTime.ToString("F3") ms</td>
+                                        <td>@item.Url</td>
+                                        <td></td>
+                                    </tr>
+                                }
                             }
                         </tbody>
                     </table>

@@ -77,6 +77,7 @@ namespace SmokeTest
             PluginManagerService.UsePlugin(typeof(WebSmokeTest.Plugin.PluginInitialisation));
             PluginManagerService.UsePlugin(typeof(SystemTests.PluginInitialisation));
             PluginManagerService.UsePlugin(typeof(Middleware.PluginInitialisation));
+            PluginManagerService.UsePlugin(typeof(Company.Plugin.PluginInitialisation));
 
             try
             {

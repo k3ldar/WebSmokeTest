@@ -1,0 +1,52 @@
+﻿@model SharedPluginFeatures.BaseModel
+@inject Microsoft.AspNetCore.Mvc.Localization.IViewLocalizer Localizer
+@inject SmokeTest.Shared.ILicenseFactory licenseFactory
+@{ ViewData["Title"] = Localizer[nameof(Languages.LanguageStrings.About)];
+var lic = licenseFactory.GetActiveLicense();
+bool isLicensed = licenseFactory.LicenseIsValid(lic); }
+<div class="row">
+<div class="col-sm-12">
+<h1>@Localizer[nameof(Languages.LanguageStrings.About)]</h1>
+</div>
+</div>
+<div class="row">
+<div class="col-sm-12">
+<p>WebSmoke test has been designed to complete several functions which can aid web development:</p>
+</div>
+<div class="col-sm-12">
+<ul>
+<li>
+Provide a mechanism for reliably testing pages, looking for:
+<ul>
+<li>Broken links</li>
+<li>Missing images</li>
+<li>Page load timings</li>
+</ul>
+</li>
+<li>
+Allow for testing APIs built into a website or a pure api website.
+</li>
+<li>
+Submitting forms and testing responses, optionally using site defined dynamic data.
+</li>
+<li>
+Create unlimited tests by user.
+</li>
+</ul>
+</div>
+</div>
+<div class="row">
+<div class="col-sm-12">
+@if (isLicensed)
+{
+<p>This product is licensed, <a href="/License/">click here to view or update the license</a>.</p> }
+else
+{
+<p>This product is not licensed, <a href="/License/">click here to add a license</a>.</p>}
+</div>
+</div>
+<div class="row">
+<div class="col-sm-12">
+<p>Visit web SmokeTest <a href="/License/">Homepage</a>.</p>
+</div>
+</div>

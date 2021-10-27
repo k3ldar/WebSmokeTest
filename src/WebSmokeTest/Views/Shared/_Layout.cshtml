@@ -81,9 +81,12 @@
                                 <a class="nav-link text-dark" href="/Login/Logout">@Localizer[nameof(Languages.LanguageStrings.Logout)]</a>
                             }
                         </li>
-                        @*<li class="nav-item nav-item-nohover">
-                                @await Html.PartialAsync("~/Views/Search/_ShowQuickSearch.cshtml", new SearchPlugin.Models.QuickSearchViewModel())
-                            </li>*@
+                        @*<li class="nav-item">
+                                <a class="nav-link text-dark" href="/Company/About/">@Localizer[nameof(Languages.LanguageStrings.About)]</a>
+                            </li>
+                            <li class="nav-item nav-item-nohover">
+                                    @await Html.PartialAsync("~/Views/Search/_ShowQuickSearch.cshtml", new SearchPlugin.Models.QuickSearchViewModel())
+                                </li>*@
                     </ul>
                 </div>
             </div>
@@ -102,20 +105,23 @@
         </main>
         <hr />
         <div class="row">
-            <div class="col-xs-12">&copy; 2020 - Simon Carter.  All Rights Reserved.</div>
+            <div class="col-xs-12 col-md-7">&copy; 2020 - Simon Carter.  All Rights Reserved.</div>
+            <div class="col-xs-12 col-md-2"><a href="/Company/Cookies/">@Localizer[nameof(Languages.LanguageStrings.CookiePolicy)]</a></div>
+            <div class="col-xs-12 col-md-2"><a href="/Docs/">@Localizer[nameof(Languages.LanguageStrings.Documentation)]</a></div>
+            <div class="col-xs-12 col-md-1"><a href="/Company/About/">@Localizer[nameof(Languages.LanguageStrings.About)]</a></div>
         </div>
     </div>
 
-    <footer class="border-top footer text-muted">
-        @*<div class="row footer">
-                <div class="col-xs-2 col-lg-2"><a href="/Company/About/">@Localizer[nameof(Languages.LanguageStrings.About)]</a></div>
-                    <div class="col-xs-2 col-lg-2"><a href="/Company/Cookies/">@Localizer[nameof(Languages.LanguageStrings.CookiePolicy)]</a></div>
-                    <div class="col-xs-2 col-lg-2"><a href="/Docs/">@Localizer[nameof(Languages.LanguageStrings.Documentation)]</a></div>
-                </div>
+    @*<footer class="border-top footer text-muted">
             <div class="row footer">
-                <div class="col-xs-12">&copy; 2020 - Simon Carter.  All Rights Reserved.</div>
-            </div>*@
-    </footer>
+                    <div class="col-xs-2 col-lg-2"></div>
+                        <div class="col-xs-2 col-lg-2"></div>
+                        <div class="col-xs-2 col-lg-2"></div>
+                    </div>
+                <div class="row footer">
+                    <div class="col-xs-12">&copy; 2020 - Simon Carter.  All Rights Reserved.</div>
+                </div>
+        </footer>*@
 
 </body>
 </html>

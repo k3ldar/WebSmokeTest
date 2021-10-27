@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFramework>net5.0</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>
@@ -19,8 +19,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="SharedPluginFeatures" Version="4.0.0" />
-    <PackageReference Include="Middleware" Version="4.0.0" />
+    <PackageReference Include="SharedPluginFeatures" Version="4.2.0" />
+    <PackageReference Include="Middleware" Version="4.2.0" />
   </ItemGroup>
 
 </Project>
