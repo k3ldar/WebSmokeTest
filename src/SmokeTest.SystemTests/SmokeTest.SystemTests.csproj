@@ -19,7 +19,7 @@
     <PackageReference Include="Microsoft.AspNetCore.Authentication.Cookies" Version="2.2.0" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="2.2.5" />
     <PackageReference Include="Middleware" Version="4.0.0" />
-    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
     <PackageReference Include="PluginManager" Version="4.0.0" />
     <PackageReference Include="RestrictIp.Plugin" Version="4.0.0" />
     <PackageReference Include="SC.Shared.Library.Core" Version="2.15.0" />
